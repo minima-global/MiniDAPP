@@ -1,40 +1,80 @@
 <html>
 
 <head>
+	
 	<link rel="stylesheet" type="text/css" href="./css/minima.css">
+	
 	<script type="text/javascript" src="./js/minima.js"></script>
+	
+	<script type="text/javascript" src="./js/qrcode.min.js"></script>
+	
+	
 </head>
 
 <body>
 
 <script type="text/javascript">
 
+/*
 	//Wait for the page to load..
 	window.addEventListener("load", function(){
 	    // ....
 	    console.log("Page Loaded");
 	    
 	    //Initialise MiFi
-	    initMinima();
+	    MinimaInit(function(){
+	    	
+	    	
+	    });
 	    
-		window.addEventListener('LoadContent', function(evt) {
-			console.log("LoadContent:"+evt);
-		  });    
+	 	//Listen for events directly from Mininma
+	 	window.addEventListener('MinimaEvent', function(evt) {
+	    
+	    
+	    });
 
-	    
 	});
+*/
 
+var UUID = Math.floor(Math.random()*100000);
 
+// Let us open a web socket
+var ws = new WebSocket("ws://127.0.0.1:8889");
 
+ws.onopen = function() {
+   // Web Socket is connected, send data using send()
+   ws.send(UUID);
+};
+	
+ws.onmessage = function (evt) { 
+   var received_msg = evt.data;
+   alert("Message is received..."+received_msg);
+};
+	
+ws.onclose = function() { 
+   // websocket is closed.
+   alert("Connection is closed..."); 
+};
+
+ws.onerror = function(error) {
+	//var err = JSON.stringify(error);
+	var err = JSON.stringify(error, ["message", "arguments", "type", "name", "data"])
+	
+    // websocket is closed.
+    alert("Error ... "+err); 
+};
 
 </script>
-
 
 
 hello from MiFi!..
 <br>
 This is a test websote to see mFi integration..<br>
 <br>
+
+<button onclick="alert('PRESSED!');">HELLO</button>
+
+</script>
 
 
 

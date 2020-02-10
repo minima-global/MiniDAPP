@@ -11,4 +11,5 @@
 ""
 
 
-To access the Minima network this webpage and your phone must connect.
+Use your phone and go to the 
+WebLink Section.
