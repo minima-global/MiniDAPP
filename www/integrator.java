@@ -9,3 +9,6 @@
 "<br>\n" + 
 "<button>Continue</button>\n" + 
 ""
+
+
+To access the Minima network this webpage and your phone must connect.

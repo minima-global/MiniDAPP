@@ -5,6 +5,26 @@
 * 
 */
 
+var initText = "<center><h3>Minima - MiFi</h3>\n" + 
+window.location.host+" would like to access<br>the Minima network.<br>\n" + 
+"<br>\n" +
+"To get started you must link your phone<br>\n" + 
+"<br>\n" + 
+"To continue.. press<br>\n" + 
+"<br>\n" + 
+"<button onclick='setQRCOdeText();'>Continue</button>\n" + 
+"</center>";
+
+var stageTwo = "<center><h3>Minima - MiFi</h3>\n" + 
+window.location.host+" would like to access<br>the Minima network.<br>\n" + 
+"<br>\n" +
+"To get started you must link your phone<br>\n" + 
+"<br>\n" + 
+"To continue.. press<br>\n" + 
+"<br>\n" + 
+"<button onclick='setQRCOdeText();'>Continue</button>\n" + 
+"</center>";
+
 /**
  * Initialise access to Minima
  * 
@@ -13,25 +33,44 @@
  */
 function initMinima(callback){
 	
+	//Load certain Libs..
+	//..
+	
+	//Do we already have an IP to talk to..
+	var ip = window.localStorage.getItem("phoneip");
+	if(ip == null){
+		ip = "none";
+	}else{
+		//Check if this connection still valid..
+		//..
+		
+	}
+	
 	// just place a div at top right
 	var div = document.createElement('div');
 	div.className = "center-div";
 	div.id = "MinimaDIV";
 	
-	//The Text
-	div.innerHTML = "<center><h3>Minima - MiFi</h3>\n" + 
-	"This website would like to access the Minima network.<br>\n" + 
-	"<br>\n" + 
-	"To get started you must link your phone<br>\n" + 
-	"<br>\n" + 
-	"To start the process.. press<br>\n" + 
-	"<br>\n" + 
-	"<button onclick='setQRCOdeText();'>Continue</button>\n" + 
-	"</center>"
+	//The Initial Text
+	div.innerHTML = initText;
 	
+	//Add it to the page
 	document.body.appendChild(div);
 	
 	
+}
+
+function check1(oldvalue) {
+    undefined === oldvalue && (oldvalue = value);
+    clearcheck = setInterval(repeatcheck,500,oldvalue);
+    function repeatcheck(oldvalue) {
+        if (value !== oldvalue) {
+            // do something
+            clearInterval(clearcheck);
+            console.log("check1 value changed from " +
+                oldvalue + " to " + value);
+        }
+    }
 }
 
 function setQRCOdeText(){
@@ -39,6 +78,8 @@ function setQRCOdeText(){
 	
 	md.innerHTML = "It Worked!";
 	
+	window.localStorage.setItem('phoneip', 'Time : '+new Date());
+
 }
 
 
