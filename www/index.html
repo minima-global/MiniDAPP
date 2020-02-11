@@ -20,66 +20,40 @@
 	window.addEventListener("load", function(){
 	    
 	    //Initialise MiFi
-	    MinimaStart();
+	    MinimaStart(function(){
+	    	//This called after successful startup
+	    	console.log("Minima Startup Success");
+	    	
+	    	//Set the Balance..
+	    	MinimaCMD("balance",function(resp){
+	    		console.log(resp);
+	    		
+	    		var json = JSON.parse(resp);
+	    		
+	    		console.log("status : "+obj.status);
+	    		console.log("func   : "+obj.minifunc);
+	    		
+	    	});	
+	    });
 	    
 	 	//Listen for events directly from Mininma
-	 	window.addEventListener('MinimaEvent', function(evt) {
-	    	
-	 		
-	 		
-	    
-	    });
+	 	/*window.addEventListener('MinimaEvent', function(evt) {
+	 		console.log("MinimaEvent Message"+evt);
+	 		if(evt.details.event == "startup"){
+	 			console.log("Minima Startup Success");	
+	 			
+	 		}else{
+		 		
+	 		}
+	    });*/
 	});
-
 	
-/*
-var UUID = Math.floor(Math.random()*100000);
-
-// Let us open a web socket
-var ws = new WebSocket("ws://127.0.0.1:8889");
-
-ws.onopen = function() {
-   // Web Socket is connected, send data using send()
-   ws.send(UUID);
-   console.log("WS Connection opened..");
-};
-	
-ws.onmessage = function (evt) { 
-   var received_msg = evt.data;
-   console.log("WS message received : "+received_msg);
-   
-   //Now that we have the IP.. Set it.. 
-   //..
-   
-   //And close
-   ws.close();
-};
-	
-ws.onclose = function() { 
-   // websocket is closed.
-   console.log("Connection is closed..."); 
-};
-
-ws.onerror = function(error) {
-	//var err = JSON.stringify(error);
-	var err = JSON.stringify(error, ["message", "arguments", "type", "name", "data"])
-	
-    // websocket is closed.
-   console.log("Error ... "+err); 
-};*/
-
 </script>
 
-
-hello from MiFi!..
+Hello from MiFi!..
 <br>
-This is a test websote to see mFi integration..<br>
+Balance : <div id="balancediv">none yet..</div> 
 <br>
-
-<button onclick="alert('PRESSED!');">HELLO</button>
-
-</script>
-
 
 
 </body>
