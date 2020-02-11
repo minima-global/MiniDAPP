@@ -15,27 +15,24 @@
 
 <script type="text/javascript">
 
-/*
+
 	//Wait for the page to load..
 	window.addEventListener("load", function(){
-	    // ....
-	    console.log("Page Loaded");
 	    
 	    //Initialise MiFi
-	    MinimaInit(function(){
-	    	
-	    	
-	    });
+	    MinimaStart();
 	    
 	 	//Listen for events directly from Mininma
 	 	window.addEventListener('MinimaEvent', function(evt) {
-	    
+	    	
+	 		
+	 		
 	    
 	    });
-
 	});
-*/
 
+	
+/*
 var UUID = Math.floor(Math.random()*100000);
 
 // Let us open a web socket
@@ -44,16 +41,23 @@ var ws = new WebSocket("ws://127.0.0.1:8889");
 ws.onopen = function() {
    // Web Socket is connected, send data using send()
    ws.send(UUID);
+   console.log("WS Connection opened..");
 };
 	
 ws.onmessage = function (evt) { 
    var received_msg = evt.data;
-   alert("Message is received..."+received_msg);
+   console.log("WS message received : "+received_msg);
+   
+   //Now that we have the IP.. Set it.. 
+   //..
+   
+   //And close
+   ws.close();
 };
 	
 ws.onclose = function() { 
    // websocket is closed.
-   alert("Connection is closed..."); 
+   console.log("Connection is closed..."); 
 };
 
 ws.onerror = function(error) {
@@ -61,8 +65,8 @@ ws.onerror = function(error) {
 	var err = JSON.stringify(error, ["message", "arguments", "type", "name", "data"])
 	
     // websocket is closed.
-    alert("Error ... "+err); 
-};
+   console.log("Error ... "+err); 
+};*/
 
 </script>
 
