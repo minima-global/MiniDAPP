@@ -19,7 +19,35 @@
 	//Wait for the page to load..
 	window.addEventListener("load", function(){
 	    
-	    //Initialise MiFi
+		//And now Listen for Events
+		window.addEventListener('MinimaEvent', function(evt) {
+			
+			//Deal with each message type
+	 		if(evt.detail.event == "init"){
+	 			console.log("Minima Initialising");	
+	 		
+	 		}else if(evt.detail.event == "connected"){
+	 			//try it.. 
+	 			Minima.cmd("balance",function(resp){
+		    		var json = JSON.parse(resp);
+		    		document.getElementById("balancediv").innerHTML = json.response.balance[0].confirmed;
+		    	});
+	 			
+	 			
+	 		}else if(evt.detail.event == "newblock"){
+		 	
+	 		
+	 		}else if(evt.detail.event == "newbalance"){
+		 		
+	 			
+	 		}
+	    });
+		
+		//Initialise MiFi
+		Minima.init();
+	    
+		
+		/*//Initialise MiFi
 	    MinimaStart(function(){
 	    	//This called after successful startup
 	    	console.log("Minima Startup Success");
@@ -34,7 +62,7 @@
 	    		console.log("func   : "+obj.minifunc);
 	    		
 	    	});	
-	    });
+	    });*/
 	    
 	 	//Listen for events directly from Mininma
 	 	/*window.addEventListener('MinimaEvent', function(evt) {
@@ -50,7 +78,9 @@
 	
 </script>
 
+<br>
 Hello from MiFi!..
+<br>
 <br>
 Balance : <div id="balancediv">none yet..</div> 
 <br>
