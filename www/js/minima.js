@@ -6,8 +6,8 @@
 */
 
 var Minima = {
-	status : "zero",	
-	blocknumber : 0,
+	block : 0,
+	txpowid : "0x00",
 	host : "0.0.0.0",
 	uuid : Math.floor(Math.random()*1000000000),
 	logging : true,
@@ -25,17 +25,25 @@ var Minima = {
 			//Use it..
 			Minima.host = ip;
 			
-			//Need this..
-			addLogoutButton();
-			
-			//Send a message
-			postMessage("connected", "success")
-			
+		    //Run Status once to populate the main details..
+		    runStatus(function(resp){
+			   //And set the block
+			   var json = JSON.parse(resp);
+
+			   //Store this..
+			   Minima.block = json.response.lastblock;
+			   Minima.txpowid = json.response.tip.txpowid;
+			   
+			   //And finally the Log out Button..
+			   addLogoutButton();
+			   
+			   //Send a message
+			   postMessage("connected", "success")
+		    });
+		   
 			//That's it.
 			return;
 		}
-		
-		postMessage("init", "");
 		
 		//Show the Overlay divs
 		showOverlayDivs();
@@ -74,11 +82,6 @@ function log(info){
 	if(Minima.logging){
 		console.log("Minima : "+info);
 	}
-}
-
-function setStatus(status){
-	log("Status changed to "+status);
-	Minima.status = status;
 }
 
 function postMessage(event, info){
@@ -123,6 +126,9 @@ function addLogoutButton(){
 		  Minima.logout();
 	});
 	document.body.appendChild(button);
+	
+	//If you can logout you're logged in..
+	startPolling();
 }
 
 function hideOverLayDivs(){
@@ -140,9 +146,6 @@ function startWebSocket(){
 		
 	   // Web Socket is connected, send data using send()
 	   ws.send(Minima.uuid);
-	   
-	   //Change the Status
-	   setStatus("uuid_sent");
 	};
 	
 	ws.onmessage = function (evt) { 
@@ -156,14 +159,24 @@ function startWebSocket(){
 	   //And close
 	   ws.close();
 	   
-	   //Hide the Divs..
-	   hideOverLayDivs();
-	   
-	    //And finally the Log out Button..
-		addLogoutButton();
-	   
-	    //Send a message
-	    postMessage("connected", "success")
+	   //Run Status once to populate the main details..
+	   runStatus(function(resp){
+		   //And set the block
+		   var json = JSON.parse(resp);
+
+		   //Store this..
+		   Minima.block   = json.response.lastblock;
+		   Minima.txpowid = json.response.tip.txpowid;
+		   
+		   //Hide the Divs..
+		   hideOverLayDivs();
+		   
+		   //And finally the Log out Button..
+		   addLogoutButton();
+		   
+		   //Send a message
+		   postMessage("connected", "success")
+	   });
 	};
 		
 	ws.onclose = function() { 
@@ -176,6 +189,38 @@ function startWebSocket(){
 		// websocket is closed.
 	    log("WS Error ... "+err); 
 	};
+}
+
+/**
+ * Start ppolling to see if something has changed.. Should be a websocket but the iPhone version not working..
+ */
+function startPolling(){
+	setInterval(function(){
+		//Check the Status
+		runStatus(function(resp){
+			//And set the block
+			var json = JSON.parse(resp);
+
+			//Check for a change
+			if(json.response.tip.txpowid !== Minima.txpowid){
+				//Store the details
+				Minima.block   = json.response.lastblock;
+				Minima.txpowid = json.response.tip.txpowid;
+				
+				//Tell-tale..
+				postMessage("newblock",json);
+			}
+		});
+		
+	},5000);
+}
+
+function runStatus(callback){
+	Minima.cmd("status",callback);
+}
+
+function runBalance(callback){
+	Minima.cmd("status",callback);
 }
 
 function stage2(){

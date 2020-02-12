@@ -15,6 +15,14 @@
 
 <script type="text/javascript">
 
+	//Update tyhe info..
+	function updateInfo(info){
+		document.getElementById("infodiv").innerHTML = 
+			"Host : "+Minima.host+"<br><br>"+
+			"Block : "+Minima.block+"<br><br>"+
+			"TxPoWID : "+Minima.txpowid+"<br><br>";
+	}
+
 	//Wait for the page to load..
 	window.addEventListener("load", function(){
 	    
@@ -22,24 +30,17 @@
 		window.addEventListener('MinimaEvent', function(evt) {
 			
 			//Deal with each message type
-	 		if(evt.detail.event == "init"){
+	 		if(evt.detail.event == "connected"){
 	 			
-	 		}else if(evt.detail.event == "connected"){
-	 			
-	 			//try it.. 
-	 			Minima.cmd("balance",function(resp){
-		    		var json = JSON.parse(resp);
-		    		document.getElementById("infodiv").innerHTML = 
-		    			"Host : "+Minima.host+"<br><br>"+
-		    			"Block : "+Minima.blocknumber+"<br><br>"+
-		    			"Balance : "+json.response.balance[0].confirmed;
-		    	});
+	 			//Print some data
+	 			updateInfo();
 	 			
 	 		}else if(evt.detail.event == "newblock"){
-		 	
-	 		}else if(evt.detail.event == "newbalance"){
-		 		
+	 			
+	 			//Print some data
+	 			updateInfo();
 	 		}
+			
 	    });
 		
 		//Initialise MiFi
@@ -50,7 +51,8 @@
 
 <center>
 <br>
-Hello from MiFi!..
+<br>
+Super Simple MiFi Block Explorer..
 <br>
 <br>
 <div id="infodiv">no info yet..</div> 
