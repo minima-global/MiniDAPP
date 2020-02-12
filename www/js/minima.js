@@ -101,7 +101,7 @@ function showOverlayDivs(){
 	"To get started you must first link your phone to this webpage<br><br>" +
 	"Your phone and this computer must be running on the same WiFi<br><br>"+
 	"To continue.. press<br><br>" + 
-	"<button onclick='stage2();'>Proceed</button><br>" +
+	"<button onclick='MinimaStage2();'>Proceed</button><br>" +
 	"</center>";
 
 	//First add the total overlay div
@@ -243,11 +243,7 @@ function runStatus(callback){
 	Minima.cmd("status",callback);
 }
 
-function runBalance(callback){
-	Minima.cmd("status",callback);
-}
-
-function stage2(){
+function MinimaStage2(){
 	var stageTwo = "<center><h3>Minima - MiFi</h3>\n" + 
 	"<div id='miniqrcode' style='width:200px; height:200px; margin-top:15px;'></div><br>" + 
 	"Open the Minnma app and choose <b>Weblink</b><br><br>" + 
