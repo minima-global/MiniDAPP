@@ -1,70 +1,51 @@
 <html>
 
 <head>
-	
-	<!--   The MINIMA MiFi Javascript Library -->
-	<script type="text/javascript" src="./js/minima.js"></script>
 		
 </head>
 
 <body>
 
-<script type="text/javascript">
-
-	//Update the info..
-	function updateInfo(info){
-		document.getElementById("infodiv").innerHTML = 
-			"Host : "+Minima.host+"<br><br>"+
-			"Block : "+Minima.block+"<br><br>"+
-			"TxPoWID : <a href='#' onclick='updateTxPow(Minima.txpowid); return false;'>"+Minima.txpowid+"</a><br><br>";	
-	}
-
-	//When you click on a txpowid.. get it and print info..
-	function updateTxPow(txpowid){
-		Minima.cmd("txpowinfo "+txpowid,function(resp){
-			document.getElementById("txpowinfo").value = resp;
-		});
-	}
-	
-	//Wait for the page to load..
-	window.addEventListener("load", function(){
-	    
-		//Listen for Minima Events
-		window.addEventListener('MinimaEvent', function(evt) {
-			
-			//Deal with each message type
-	 		if(evt.detail.event == "connected"){
-	 			
-	 			//Print some data
-	 			updateInfo();
-	 			
-	 		}else if(evt.detail.event == "newblock"){
-	 			
-	 			//Print some data
-	 			updateInfo();
-	 		}
-			
-	    });
-		
-		//Initialise MiFi
-		Minima.init();
-	});
-	
-</script>
+<br><br>
 
 <center>
+
+<h1>Minima MiFi</h1>
+
+Welcome to the Minma MiFi demo.
+
+<br><br>
+
+Here you will find some very simple demos that use the Minima MiFi Javscript library<br>
+which allow you to link a webpage to your phone running Minima.<br>
 <br>
+DEFI Minima Style.<br>
 <br>
-Super Simple MiFi Block Explorer..
-<br>
-<br>
-<div id="infodiv">no info yet..</div> 
-<br>
-<br>
-TxPow Info :
-<br>
-<textarea spellcheck="false" rows="35" cols="100" style="border:none;" id="txpowinfo">no info yet</textarea>
+Please choose one of the following..<br><br>
+
+<table cellpadding=10>
+	<tr>
+		<td> [1] <a href='simpleblockex.html'>Super Simple Block Explorer</a> </td>
+		<td> The most basic building block. Connect your phone to the webpage and receieve data.</td>
+	</tr>
+	
+	<tr>
+		<td> [2] Basic Wallet </td>
+		<td> Let's pick up the pace and allow you to send some Minima..</td>
+	</tr>
+	
+	<tr>
+		<td> [3] <a href='terminal.html'>Terminal</a> </td>
+		<td> The original bad boy - The Terminal</td>
+	</tr>
+	
+	
+	
+</table>
+
+
 </center>
+
 
 </body>
 

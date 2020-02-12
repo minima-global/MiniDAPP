@@ -2,13 +2,9 @@
 
 <head>
 	
-	<link rel="stylesheet" type="text/css" href="./css/minima.css">
-	
+	<!--   The MINIMA MiFi Javascript Library -->
 	<script type="text/javascript" src="./js/minima.js"></script>
-	
-	<script type="text/javascript" src="./js/qrcode.min.js"></script>
-	
-	
+		
 </head>
 
 <body>
@@ -42,10 +38,16 @@
 	 			//Print some data
 	 			updateInfo();
 	 			
+	 			//And set the initial 
+	 			updateTxPow(Minima.txpowid);
+	 			
 	 		}else if(evt.detail.event == "newblock"){
 	 			
 	 			//Print some data
 	 			updateInfo();
+	 		
+	 		}else if(evt.detail.event == "newbalance"){
+		 		
 	 		}
 			
 	    });
@@ -65,9 +67,11 @@ Super Simple MiFi Block Explorer..
 <div id="infodiv">no info yet..</div> 
 <br>
 <br>
-TxPow Info browser :
+TxPow Info :
 <br>
-<textarea spellcheck="false" rows="35" cols="100" style="border:none;" id="txpowinfo">no info yet</textarea>
+<textarea spellcheck="false" rows="35" cols="100" style="border:none;" id="txpowinfo"></textarea>
+
+<br><br><a href='index.html'>HOME</a>
 </center>
 
 </body>

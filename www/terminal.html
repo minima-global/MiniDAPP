@@ -1,0 +1,87 @@
+<html>
+
+<head>
+	<!--   The MINIMA MiFi Javascript Library -->
+	<script type="text/javascript" src="./js/minima.js"></script>
+</head>
+
+<body>
+
+<script type="text/javascript">
+
+	//Add text to the TextArea
+	function addText(text){
+		//Get the TextArea
+		var txt = document.getElementById("terminal");
+		
+		//Add the text 
+		txt.value += text;
+		txt.focus();
+		
+		//Scroll to the bottom
+		txt.scrollTop = txt.scrollHeight;
+	}
+	
+	//Disable all arrow keys..  
+	window.addEventListener("keydown", function(e) { 
+        //Arrow keys
+		if([37, 38, 39, 40].indexOf(e.keyCode) > -1){ 
+            e.preventDefault(); 
+        }
+        
+        //When you press ENTER send the message to Minima..
+		if([13].indexOf(e.keyCode) > -1){ 
+            //Grab the Last Line..
+            var txt      = document.getElementById("terminal");
+			var content  = txt.value;
+		    var lastLine = content.substr(content.lastIndexOf("\n")+1).trim();
+			
+		    //Run it on Minima
+		    if(lastLine !== ""){
+		    	Minima.cmd(lastLine,function(resp){
+			    	addText(resp+"\n");
+			    });	
+		    }else{
+		    	addText("");
+		    }
+        }
+        
+    }, false); 
+
+	//Wait for the page to load..
+	window.addEventListener("load", function(){
+	    
+		//Listen for Minima Events
+		window.addEventListener('MinimaEvent', function(evt) {
+			
+			//Deal with each message type
+	 		if(evt.detail.event == "connected"){
+	 			//Lets get started
+	 			addText("**********************************************\n");
+	 			addText("*  __  __  ____  _  _  ____  __  __    __    *\n");
+	 			addText("* (  \\/  )(_  _)( \\( )(_  _)(  \\/  )  /__\\   *\n");
+	 			addText("*  )    (  _)(_  )  (  _)(_  )    (  /(__)\\  *\n");
+	 			addText("* (_/\\/\\_)(____)(_)\\_)(____)(_/\\/\\_)(__)(__) *\n");
+	 			addText("*                                            *\n");
+	 			addText("**********************************************\n");
+				addText("Welcome to Minima. For assistance type help. Then press enter.\n");
+	 		}
+	    });
+		
+		//Initialise MiFi
+		Minima.init();
+	});
+	
+</script>
+
+<center>
+<h1>Terminal</h1>
+<br>
+<textarea onmousedown="addText('');return false;" spellcheck="false" rows="35" cols="100" style="background-color:#000000;color:#FFFFFF;" id="terminal"></textarea>
+
+<br><br><a href='index.html'>HOME</a>
+</center>
+
+</body>
+
+</html>
