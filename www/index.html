@@ -15,76 +15,47 @@
 
 <script type="text/javascript">
 
-
 	//Wait for the page to load..
 	window.addEventListener("load", function(){
 	    
-		//And now Listen for Events
+		//Listen for Minima Events
 		window.addEventListener('MinimaEvent', function(evt) {
 			
 			//Deal with each message type
 	 		if(evt.detail.event == "init"){
-	 			console.log("Minima Initialising");	
-	 		
+	 			
 	 		}else if(evt.detail.event == "connected"){
+	 			
 	 			//try it.. 
 	 			Minima.cmd("balance",function(resp){
 		    		var json = JSON.parse(resp);
-		    		document.getElementById("balancediv").innerHTML = json.response.balance[0].confirmed;
+		    		document.getElementById("infodiv").innerHTML = 
+		    			"Host : "+Minima.host+"<br><br>"+
+		    			"Block : "+Minima.blocknumber+"<br><br>"+
+		    			"Balance : "+json.response.balance[0].confirmed;
 		    	});
-	 			
 	 			
 	 		}else if(evt.detail.event == "newblock"){
 		 	
-	 		
 	 		}else if(evt.detail.event == "newbalance"){
 		 		
-	 			
 	 		}
 	    });
 		
 		//Initialise MiFi
 		Minima.init();
-	    
-		
-		/*//Initialise MiFi
-	    MinimaStart(function(){
-	    	//This called after successful startup
-	    	console.log("Minima Startup Success");
-	    	
-	    	//Set the Balance..
-	    	MinimaCMD("balance",function(resp){
-	    		console.log(resp);
-	    		
-	    		var json = JSON.parse(resp);
-	    		
-	    		console.log("status : "+obj.status);
-	    		console.log("func   : "+obj.minifunc);
-	    		
-	    	});	
-	    });*/
-	    
-	 	//Listen for events directly from Mininma
-	 	/*window.addEventListener('MinimaEvent', function(evt) {
-	 		console.log("MinimaEvent Message"+evt);
-	 		if(evt.details.event == "startup"){
-	 			console.log("Minima Startup Success");	
-	 			
-	 		}else{
-		 		
-	 		}
-	    });*/
 	});
 	
 </script>
 
+<center>
 <br>
 Hello from MiFi!..
 <br>
 <br>
-Balance : <div id="balancediv">none yet..</div> 
+<div id="infodiv">no info yet..</div> 
 <br>
-
+</center>
 
 </body>
 

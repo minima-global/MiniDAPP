@@ -25,3 +25,12 @@
   opacity: 25%;
   background-color: #888888;
 }
+
+.logout-button
+{
+  position: absolute;
+  padding:5px;
+  top: 10;
+  right: 10;
+  background-color: #AAAAAA;
+}

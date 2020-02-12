@@ -17,6 +17,24 @@ var Minima = {
 		//Log a little..
 		log("Initialisation started..");
 		
+		//Do we have an IP already 
+		var ip = window.localStorage.getItem('MinimaIP');
+		if(ip !== null && ip !== ""){
+			log("Previous host found "+ip);
+			
+			//Use it..
+			Minima.host = ip;
+			
+			//Need this..
+			addLogoutButton();
+			
+			//Send a message
+			postMessage("connected", "success")
+			
+			//That's it.
+			return;
+		}
+		
 		postMessage("init", "");
 		
 		//Show the Overlay divs
@@ -39,7 +57,13 @@ var Minima = {
 	},
 	
 	//Wipes the Locally stored details of the phone IP
-	logout : function(){}
+	logout : function(){
+		//Remove the locally stored IP
+		window.localStorage.removeItem('MinimaIP');
+		
+		//And refresh the page..
+		location.reload();
+	}
 };
 
 /**
@@ -77,7 +101,6 @@ function showOverlayDivs(){
 	"<button onclick='stage2();'>Proceed</button><br>" +
 	"</center>";
 
-	
 	//First add the total overlay div
 	var overdiv = document.createElement('div');
 	overdiv.className = "full-screen-div";
@@ -90,6 +113,16 @@ function showOverlayDivs(){
 	div.id = "MinimaDIV";
 	div.innerHTML = initText;
 	document.body.appendChild(div);
+}
+
+function addLogoutButton(){
+	var button = document.createElement("button");
+	button.innerHTML = "MiFi Logout";
+	button.className = "logout-button";
+	button.addEventListener ("click", function() {
+		  Minima.logout();
+	});
+	document.body.appendChild(button);
 }
 
 function hideOverLayDivs(){
@@ -126,11 +159,11 @@ function startWebSocket(){
 	   //Hide the Divs..
 	   hideOverLayDivs();
 	   
-	   //Should be good..
-	   setStatus("connected");
+	    //And finally the Log out Button..
+		addLogoutButton();
 	   
-	   //Send a message
-	   postMessage("connected", "success")
+	    //Send a message
+	    postMessage("connected", "success")
 	};
 		
 	ws.onclose = function() { 
@@ -175,8 +208,10 @@ function httpGetAsync(theUrl, callback)
 {
     var xmlHttp = new XMLHttpRequest();
     xmlHttp.onreadystatechange = function() { 
-        if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
-            callback(xmlHttp.responseText);
+        if (xmlHttp.readyState == 4 && xmlHttp.status == 200){
+        	log("Response "+xmlHttp.responseText);
+        	callback(xmlHttp.responseText);	
+        }
     }
     xmlHttp.open("GET", theUrl, true); // true for asynchronous 
     xmlHttp.send(null);
