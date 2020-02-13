@@ -9,37 +9,91 @@
 
 <script type="text/javascript">
 
-	//Disable all arrow keys..  
-	window.addEventListener("keydown", function(e) { 
-    
+	//Send the amount specified to the address
+	function send(){
+		var amount  = document.getElementById("amount").value;
+		var address = document.getElementById("address").value;
+		
+		//Do It!
+		var sendcmd = "send "+amount+" "+address;
+		Minima.cmd(sendcmd, function(resp){
+			//And set the block
+			var json = JSON.parse(resp);
+			
+			if(json.status == true){
+				alert("Funds Sent!");
+				
+				//Blank them
+				document.getElementById("amount").value = "";
+				document.getElementById("address").value = "";
+				
+			}else{
+				alert(json.error);
+			}
+			
+		});
+	}
+
+
 	//Wait for the page to load..
 	window.addEventListener("load", function(){
 	    
 		//Listen for Minima Events
 		window.addEventListener('MinimaEvent', function(evt) {
-			
 			//Deal with each message type
 	 		if(evt.detail.event == "connected"){
 	 			
+	 			
+	 		}else if(evt.detail.event == "newbalance"){
+				//Set the Balance..
+				var bal   = evt.detail.info.response.balance[0].confirmed;
+				var balun = evt.detail.info.response.balance[0].unconfirmed;
+				
+				//Is there unconfirmed money coming..
+				if(balun !== "0"){
+					document.getElementById("balancediv").innerHTML = "Balance : "+bal+" / "+balun;	
+				}else{
+					document.getElementById("balancediv").innerHTML = "Balance : "+bal;
+				}
 	 		}
 	    });
 		
 		//Initialise MiFi
+		Minima.logging = false;
 		Minima.init();
 	});
 	
 </script>
 
 <center>
-<h1>Wallet</h1>
+<h1>Basic Wallet</h1>
 <br>
-<table>
-	<tr>
-		<td> </td>
-	</tr>
-</table>
 
-Minima Balance 
+<br><br>
+
+<table width="400">
+	<tr>
+		<td width=200><div id="balancediv">0</div></td> <td><button onclick="Minima.cmd('gimme50');alert('50 Testnet Mini on their way!!');return false;">Gimme50</button></td>
+	</tr>
+	
+	<tr>
+		<td colspan=2>&nbsp;</td>
+	</tr>
+	
+	<tr>
+		<td>Amount : </td> <td> <input type='text' id='amount'></td>
+	</tr>
+	
+	<tr>
+		<td>Address : </td> <td> <input type='text' id='address'></td>
+	</tr>
+	
+	<tr>
+		<td colspan=2> <button onclick='send();return false;'>SEND</button> </td>
+	</tr>
+	
+	
+</table>
 
 
 

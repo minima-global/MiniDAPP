@@ -218,7 +218,26 @@ function startWebSocket(){
 /**
  * Start ppolling to see if something has changed.. Should be a websocket but the iPhone version not working..
  */
+var global_balance = "";
 function startPolling(){
+	
+	//Check the Status
+	runStatus(function(resp){
+		//And set the block
+		var json = JSON.parse(resp);
+
+		//Check for a change
+		if(json.response.tip.txpowid !== Minima.txpowid){
+			//Store the details
+			Minima.block   = json.response.lastblock;
+			Minima.txpowid = json.response.tip.txpowid;
+			
+			//Tell-tale..
+			postMessage("newblock",json);
+		}
+	});
+	
+	//Check Status every second
 	setInterval(function(){
 		//Check the Status
 		runStatus(function(resp){
@@ -235,8 +254,32 @@ function startPolling(){
 				postMessage("newblock",json);
 			}
 		});
-		
 	},1000);
+	
+	//Check it instantly first..
+	Minima.cmd("balance",function(resp){
+		//Simple string check for change
+		if(resp !== global_balance){
+			postMessage("newbalance",JSON.parse(resp));
+		}
+		
+		//Store it
+		global_balance = resp;
+	});
+	
+	//Check Balance every second
+	setInterval(function(){
+		Minima.cmd("balance",function(resp){
+			//Simple string check for change
+			if(resp !== global_balance){
+				postMessage("newbalance",JSON.parse(resp));
+			}
+			
+			//Store it
+			global_balance = resp;
+		});
+	},1000);
+	
 }
 
 function runStatus(callback){
@@ -275,7 +318,9 @@ function httpGetAsync(theUrl, callback)
     xmlHttp.onreadystatechange = function() { 
         if (xmlHttp.readyState == 4 && xmlHttp.status == 200){
         	log("Response "+xmlHttp.responseText);
-        	callback(xmlHttp.responseText);	
+        	if(callback){
+        		callback(xmlHttp.responseText);
+        	}
         }
     }
     xmlHttp.open("GET", theUrl, true); // true for asynchronous 
