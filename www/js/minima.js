@@ -236,7 +236,7 @@ function startPolling(){
 			}
 		});
 		
-	},5000);
+	},1000);
 }
 
 function runStatus(callback){
