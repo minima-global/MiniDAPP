@@ -9,6 +9,8 @@ var Minima = {
 	block : 0,
 	txpowid : "0x00",
 	host : "0.0.0.0",
+	status : {},
+	balance : {},
 	uuid : Math.floor(Math.random()*1000000000),
 	logging : true,
 	
@@ -26,7 +28,7 @@ var Minima = {
 			Minima.host = ip;
 			
 		    //Run Status once to populate the main details..
-		    runStatus(function(resp){
+			Minima.cmd("status",function(resp){
 			   //And set the block
 			   var json = JSON.parse(resp);
 
@@ -38,7 +40,7 @@ var Minima = {
 			   addLogoutButton();
 			   
 			   //Send a message
-			   postMessage("connected", "success")
+			   postMinimaMessage("connected", "success")
 		    });
 		   
 			//That's it.
@@ -53,12 +55,18 @@ var Minima = {
 	},
 	
 	//Runs a function on the phone
-	cmd : function(minifunc, callback){
+	cmd : function(minifunc, callback, logenabled){
 		//Create the string..
 		var rpc = "http://"+Minima.host+"/"+minifunc;
 
 		//log it..
-		log("RPC call "+rpc);
+		if(logenabled !== undefined){
+			if(logenabled){
+				log("RPC call "+rpc);	
+			}
+		}else{
+			log("RPC call "+rpc);
+		}
 		
 		//And Call it..
 		httpGetAsync(rpc, callback);
@@ -84,7 +92,7 @@ function log(info){
 	}
 }
 
-function postMessage(event, info){
+function postMinimaMessage(event, info){
    log("Event Dispatch "+event+" "+info);
 	
    //And finally..
@@ -184,7 +192,7 @@ function startWebSocket(){
 	   ws.close();
 	   
 	   //Run Status once to populate the main details..
-	   runStatus(function(resp){
+	   Minima.cmd("status",function(resp){
 		   //And set the block
 		   var json = JSON.parse(resp);
 
@@ -199,7 +207,7 @@ function startWebSocket(){
 		   addLogoutButton();
 		   
 		   //Send a message
-		   postMessage("connected", "success")
+		   postMinimaMessage("connected", "success")
 	   });
 	};
 		
@@ -216,16 +224,32 @@ function startWebSocket(){
 }
 
 /**
- * Start ppolling to see if something has changed.. Should be a websocket but the iPhone version not working..
+ * Start polling to see if something has changed.. Should be a websocket but the iPhone version not working..
  */
 var global_balance = "";
 function startPolling(){
-	
 	//Check the Status
-	runStatus(function(resp){
+	pollStatus();
+	
+	//Check Status every second
+	setInterval(function(){pollStatus();},2000);
+	
+	//Check it instantly first..
+	pollBalance();
+	
+	//Check Balance every second
+	setInterval(function(){pollBalance();},2000);
+}
+
+function pollStatus(){
+	//Check the Status
+	Minima.cmd("status",function(resp){
 		//And set the block
 		var json = JSON.parse(resp);
 
+		//Store..
+		Minima.status = json;
+		
 		//Check for a change
 		if(json.response.tip.txpowid !== Minima.txpowid){
 			//Store the details
@@ -233,58 +257,29 @@ function startPolling(){
 			Minima.txpowid = json.response.tip.txpowid;
 			
 			//Tell-tale..
-			postMessage("newblock",json);
+			postMinimaMessage("newblock",json);
 		}
-	});
-	
-	//Check Status every second
-	setInterval(function(){
-		//Check the Status
-		runStatus(function(resp){
-			//And set the block
-			var json = JSON.parse(resp);
+	},false);
+}
 
-			//Check for a change
-			if(json.response.tip.txpowid !== Minima.txpowid){
-				//Store the details
-				Minima.block   = json.response.lastblock;
-				Minima.txpowid = json.response.tip.txpowid;
-				
-				//Tell-tale..
-				postMessage("newblock",json);
-			}
-		});
-	},1000);
-	
-	//Check it instantly first..
+function pollBalance(){
 	Minima.cmd("balance",function(resp){
+		//Make a json
+		var balancejson = JSON.parse(resp);
+
+		//Store
+		Minima.balance = balancejson;
+		
 		//Simple string check for change
 		if(resp !== global_balance){
-			postMessage("newbalance",JSON.parse(resp));
+			postMinimaMessage("newbalance",balancejson);
 		}
 		
 		//Store it
 		global_balance = resp;
-	});
-	
-	//Check Balance every second
-	setInterval(function(){
-		Minima.cmd("balance",function(resp){
-			//Simple string check for change
-			if(resp !== global_balance){
-				postMessage("newbalance",JSON.parse(resp));
-			}
-			
-			//Store it
-			global_balance = resp;
-		});
-	},1000);
-	
+	},false);
 }
 
-function runStatus(callback){
-	Minima.cmd("status",callback);
-}
 
 function MinimaStage2(){
 	var stageTwo = "<center><h3>Minima - MiFi</h3>\n" + 
@@ -317,7 +312,7 @@ function httpGetAsync(theUrl, callback)
     var xmlHttp = new XMLHttpRequest();
     xmlHttp.onreadystatechange = function() { 
         if (xmlHttp.readyState == 4 && xmlHttp.status == 200){
-        	log("Response "+xmlHttp.responseText);
+//        	log("Response "+xmlHttp.responseText);
         	if(callback){
         		callback(xmlHttp.responseText);
         	}
