@@ -5,6 +5,10 @@
 * 
 */
 
+//var MIFIHOST = "127.0.0.1";
+var MIFIHOST = "10.0.121.68";
+var MIFIHOST = "mifi.minima.global";
+
 var Minima = {
 	block : 0,
 	txpowid : "0x00",
@@ -171,7 +175,7 @@ function hideOverLayDivs(){
 
 function startWebSocket(){
 	//Open up a websocket to the main MINIMA proxy..
-	var ws = new WebSocket("ws://10.0.121.68:8889");
+	var ws = new WebSocket("ws://"+MIFIHOST+":8889");
 	
 	ws.onopen = function() {
 	   log("WS Connection opened to the Minima Proxy..");
