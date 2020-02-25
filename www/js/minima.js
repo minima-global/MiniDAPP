@@ -171,7 +171,7 @@ function hideOverLayDivs(){
 
 function startWebSocket(){
 	//Open up a websocket to the main MINIMA proxy..
-	var ws = new WebSocket("ws://127.0.0.1:8889");
+	var ws = new WebSocket("ws://10.0.121.68:8889");
 	
 	ws.onopen = function() {
 	   log("WS Connection opened to the Minima Proxy..");
@@ -284,7 +284,7 @@ function pollBalance(){
 function MinimaStage2(){
 	var stageTwo = "<center><h3>Minima - MiFi</h3>\n" + 
 	"<div id='miniqrcode' style='width:200px; height:200px; margin-top:15px;'></div><br>" + 
-	"Open the Minnma app and choose <b>Weblink</b><br><br>" + 
+	"Open the Minima app and choose <b>Weblink</b><br><br>" + 
 	"OR<br><br>" +
 	"Open the <b>Terminal</b> and type :<br><br>weblink "+Minima.uuid+ 
 	"</center>";
@@ -295,9 +295,12 @@ function MinimaStage2(){
 	//Create the QR Code
 	var qrcode = new QRCode(document.getElementById("miniqrcode"), {
 		width : 200,
-		height : 200
+		height : 200,
+		colorDark : "#000000",
+	    colorLight : "#ffffff",
+	    correctLevel : QRCode.CorrectLevel.H
 	});
-	qrcode.makeCode(Minima.uuid);
+	qrcode.makeCode(Minima.uuid+"");
 }
 
 /**
