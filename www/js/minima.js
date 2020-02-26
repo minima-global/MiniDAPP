@@ -31,6 +31,9 @@ var Minima = {
 			//Use it..
 			Minima.host = ip;
 			
+			//And finally the Log out Button..
+			addLogoutButton();
+			   
 		    //Run Status once to populate the main details..
 			Minima.cmd("status",function(resp){
 			   //And set the block
@@ -39,9 +42,6 @@ var Minima = {
 			   //Store this..
 			   Minima.block = json.response.lastblock;
 			   Minima.txpowid = json.response.tip.txpowid;
-			   
-			   //And finally the Log out Button..
-			   addLogoutButton();
 			   
 			   //Send a message
 			   postMinimaMessage("connected", "success")
@@ -111,7 +111,8 @@ function showOverlayDivs(){
 	var initText = "<center><h3>Minima - MiFi</h3>" + 
 	window.location.host+" would like to access the Minima network via your phone.<br><br>" +
 	"To get started you must first link your phone to this webpage<br><br>" +
-	"Your phone and this computer must be running on the same WiFi<br><br>"+
+	"Your phone and this computer must be running on the same WiFi that allows outgoing connections..<br><br>"+
+	"The easiest way is to run a WiFi hotspot on your phone and connect this computer to that.<br><br>" + 
 	"To continue.. press<br><br>" + 
 	"<button onclick='MinimaStage2();'>Proceed</button><br>" +
 	"</center>";
