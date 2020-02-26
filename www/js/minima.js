@@ -5,9 +5,9 @@
 * 
 */
 
-//var MIFIHOST = "127.0.0.1";
-var MIFIHOST = "10.0.121.68";
-var MIFIHOST = "mifi.minima.global";
+var MIFIHOST = "127.0.0.1";
+//var MIFIHOST = "10.0.121.68";
+//var MIFIHOST = "mifi.minima.global";
 
 var Minima = {
 	block : 0,
