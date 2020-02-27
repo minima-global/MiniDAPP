@@ -35,11 +35,11 @@ var Minima = {
 		//Log a little..
 		log("Initialisation started..");
 		
-		//Create the Overlay Divs
+		//Create the Overlay Divs - but don't show them yet
 		createOverlayDivs();
 		
 		//Set some text..
-		setMainDiv("hello!");
+		setInitPage();
 		
 		show(OVERLAY_DIV);
 		show(MAIN_DIV);
@@ -321,21 +321,187 @@ function MinimaStage2(){
 /**
  * STAGE 1 Initial Pager that appears..
  */
-function initPage(){
+function setInitPage(){
+	var text = "<table border=0 width=100% height=100%>\n" + 
+	"	\n" + 
+	"	<tr>\n" + 
+	"		<td height=50 width=50><img width=50 src='./images/icon.png'></td>\n" + 
+	"		<td height=50 style='text-align:center;vertical-align:middle;'><br><h3>MINIMA MIFI</h3></td>\n" + 
+	"		<td height=50 width=50><img width=50 src='./images/icon.png'></td>\n" + 
+	"	</tr>\n" + 
+	"	\n" + 
+	"	<tr>\n" + 
+	"		<td style='vertical-align:top;font-size:14;' colspan=3>\n" + 
+	"<br>\n" + 
+	"Welcome..<br>\n" + 
+	"<br>\n" + 
+	window.location.host+" would like to access the Minima Network.<br>\n" + 
+	"<br>\n" + 
+	"You must be running Minima and connect your phone to this webpage.<br>\n" + 
+	"<br>\n" + 
+	"Either make sure you are on the same unrestricted WiFi or start a WiFi hotspot on your phone and connect this computer to that.<br>\n" + 
+	"<br>\n" + 
+	"When you are ready..<br>\n" + 
+	"<br>\n" + 
+	"		</td>\n" + 
+	"	</tr>\n" + 
+	"	\n" + 
+	"	<tr>\n" + 
+	"		<td height=10 colspan=3 align=center><button onclick='setQRPage();'>P R O C E E D &GT;&GT;</button></td>\n" + 
+	"	</tr>\n" + 
 	
+	"    <tr>\n" + 
+	"		<td width=80 height=40 onclick='setHelpPage();' style='cursor: pointer;color:#0000ff;font-size:12;text-align:left;vertical-align:bottom;'>\n" + 
+	"			<div>HELP</div>\n" + 
+	"		</td>\n" + 
+	"		\n" + 
+	"		<td>&nbsp</td>\n" + 
+	"		\n" + 
+	"		<td width=80 height=40 onclick='setAdvancedPage();' style='cursor: pointer;color:#0000ff;font-size:12;text-align:right;vertical-align:bottom;'>\n" + 
+	"			<div>ADVANCED</div>\n" + 
+	"		</td>\n" + 
+	"	</tr>"+ 
 	
+	"</table>\n" + 
+	"";
 	
+	setMainDiv(text);
+}
+
+function setAdvancedPage(){
+	var text = "<table border=0 width=100% height=100%>\n" + 
+	"	\n" + 
+	"	<tr>\n" + 
+	"		<td height=50 width=50><img width=50 src='./images/icon.png'></td>\n" + 
+	"		<td height=50 style='text-align:center;vertical-align:middle;'><br><h3>MINIMA MIFI</h3></td>\n" + 
+	"		<td height=50 width=50><img width=50 src='./images/icon.png'></td>\n" + 
+	"	</tr>\n" + 
+	"	\n" + 
+	"	<tr>\n" + 
+	"		<td style='vertical-align:top;font-size:14;' colspan=3>\n" + 
+	"<br>\n" +
+	"Advanced<br>" +
+	"<br>" + 
+	"Here you can directly specify the IP of the Minima instance you wish to connect to.<br>\n" + 
+	"<br>\n" + 
+	"This could be your phone or a command line version running locally or online.<br>\n" + 
+	"<br>\n" + 
+	"\n" + 
+	"<br><br>\n" + 
+	"<center>\n" + 
+	"	<input placeholder='127.0.0.1:9000' type=text>\n" + 
+	"\n" + 
+	"</center>\n" + 
+	"\n" + 
+	"		</td>\n" + 
+	"	</tr>\n" + 
+	"	\n" + 
+	"	<tr>\n" + 
+	"		<td height=10 colspan=3 align=center><button>C O N N E C T &GT;&GT;</button></td>\n" + 
+	"	</tr>\n" + 
+	"	\n" + 
+	"	<tr>\n" + 
+	"		<td height=40 onclick='setInitPage();' colspan=3 style='cursor: pointer;color:#0000ff;font-size:12;text-align:right;vertical-align:bottom;'>\n" + 
+	"			<div>BACK</div>\n" + 
+	"		</td>\n" + 
+	"	</tr>\n" + 
+	"	\n" + 
+	"</table>\n" + 
+	"";
+	
+	setMainDiv(text);
+}
+
+function setQRPage(){
+	var text = "<table border=0 width=100% height=100%>\n" + 
+	"	\n" + 
+	"	<tr>\n" + 
+	"		<td height=50 width=50><img width=50 src='./images/icon.png'></td>\n" + 
+	"		<td height=50 style='text-align:center;vertical-align:middle;'><br><h3>MINIMA MIFI</h3></td>\n" + 
+	"		<td height=50 width=50><img width=50 src='./images/icon.png'></td>\n" + 
+	"	</tr>\n" + 
+	"	\n" + 
+	"	<tr>\n" + 
+	"		<td style='vertical-align:top;font-size:14;' colspan=3>\n" + 
+	"<br>\n" +
+	"<center>" +
+	"<div id='miniqrcode' style='width:200px; height:200px;'></div>" +
+	"<br>" + 
+	"Open the Minima app and choose <b>Web</b><br>" + 
+	"<br>OR<br><br>" +
+	"Open the <b>Terminal</b> and type :<br><br>weblink "+Minima.uuid+ 
+	"</center>" +
+	"		</td>\n" + 
+	"	</tr>\n" + 
+	"	\n" + 
+	
+	"	<tr>\n" + 
+	"		<td height=20 onclick='setInitPage();' colspan=3 style='cursor: pointer;color:#0000ff;font-size:12;text-align:right;vertical-align:bottom;'>\n" + 
+	"			<div>BACK</div>\n" + 
+	"		</td>\n" + 
+	"	</tr>\n" + 
+	
+	"	\n" + 
+	"</table>\n" + 
+	"";
+	
+	setMainDiv(text);
+	
+	//Create the QR Code
+	var qrcode = new QRCode(document.getElementById("miniqrcode"), {
+		width : 200,
+		height : 200,
+		colorDark : "#000000",
+	    colorLight : "#ffffff",
+	    correctLevel : QRCode.CorrectLevel.H
+	});
+	qrcode.makeCode(Minima.uuid+"");
 	
 }
 
-
-
-
-
-
-
-
-
+function setHelpPage(){
+	var text = "<table border=0 width=100% height=100%>\n" + 
+	"	\n" + 
+	"	<tr>\n" + 
+	"		<td height=50 width=50><img width=50 src='./images/icon.png'></td>\n" + 
+	"		<td height=50 style='text-align:center;vertical-align:middle;'><br><h3>MINIMA MIFI</h3></td>\n" + 
+	"		<td height=50 width=50><img width=50 src='./images/icon.png'></td>\n" + 
+	"	</tr>\n" + 
+	"	\n" + 
+	"	<tr>\n" + 
+	"		<td style='vertical-align:top;font-size:14;' colspan=3>\n" + 
+	"<br>\n" +
+	"Help<br>" +
+	"<br>" +
+	"Trying to connect this webpage and your phone or instance of Minima can be tricky.<br>" +
+	"<br>" +
+	"If you are having issues it is probably because your WiFi is restricting your outbound and inbound traffic. Office WiFi normally does this.<br>" +
+	"<br>" +
+	"To get round this you can start a WiFi hotspot on your phone and then connect the computer you are sitting at to that WiFi." + 
+	"\n" +
+	"<br>" +
+	"<br>Home Wifi networks generally do not have these restrictions." +
+	"		</td>\n" + 
+	"	</tr>\n" + 
+	
+	
+	"    <tr>\n" + 
+	"		<td width=80 height=40 onclick='setInitPage();' style='cursor: pointer;color:#0000ff;font-size:12;text-align:left;vertical-align:bottom;'>\n" + 
+	"			<div>HOME</div>\n" + 
+	"		</td>\n" + 
+	"		\n" + 
+	"		<td>&nbsp</td>\n" + 
+	"		\n" + 
+	"		<td width=80 height=40 style='color:#0000ff;font-size:12;text-align:right;vertical-align:bottom;'>\n" + 
+	"			&nbsp;" + 
+	"		</td>\n" + 
+	"	</tr>"+ 
+	
+	"</table>\n" + 
+	"";
+	
+	setMainDiv(text);
+}
 
 
 
@@ -358,25 +524,26 @@ function createOverlayDivs(){
 	
 	//Add it to the Page
 	document.body.appendChild(overdiv);
-	
+		
 	//Now add the main Minima MiFi setup div
 	var div = document.createElement('div');
 	div.id  = MAIN_DIV;
 	
 	div.style.position 	= "absolute";
 	div.style.margin   	= "auto";
-	div.style.padding  	= 30;	 
+	div.style.padding  	= 10;	 
 	div.style.top  		= 0;
 	div.style.right 	= 0;
 	div.style.bottom  	= 0;
 	div.style.left  	= 0;
 
-	div.style.fontSize   = "18px";
-	div.style.fontFamily = '"Courier New", Courier, mono';
+	div.style.fontSize   = "14px";
+	div.style.fontFamily = "monospace";
 
-	div.style.width  	= "300px";
-	div.style.height  	= "400px";
-	div.style.background = "#cccccc";
+	div.style.width  	= "350px";
+	div.style.height  	= "450px";
+	div.style.background   = "#cccccc";
+	div.style.borderRadius = "10px";
 	
 	//Add it to he page
 	document.body.appendChild(div);
