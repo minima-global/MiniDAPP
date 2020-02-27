@@ -17,6 +17,8 @@ var MIFIHOST = "127.0.0.1";
 //var MIFIHOST = "10.0.121.68";
 //var MIFIHOST = "mifi.minima.global";
 
+var WEBSOCK = null;
+var MINIMACONNECTED = false;
 
 /**
  * Main MINIMA Object for all interaction
@@ -38,43 +40,30 @@ var Minima = {
 		//Create the Overlay Divs - but don't show them yet
 		createOverlayDivs();
 		
+		//Do we have an IP already 
+		var ip = window.localStorage.getItem('MinimaIP');
+		if(ip !== null && ip !== ""){
+			log("Previous host found "+ip);
+			
+			//Use it..
+			Minima.host = ip;
+			
+			//Show Logout.. in case we need to as previous connection is broken
+			show(LOGOUT_BUTTON);
+			
+			//Do the first call..
+			initialStatus();
+		   
+			//That's it.
+			return;
+		}
+		
 		//Set some text..
 		setInitPage();
 		
 		show(OVERLAY_DIV);
 		show(MAIN_DIV);
-		
-//		//Do we have an IP already 
-//		var ip = window.localStorage.getItem('MinimaIP');
-//		if(ip !== null && ip !== ""){
-//			log("Previous host found "+ip);
-//			
-//			//Use it..
-//			Minima.host = ip;
-//			
-//			//And finally the Log out Button..
-//			addLogoutButton();
-//			   
-//		    //Run Status once to populate the main details..
-//			Minima.cmd("status",function(resp){
-//			   //And set the block
-//			   var json = JSON.parse(resp);
-//
-//			   //Store this..
-//			   Minima.block = json.response.lastblock;
-//			   Minima.txpowid = json.response.tip.txpowid;
-//			   
-//			   //Send a message
-//			   postMinimaMessage("connected", "success")
-//		    });
-//		   
-//			//That's it.
-//			return;
-//		}
-		
-		
-		
-		
+		hide(LOGOUT_BUTTON);
 	},
 	
 	//Runs a function on the phone
@@ -116,85 +105,58 @@ function postMinimaMessage(event, info){
    window.dispatchEvent(custom);
 }
 
-function showOverlayDivs(){
-	var initText = "<center><h3>Minima - MiFi</h3>" + 
-	window.location.host+" would like to access the Minima network via your phone.<br><br>" +
-	"To get started you must first link your phone to this webpage<br><br>" +
-	"Your phone and this computer must be running on the same WiFi that allows outgoing connections..<br><br>"+
-	"The easiest way is to run a WiFi hotspot on your phone and connect this computer to that.<br><br>" + 
-	"To continue.. press<br><br>" + 
-	"<button onclick='MinimaStage2();'>Proceed</button><br>" +
-	"</center>";
+/**
+ * The Fist connection status message
+ * 
+ * @returns
+ */
+function initialStatus(){
+   //Run Status once to populate the main details..
+   Minima.cmd("status",function(resp){
+	   //And set the block
+	   var json = JSON.parse(resp);
 
-	//First add the total overlay div
-	var overdiv = document.createElement('div');
-	overdiv.id = "MinimaOverlay";
-	
-	overdiv.style.position 	 = "absolute";
-	overdiv.style.top 		 = 0;
-	overdiv.style.left 		 = 0;
-	overdiv.style.width 	 = "100%";
-	overdiv.style.height 	 = "100%";
-	overdiv.style.opacity 	 = "25%";
-	overdiv.style.background = "#555555";
-	
-	document.body.appendChild(overdiv);
-	
-	//Now add the main Minima MiFi setup div
-	var div = document.createElement('div');
-	div.id = "MinimaDIV";
-	
-	div.style.position 	= "absolute";
-	div.style.margin   	= "auto";
-	div.style.padding  	= 30;	 
-	div.style.top  		= 0;
-	div.style.right 	= 0;
-	div.style.bottom  	= 0;
-	div.style.left  	= 0;
-	div.style.width  	= "300px";
-	div.style.height  	= "400px";
-	div.style.background = "#dddddd";
-	
-	div.innerHTML = initText;
-	document.body.appendChild(div);
+	   //Store this..
+	   Minima.block   = json.response.lastblock;
+	   Minima.txpowid = json.response.tip.txpowid;
+	   
+	   //Hide the Divs..
+	   hide(MAIN_DIV);
+	   hide(OVERLAY_DIV);
+	   show(LOGOUT_BUTTON);
+	   
+	   //Start Polling..
+	   startPolling();
+	   
+	   MINIMACONNECTED = true;
+	   
+	   //Send a message
+	   postMinimaMessage("connected", "success");
+   });
 }
 
-function addLogoutButton(){
-	var button = document.createElement("button");
-	button.innerHTML = "MiFi Logout";
-	button.style.position 	= "absolute";
-	button.style.padding 	= "5px";
-	button.style.top 		= 10;
-	button.style.right 		= 10;
-	button.style.background = "#AAAAAA";
-	
-	button.addEventListener ("click", function() {
-		  Minima.logout();
-	});
-	document.body.appendChild(button);
-	
-	//If you can logout you're logged in..
-	startPolling();
-}
-
-function hideOverLayDivs(){
-	//Hide the Divs..
-   document.getElementById("MinimaDIV").style.display = "none";
-   document.getElementById("MinimaOverlay").style.display = "none";
-}
-
+/**
+ * Start the WebSocket Proxy Connector
+ * @returns
+ */
 function startWebSocket(){
-	//Open up a websocket to the main MINIMA proxy..
-	var ws = new WebSocket("ws://"+MIFIHOST+":8889");
+	MINIMACONNECTED = false;
 	
-	ws.onopen = function() {
+	var sockhost = "ws://"+MIFIHOST+":8889";
+	
+	log("Starting WebSocket to "+sockhost+" uuid:"+Minima.uuid);
+	
+	//Open up a websocket to the main MINIMA proxy..
+	WEBSOCK = new WebSocket(sockhost);
+	
+	WEBSOCK.onopen = function() {
 	   log("WS Connection opened to the Minima Proxy..");
 		
 	   // Web Socket is connected, send data using send()
-	   ws.send(Minima.uuid);
+	   WEBSOCK.send(Minima.uuid);
 	};
 	
-	ws.onmessage = function (evt) { 
+	WEBSOCK.onmessage = function (evt) { 
 	   //Now that we have the IP.. Set it.. 
 	   window.localStorage.setItem('MinimaIP', evt.data);
 	   
@@ -203,33 +165,17 @@ function startWebSocket(){
 	   log("Host set "+Minima.host);
 	   
 	   //And close
-	   ws.close();
+	   WEBSOCK.close();
 	   
 	   //Run Status once to populate the main details..
-	   Minima.cmd("status",function(resp){
-		   //And set the block
-		   var json = JSON.parse(resp);
-
-		   //Store this..
-		   Minima.block   = json.response.lastblock;
-		   Minima.txpowid = json.response.tip.txpowid;
-		   
-		   //Hide the Divs..
-		   hideOverLayDivs();
-		   
-		   //And finally the Log out Button..
-		   addLogoutButton();
-		   
-		   //Send a message
-		   postMinimaMessage("connected", "success")
-	   });
+	   initialStatus();
 	};
 		
-	ws.onclose = function() { 
+	WEBSOCK.onclose = function() { 
 		log("WS Connection is closed...");
 	};
 
-	ws.onerror = function(error) {
+	WEBSOCK.onerror = function(error) {
 		//var err = JSON.stringify(error);
 		var err = JSON.stringify(error, ["message", "arguments", "type", "name", "data"])
 		// websocket is closed.
@@ -237,22 +183,23 @@ function startWebSocket(){
 	};
 }
 
+function closeWebSocket(){
+	if(WEBSOCK !== null){
+		WEBSOCK.close();
+		WEBSOCK = null;
+	}
+}
+
 /**
  * Start polling to see if something has changed.. Should be a websocket but the iPhone version not working..
  */
 var global_balance = "";
 function startPolling(){
-	//Check the Status
-	pollStatus();
-	
-	//Check Status every second
-	setInterval(function(){pollStatus();},2000);
-	
 	//Check it instantly first..
 	pollBalance();
 	
 	//Check Balance every second
-	setInterval(function(){pollBalance();},2000);
+	setInterval(function(){pollStatus();pollBalance();},5000);
 }
 
 function pollStatus(){
@@ -294,34 +241,17 @@ function pollBalance(){
 	},false);
 }
 
-
-function MinimaStage2(){
-	var stageTwo = "<center><h3>Minima - MiFi</h3>\n" + 
-	"<div id='miniqrcode' style='width:200px; height:200px; margin-top:15px;'></div><br>" + 
-	"Open the Minima app and choose <b>Weblink</b><br><br>" + 
-	"OR<br><br>" +
-	"Open the <b>Terminal</b> and type :<br><br>weblink "+Minima.uuid+ 
-	"</center>";
-	
-	//Set the Text
-	document.getElementById("MinimaDIV").innerHTML = stageTwo;
-	
-	//Create the QR Code
-	var qrcode = new QRCode(document.getElementById("miniqrcode"), {
-		width : 200,
-		height : 200,
-		colorDark : "#000000",
-	    colorLight : "#ffffff",
-	    correctLevel : QRCode.CorrectLevel.H
-	});
-	qrcode.makeCode(Minima.uuid+"");
-}
-
-
 /**
  * STAGE 1 Initial Pager that appears..
  */
 function setInitPage(){
+	//Close the WebSocket
+	closeWebSocket();
+	
+	//Not Connected
+	MINIMACONNECTED = false;
+	
+	//Set the Text
 	var text = "<table border=0 width=100% height=100%>\n" + 
 	"	\n" + 
 	"	<tr>\n" + 
@@ -337,7 +267,9 @@ function setInitPage(){
 	"<br>\n" + 
 	window.location.host+" would like to access the Minima Network.<br>\n" + 
 	"<br>\n" + 
-	"You must be running Minima and connect your phone to this webpage.<br>\n" + 
+	"Unlike other centralised solutions MiFi is completely decentralised.<br>" +
+	"<br>" +
+	"You must be running Minima and then you can connect your phone to this webpage.<br>\n" + 
 	"<br>\n" + 
 	"Either make sure you are on the same unrestricted WiFi or start a WiFi hotspot on your phone and connect this computer to that.<br>\n" + 
 	"<br>\n" + 
@@ -369,6 +301,9 @@ function setInitPage(){
 }
 
 function setAdvancedPage(){
+	//Close the WebSocket
+	closeWebSocket();
+	
 	var text = "<table border=0 width=100% height=100%>\n" + 
 	"	\n" + 
 	"	<tr>\n" + 
@@ -389,7 +324,7 @@ function setAdvancedPage(){
 	"\n" + 
 	"<br><br>\n" + 
 	"<center>\n" + 
-	"	<input placeholder='127.0.0.1:9000' type=text>\n" + 
+	"	<input placeholder='127.0.0.1:8999' type=text id='minimaconnect'>\n" + 
 	"\n" + 
 	"</center>\n" + 
 	"\n" + 
@@ -397,7 +332,7 @@ function setAdvancedPage(){
 	"	</tr>\n" + 
 	"	\n" + 
 	"	<tr>\n" + 
-	"		<td height=10 colspan=3 align=center><button>C O N N E C T &GT;&GT;</button></td>\n" + 
+	"		<td height=10 colspan=3 align=center><button onclick=''>C O N N E C T &GT;&GT;</button></td>\n" + 
 	"	</tr>\n" + 
 	"	\n" + 
 	"	<tr>\n" + 
@@ -413,6 +348,15 @@ function setAdvancedPage(){
 }
 
 function setQRPage(){
+	//Close the WebSocket
+	closeWebSocket();
+	
+	//New UUID
+	Minima.uuid = Math.floor(Math.random()*1000000000);
+	
+	//Connect..
+	startWebSocket();
+	
 	var text = "<table border=0 width=100% height=100%>\n" + 
 	"	\n" + 
 	"	<tr>\n" + 
@@ -457,9 +401,19 @@ function setQRPage(){
 	});
 	qrcode.makeCode(Minima.uuid+"");
 	
+	//Place a timer..
+	setTimeout(function() {
+	    //If we have not connected go back to home page - close websocket free resources
+		if(!MINIMACONNECTED){
+			setInitPage();
+		} 	
+	 }, 60000);
 }
 
 function setHelpPage(){
+	//Close the WebSocket
+	closeWebSocket();
+	
 	var text = "<table border=0 width=100% height=100%>\n" + 
 	"	\n" + 
 	"	<tr>\n" + 
@@ -480,7 +434,7 @@ function setHelpPage(){
 	"To get round this you can start a WiFi hotspot on your phone and then connect the computer you are sitting at to that WiFi." + 
 	"\n" +
 	"<br>" +
-	"<br>Home Wifi networks generally do not have these restrictions." +
+	"<br>Home WiFi networks generally do not have these restrictions." +
 	"		</td>\n" + 
 	"	</tr>\n" + 
 	
@@ -502,9 +456,6 @@ function setHelpPage(){
 	
 	setMainDiv(text);
 }
-
-
-
 
 /**
  * Add the Overlay DIVS - but do not show them 
