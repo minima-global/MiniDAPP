@@ -139,6 +139,10 @@ function advancedConnect(){
 	//Get the Value
 	var host = document.getElementById("minimaconnect").value;
 	
+	if(host == ''){
+		return;
+	}
+	
 	//Now that we have the IP.. Set it.. 
     window.localStorage.setItem('MinimaIP', host);
    
@@ -267,13 +271,15 @@ function setInitPage(){
 	MINIMACONNECTED = false;
 	
 	//Set the Text
-	var text = "<table border=0 width=100% height=100%>\n" + 
+	var text = "<table border=0 width=350px height=100%>\n" + 
 	"	\n" + 
+	
 	"	<tr>\n" + 
-	"		<td height=50 width=50><img width=50 src='./images/icon.png'></td>\n" + 
-	"		<td height=50 style='text-align:center;vertical-align:middle;'><br><h3>MINIMA MIFI</h3></td>\n" + 
-	"		<td height=50 width=50><img width=50 src='./images/icon.png'></td>\n" + 
+	"		<td height=50 width='50px' style='text-align:left;vertical-align:middle;'><img width=50 src='./images/icon.png'></td>\n" + 
+	"		<td height=50 width='250px' style='text-align:center;vertical-align:middle;'><br><h3>MINIMA MIFI</h3></td>\n" + 
+	"		<td height=50 width='50px' style='text-align:right;vertical-align:middle;'><img width=50 src='./images/icon.png'></td>\n" + 
 	"	</tr>\n" + 
+	
 	"	\n" + 
 	"	<tr>\n" + 
 	"		<td style='vertical-align:top;font-size:14;' colspan=3>\n" + 
@@ -321,11 +327,14 @@ function setAdvancedPage(){
 	
 	var text = "<table border=0 width=100% height=100%>\n" + 
 	"	\n" + 
+	
 	"	<tr>\n" + 
-	"		<td height=50 width=50><img width=50 src='./images/icon.png'></td>\n" + 
-	"		<td height=50 style='text-align:center;vertical-align:middle;'><br><h3>MINIMA MIFI</h3></td>\n" + 
-	"		<td height=50 width=50><img width=50 src='./images/icon.png'></td>\n" + 
+	"		<td height=50 width='50px' style='text-align:left;vertical-align:middle;'><img width=50 src='./images/icon.png'></td>\n" + 
+	"		<td height=50 width='250px' style='text-align:center;vertical-align:middle;'><br><h3>MINIMA MIFI</h3></td>\n" + 
+	"		<td height=50 width='50px' style='text-align:right;vertical-align:middle;'><img width=50 src='./images/icon.png'></td>\n" + 
 	"	</tr>\n" + 
+	 
+	 
 	"	\n" + 
 	"	<tr>\n" + 
 	"		<td style='vertical-align:top;font-size:14;' colspan=3>\n" + 
@@ -374,11 +383,13 @@ function setQRPage(){
 	
 	var text = "<table border=0 width=100% height=100%>\n" + 
 	"	\n" + 
+	
 	"	<tr>\n" + 
-	"		<td height=50 width=50><img width=50 src='./images/icon.png'></td>\n" + 
-	"		<td height=50 style='text-align:center;vertical-align:middle;'><br><h3>MINIMA MIFI</h3></td>\n" + 
-	"		<td height=50 width=50><img width=50 src='./images/icon.png'></td>\n" + 
+	"		<td height=50 width='50px' style='text-align:left;vertical-align:middle;'><img width=50 src='./images/icon.png'></td>\n" + 
+	"		<td height=50 width='250px' style='text-align:center;vertical-align:middle;'><br><h3>MINIMA MIFI</h3></td>\n" + 
+	"		<td height=50 width='50px' style='text-align:right;vertical-align:middle;'><img width=50 src='./images/icon.png'></td>\n" + 
 	"	</tr>\n" + 
+	
 	"	\n" + 
 	"	<tr>\n" + 
 	"		<td style='vertical-align:top;font-size:14;' colspan=3>\n" + 
@@ -431,11 +442,14 @@ function setHelpPage(){
 	
 	var text = "<table border=0 width=100% height=100%>\n" + 
 	"	\n" + 
+	
 	"	<tr>\n" + 
-	"		<td height=50 width=50><img width=50 src='./images/icon.png'></td>\n" + 
-	"		<td height=50 style='text-align:center;vertical-align:middle;'><br><h3>MINIMA MIFI</h3></td>\n" + 
-	"		<td height=50 width=50><img width=50 src='./images/icon.png'></td>\n" + 
+	"		<td height=50 width='50px' style='text-align:left;vertical-align:middle;'><img width=50 src='./images/icon.png'></td>\n" + 
+	"		<td height=50 width='250px' style='text-align:center;vertical-align:middle;'><br><h3>MINIMA MIFI</h3></td>\n" + 
+	"		<td height=50 width='50px' style='text-align:right;vertical-align:middle;'><img width=50 src='./images/icon.png'></td>\n" + 
 	"	</tr>\n" + 
+	 
+	
 	"	\n" + 
 	"	<tr>\n" + 
 	"		<td style='vertical-align:top;font-size:14;' colspan=3>\n" + 
