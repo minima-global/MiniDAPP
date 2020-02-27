@@ -1,0 +1,23 @@
+Still to do.. for BASE LAYER 1
+
+1) Finish MiFi basic integration
+
+2) Token Scripts
+
+3) Publick Key - MAST - MMR - SCRIPT merkle proof structure re do
+
+4) MAST integration
+
+5) NEW Difficulty algorithm.. store the genesis block for ever.. smooth diff curve with 16 possible levels..
+
+6) DYN_STATE and soft link inputs with same script only and no CoinID for rolling transactions..
+
+
+LAYER 2
+
+P2P Network Overhaul
+
+MAXIMA
+
+Thunder Network ( Minima Lightning )
+

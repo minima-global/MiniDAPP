@@ -5,10 +5,22 @@
 * 
 */
 
+
+/**
+ * GLOBAL VARIABLES
+ */
+var MAIN_DIV 		= "MINIMA_MAIN_DIV";
+var OVERLAY_DIV 	= "MINIMA_OVERLAY_DIV";
+var LOGOUT_BUTTON   = "MINIMA_LOGOUT_BUTTON";
+
 var MIFIHOST = "127.0.0.1";
 //var MIFIHOST = "10.0.121.68";
 //var MIFIHOST = "mifi.minima.global";
 
+
+/**
+ * Main MINIMA Object for all interaction
+ */
 var Minima = {
 	block : 0,
 	txpowid : "0x00",
@@ -23,39 +35,46 @@ var Minima = {
 		//Log a little..
 		log("Initialisation started..");
 		
-		//Do we have an IP already 
-		var ip = window.localStorage.getItem('MinimaIP');
-		if(ip !== null && ip !== ""){
-			log("Previous host found "+ip);
-			
-			//Use it..
-			Minima.host = ip;
-			
-			//And finally the Log out Button..
-			addLogoutButton();
-			   
-		    //Run Status once to populate the main details..
-			Minima.cmd("status",function(resp){
-			   //And set the block
-			   var json = JSON.parse(resp);
-
-			   //Store this..
-			   Minima.block = json.response.lastblock;
-			   Minima.txpowid = json.response.tip.txpowid;
-			   
-			   //Send a message
-			   postMinimaMessage("connected", "success")
-		    });
-		   
-			//That's it.
-			return;
-		}
+		//Create the Overlay Divs
+		createOverlayDivs();
 		
-		//Show the Overlay divs
-		showOverlayDivs();
+		//Set some text..
+		setMainDiv("hello!");
 		
-		//Now start the Websocket
-		startWebSocket();
+		show(OVERLAY_DIV);
+		show(MAIN_DIV);
+		
+//		//Do we have an IP already 
+//		var ip = window.localStorage.getItem('MinimaIP');
+//		if(ip !== null && ip !== ""){
+//			log("Previous host found "+ip);
+//			
+//			//Use it..
+//			Minima.host = ip;
+//			
+//			//And finally the Log out Button..
+//			addLogoutButton();
+//			   
+//		    //Run Status once to populate the main details..
+//			Minima.cmd("status",function(resp){
+//			   //And set the block
+//			   var json = JSON.parse(resp);
+//
+//			   //Store this..
+//			   Minima.block = json.response.lastblock;
+//			   Minima.txpowid = json.response.tip.txpowid;
+//			   
+//			   //Send a message
+//			   postMinimaMessage("connected", "success")
+//		    });
+//		   
+//			//That's it.
+//			return;
+//		}
+		
+		
+		
+		
 	},
 	
 	//Runs a function on the phone
@@ -85,16 +104,6 @@ var Minima = {
 		location.reload();
 	}
 };
-
-/**
- * Utility functions used by the Minima Object
- * 
- */
-function log(info){
-	if(Minima.logging){
-		console.log("Minima : "+info);
-	}
-}
 
 function postMinimaMessage(event, info){
    log("Event Dispatch "+event+" "+info);
@@ -127,7 +136,7 @@ function showOverlayDivs(){
 	overdiv.style.width 	 = "100%";
 	overdiv.style.height 	 = "100%";
 	overdiv.style.opacity 	 = "25%";
-	overdiv.style.background = "#888888";
+	overdiv.style.background = "#555555";
 	
 	document.body.appendChild(overdiv);
 	
@@ -144,7 +153,7 @@ function showOverlayDivs(){
 	div.style.left  	= 0;
 	div.style.width  	= "300px";
 	div.style.height  	= "400px";
-	div.style.background = "#cccccc";
+	div.style.background = "#dddddd";
 	
 	div.innerHTML = initText;
 	document.body.appendChild(div);
@@ -331,13 +340,90 @@ function initPage(){
 
 
 
+/**
+ * Add the Overlay DIVS - but do not show them 
+ */
+function createOverlayDivs(){
+	//First add the total overlay div
+	var overdiv = document.createElement('div');
+	overdiv.id  = OVERLAY_DIV;
+	
+	overdiv.style.position 	 = "absolute";
+	overdiv.style.top 		 = 0;
+	overdiv.style.left 		 = 0;
+	overdiv.style.width 	 = "100%";
+	overdiv.style.height 	 = "100%";
+	overdiv.style.opacity 	 = "25%";
+	overdiv.style.background = "#777777";
+	
+	//Add it to the Page
+	document.body.appendChild(overdiv);
+	
+	//Now add the main Minima MiFi setup div
+	var div = document.createElement('div');
+	div.id  = MAIN_DIV;
+	
+	div.style.position 	= "absolute";
+	div.style.margin   	= "auto";
+	div.style.padding  	= 30;	 
+	div.style.top  		= 0;
+	div.style.right 	= 0;
+	div.style.bottom  	= 0;
+	div.style.left  	= 0;
 
+	div.style.fontSize   = "18px";
+	div.style.fontFamily = '"Courier New", Courier, mono';
 
+	div.style.width  	= "300px";
+	div.style.height  	= "400px";
+	div.style.background = "#cccccc";
+	
+	//Add it to he page
+	document.body.appendChild(div);
+	
+	//Logout Button
+	var button = document.createElement("button");
+	button.id  = LOGOUT_BUTTON;
+	
+	button.innerHTML 		= "MiFi Logout";
+	button.style.position 	= "absolute";
+	button.style.padding 	= "5px";
+	button.style.top 		= 10;
+	button.style.left 		= 10;
+	button.style.background = "#AAAAAA";
+	
+	button.addEventListener ("click", function() {
+		  Minima.logout();
+	});
+	document.body.appendChild(button);
+	
+	//Hide them all for now..
+	hide(MAIN_DIV);
+	hide(OVERLAY_DIV);
+	hide(LOGOUT_BUTTON);
+}
 
+function setMainDiv(html){
+	document.getElementById(MAIN_DIV).innerHTML = html; 
+}
 
+function show(id){
+	document.getElementById(id).style.display = "block";
+}
 
+function hide(id){
+	document.getElementById(id).style.display = "none";
+}
 
-
+/**
+ * Utility functions used by the Minima Object
+ * 
+ */
+function log(info){
+	if(Minima.logging){
+		console.log("Minima : "+info);
+	}
+}
 
 
 /**
