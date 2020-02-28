@@ -17,6 +17,8 @@
 	var futureblock = 999;
 	var address     = "0x00";
 	var coinid      = "0x00";
+	var txnid       = Math.floor(Math.random()*1000000000);
+	var txncreator  = ""
 	
 	//Update the info..
 	function updateInfo(info){
@@ -65,10 +67,41 @@
 			if(json.response.coins.length>0){
 				coinid = json.response.coins[0].data.coin.coinid;			
 				document.getElementById("scandiv").innerHTML = "COIN FOUND!<br><br>CoinID : "+coinid;
+			
+				
+				txncreator =    "txncreate "+txnid+";"+
+								"txninput "+txnid+" "+coinid+";"+
+								"txnoutput "+txnid+" 1 0x00;"+
+								"txnsign "+txnid+" "+pubkey+";";
+					
+				document.getElementById("txndiv").innerHTML = "COMPLETE FUNCTION : "+txncreator;
+				
 			}else{
 				alert("No coins found yet @ address "+address);
 			}
 			
+		});
+	}
+	
+	//You can send multiple functions at once if you separate them with ;
+	function createTXN(){
+		Minima.cmd(txncreator, function(resp){
+			alert("FULL RESPONSE : \n\n"+resp);	
+		});
+	}
+	
+	function sendTXN(){
+		Minima.cmd("txnvalidate "+txnid, function(resp){
+			var json = JSON.parse(resp);
+			
+			if(!json.response.txnvalid){
+				//Invalid transaction!
+				alert("INVALID TRANSACTION!\n\n"+resp);
+			}else{
+				//Send it..
+				Minima.cmd("txnpost "+txnid);
+				alert("TRANSACTION SENT!!");
+			}
 		});
 	}
 	
@@ -103,7 +136,7 @@
 <div id="infodiv">no info yet..</div>
 <br>
 <br>
-<div style='width:800;text-align:left;'>
+<div style='width:900;text-align:left;'>
 Ok. Lets do something just a little bit cool.<br><br>For this demo we'll take it step by step.. but in future we'll do multiple steps at once.<br>
 <br>
 We are going to create an output that can only be spent after a certain block height is reached.
@@ -143,16 +176,23 @@ This will require
 <div id="scandiv">NO COIN FOUND YET</div>
 
 <br>
-<b>Step 6</b> : Create a transaction that adds that CoinID as an input and send the funds to 'some fictitious' address..
+<b>Step 6</b> : Create a transaction that adds that CoinID as an input and send the funds to 'some fictitious 0x00' address..
+&nbsp;&nbsp;<button onclick='createTXN();'>CREATE TXN</button><br>
+<br>
+<div id="txndiv">NO TXN CREATOR YET</div>
 
+<br>
+<b>Step 7</b> : You need to wait for the blocktime to be past the rquired block!.. <br>
+<br>
+Try and send the transaction before the correct block time has arrived.. it will just FAIL!.. 
+<br>
+
+<br>
+<b>Step 8</b> : And FINALLY.. broadcast the txn! 
+&nbsp;&nbsp;<button onclick='sendTXN();'>SEND TXN</button><br>
+<br>
     
 </div>
-
-
-
-
-
-
 
 <br><br><a href='index.html'>HOME</a>
 </center>
