@@ -14,7 +14,10 @@
 	//The actual script used..
 	var script      = "IF SIGNEDBY ( PUBKEY ) AND @BLKNUM GT XXX THEN RETURN TRUE ENDIF";
 	var pubkey      = "PUBKEY";
+	
 	var futureblock = 999;
+	var setblock    = 999;
+	
 	var address     = "0x00";
 	var coinid      = "0x00";
 	var txnid       = Math.floor(Math.random()*1000000000);
@@ -33,30 +36,32 @@
 			document.getElementById("pubkey").innerHTML = pubkey+"";
 			
 			script = "IF SIGNEDBY ( "+pubkey+" ) AND @BLKNUM GT "+futureblock+" THEN RETURN TRUE ENDIF";
-			document.getElementById("scriptdiv").innerHTML = "SCRIPT : "+script;
-			
+			document.getElementById("scriptdiv").innerHTML = "SCRIPT : "+script;	
 		});
 	}
 
 	function createAddress(){
+		//Store the chosen block
+		setblock = futureblock;
+		
 		//Take that response..
-		script = "IF SIGNEDBY ( "+pubkey+" ) AND @BLKNUM GT "+futureblock+" THEN RETURN TRUE ENDIF";
+		script = "IF SIGNEDBY ( "+pubkey+" ) AND @BLKNUM GT "+setblock+" THEN RETURN TRUE ENDIF";
 		
 		Minima.cmd("newscript \""+script+"\" ", function(resp){
-			console.log(resp);
 			var json = JSON.parse(resp);
 			address  = json.response.address;
-			
-			//Take that response..
-			script = "IF SIGNEDBY ( "+pubkey+" ) AND @BLKNUM GT "+futureblock+" THEN RETURN TRUE ENDIF";
-			
 			document.getElementById("scriptdiv").innerHTML = "SCRIPT : "+script+"<br><br>ADDRESS : "+address;
 		});
 	}
 	
 	function sendFunds(){
 		Minima.cmd("send 1 "+address, function(resp){
-			alert("1 Minima sent to "+address+"\n\nRESP:"+resp);	
+			var json = JSON.parse(resp);
+			if(json.status){
+				alert("1 Minima sent to "+address+"\n\nRESP:"+resp);	
+			}else{
+				alert("FAIL to send Minima!\n\nRESP:"+resp);	
+			}	
 		});
 	}
 	
@@ -67,19 +72,17 @@
 			if(json.response.coins.length>0){
 				coinid = json.response.coins[0].data.coin.coinid;			
 				document.getElementById("scandiv").innerHTML = "COIN FOUND!<br><br>CoinID : "+coinid;
-			
 				
 				txncreator =    "txncreate "+txnid+";"+
 								"txninput "+txnid+" "+coinid+";"+
 								"txnoutput "+txnid+" 1 0x00;"+
 								"txnsign "+txnid+" "+pubkey+";";
 					
-				document.getElementById("txndiv").innerHTML = "COMPLETE FUNCTION : "+txncreator;
+				document.getElementById("txndiv").innerHTML = "FUNCTION : "+txncreator;
 				
 			}else{
 				alert("No coins found yet @ address "+address);
 			}
-			
 		});
 	}
 	
@@ -102,7 +105,7 @@
 			var json = JSON.parse(resp);
 			if(!json.response.txnvalid){
 				//Invalid transaction!
-				alert("INVALID TRANSACTION!\n\nYou need to wait until block "+futureblock+"\n\n"+resp);
+				alert("INVALID TRANSACTION!\n\nCurrent block : "+Minima.block+"\n\nYou need to wait for block : "+setblock+"\n\n"+resp);
 			}else{
 				//Send it..
 				Minima.cmd("txnpost "+txnid);
@@ -188,7 +191,7 @@ This will require
 <div id="txndiv">NO TXN CREATOR YET</div>
 
 <br>
-<b>Step 7</b> : You need to wait for the blocktime to be past the rquired block!.. <br>
+<b>Step 7</b> : You need to wait for the blocktime to be past the required block!.. <br>
 <br>
 Try and send the transaction before the correct block time has arrived.. it will just FAIL!.. 
 <br>
