@@ -1,0 +1,162 @@
+<html>
+
+<head>
+	
+	<!--   The MINIMA MiFi Javascript Library -->
+	<script type="text/javascript" src="./js/minima.js"></script>
+		
+</head>
+
+<body>
+
+<script type="text/javascript">
+	
+	//The actual script used..
+	var script      = "IF SIGNEDBY ( PUBKEY ) AND @BLKNUM GT XXX THEN RETURN TRUE ENDIF";
+	var pubkey      = "PUBKEY";
+	var futureblock = 999;
+	var address     = "0x00";
+	var coinid      = "0x00";
+	
+	//Update the info..
+	function updateInfo(info){
+		futureblock = Minima.block+10;
+		document.getElementById("infodiv").innerHTML = "Block : "+Minima.block+" Future Block : "+futureblock+"<br><br>";	
+	}
+	
+	function newKey(){
+		Minima.cmd("keys new", function(resp){
+			var json = JSON.parse(resp);
+			pubkey   = json.response.key;
+			document.getElementById("pubkey").innerHTML = pubkey+"";
+			
+			script = "IF SIGNEDBY ( "+pubkey+" ) AND @BLKNUM GT "+futureblock+" THEN RETURN TRUE ENDIF";
+			document.getElementById("scriptdiv").innerHTML = "SCRIPT : "+script;
+			
+		});
+	}
+
+	function createAddress(){
+		//Take that response..
+		script = "IF SIGNEDBY ( "+pubkey+" ) AND @BLKNUM GT "+futureblock+" THEN RETURN TRUE ENDIF";
+		
+		Minima.cmd("newscript \""+script+"\" ", function(resp){
+			console.log(resp);
+			var json = JSON.parse(resp);
+			address  = json.response.address;
+			
+			//Take that response..
+			script = "IF SIGNEDBY ( "+pubkey+" ) AND @BLKNUM GT "+futureblock+" THEN RETURN TRUE ENDIF";
+			
+			document.getElementById("scriptdiv").innerHTML = "SCRIPT : "+script+"<br><br>ADDRESS : "+address;
+		});
+	}
+	
+	function sendFunds(){
+		Minima.cmd("send 1 "+address, function(resp){
+			alert("1 Minima sent to "+address+"\n\nRESP:"+resp);	
+		});
+	}
+	
+	function scanCoins(){
+		Minima.cmd("coins "+address, function(resp){
+			var json = JSON.parse(resp);
+			
+			if(json.response.coins.length>0){
+				coinid = json.response.coins[0].data.coin.coinid;			
+				document.getElementById("scandiv").innerHTML = "COIN FOUND!<br><br>CoinID : "+coinid;
+			}else{
+				alert("No coins found yet @ address "+address);
+			}
+			
+		});
+	}
+	
+	//Wait for the page to load..
+	window.addEventListener("load", function(){
+	    
+		//Listen for Minima Events
+		window.addEventListener('MinimaEvent', function(evt) {
+			
+			//Deal with each message type
+	 		if(evt.detail.event == "connected"){
+	 			updateInfo();
+	 				
+	 		}else if(evt.detail.event == "newblock"){
+	 			updateInfo();
+	 			
+	 		}else if(evt.detail.event == "newbalance"){
+		 		
+	 		}
+			
+	    });
+		
+		//Initialise MiFi
+		Minima.init();
+	});
+	
+</script>
+
+<center>
+<br>
+<h3>Create a Time Lock Output</h3> 
+<div id="infodiv">no info yet..</div>
+<br>
+<br>
+<div style='width:800;text-align:left;'>
+Ok. Lets do something just a little bit cool.<br><br>For this demo we'll take it step by step.. but in future we'll do multiple steps at once.<br>
+<br>
+We are going to create an output that can only be spent after a certain block height is reached.
+<br><br>
+This will require 
+<ul>
+	<li>Creating the specific output with a given script</li>
+	<li>Sending funds to it</li>
+	<li>Wait for funds to arrive</li>
+	<li>Constructing a complete transaction from scratch using that input</li>
+	<li>Waiting for the correct blocktime to pass</li>
+	<li>Sending the transaction</li>
+	<li>Celebrate!</li>
+</ul>
+
+<b>Step 1</b> : Make sure you have some money.. Use the <a href='basicwallet.html'>Basic Wallet</a><br>
+<br>
+
+<b>Step 2</b> : Create a Public-Private Key pair that you can use in your script..
+&nbsp;&nbsp;<button onclick='newKey();'>NEW KEY</button><br>
+<br>
+<div id="pubkey" border=1>NO KEY YET</div><br>
+
+<b>Step 3</b> : Create the New Address that cannot be spent until 10 blocks in the future.. 
+&nbsp;&nbsp;<button onclick='createAddress();'>CREATE ADDRESS</button><br>
+<br>
+<div id="scriptdiv">NO ADDRESS YET</div>
+<br>
+
+<b>Step 4</b> : Send some funds to that address..
+&nbsp;&nbsp;<button onclick='sendFunds();'>SEND 1 MINIMA</button><br>
+<br>
+
+<b>Step 5</b> : Scan your available coins for that address.. you will need the CoinID to create the transaction
+&nbsp;&nbsp;<button onclick='scanCoins();'>SCAN COINS</button><br>
+<br>
+<div id="scandiv">NO COIN FOUND YET</div>
+
+<br>
+<b>Step 6</b> : Create a transaction that adds that CoinID as an input and send the funds to 'some fictitious' address..
+
+    
+</div>
+
+
+
+
+
+
+
+<br><br><a href='index.html'>HOME</a>
+</center>
+
+</body>
+
+</html>

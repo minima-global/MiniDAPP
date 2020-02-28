@@ -117,7 +117,7 @@ function initialStatus(){
 	   var json = JSON.parse(resp);
 
 	   //Store this..
-	   Minima.block   = json.response.lastblock;
+	   Minima.block   = parseInt(json.response.lastblock,10);
 	   Minima.txpowid = json.response.tip.txpowid;
 	   
 	   //Hide the Divs..
@@ -233,7 +233,7 @@ function pollStatus(){
 		//Check for a change
 		if(json.response.tip.txpowid !== Minima.txpowid){
 			//Store the details
-			Minima.block   = json.response.lastblock;
+			Minima.block   = parseInt(json.response.lastblock,10);
 			Minima.txpowid = json.response.tip.txpowid;
 			
 			//Tell-tale..
