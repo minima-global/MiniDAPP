@@ -85,18 +85,24 @@
 	
 	//You can send multiple functions at once if you separate them with ;
 	function createTXN(){
-		Minima.cmd(txncreator, function(resp){
-			alert("FULL RESPONSE : \n\n"+resp);	
-		});
+		if(coinid != "0x00"){
+			Minima.cmd(txncreator, function(resp){
+				alert("TXN Created..!");
+			});	
+		}else{
+			alert("CoinID Missing..");
+		}
 	}
 	
 	function sendTXN(){
+		
+		//The transaction is validated first - if you send an invalid transaction 
+		//your peers will just throw it away and may disconnect from you.. 
 		Minima.cmd("txnvalidate "+txnid, function(resp){
 			var json = JSON.parse(resp);
-			
 			if(!json.response.txnvalid){
 				//Invalid transaction!
-				alert("INVALID TRANSACTION!\n\n"+resp);
+				alert("INVALID TRANSACTION!\n\nYou need to wait until block "+futureblock+"\n\n"+resp);
 			}else{
 				//Send it..
 				Minima.cmd("txnpost "+txnid);
@@ -170,7 +176,7 @@ This will require
 &nbsp;&nbsp;<button onclick='sendFunds();'>SEND 1 MINIMA</button><br>
 <br>
 
-<b>Step 5</b> : Scan your available coins for that address.. you will need the CoinID to create the transaction
+<b>Step 5</b> : Scan your coins for that address.. wait until the 1 Minima has confirmed.. you need the CoinID for the transaction
 &nbsp;&nbsp;<button onclick='scanCoins();'>SCAN COINS</button><br>
 <br>
 <div id="scandiv">NO COIN FOUND YET</div>
