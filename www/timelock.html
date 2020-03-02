@@ -15,8 +15,8 @@
 	var script      = "IF SIGNEDBY ( PUBKEY ) AND @BLKNUM GT XXX THEN RETURN TRUE ENDIF";
 	var pubkey      = "PUBKEY";
 	
-	var futureblock = 999;
-	var setblock    = 999;
+	var futureblock = 0;
+	var setblock    = 0;
 	
 	var address     = "0x00";
 	var coinid      = "0x00";
@@ -29,6 +29,7 @@
 		document.getElementById("infodiv").innerHTML = "Block : "+Minima.block+" Future Block : "+futureblock+"<br><br>";	
 	}
 	
+	//Create a new Public Private Key pair
 	function newKey(){
 		Minima.cmd("keys new", function(resp){
 			var json = JSON.parse(resp);
@@ -40,6 +41,7 @@
 		});
 	}
 
+	//Create the time lock address
 	function createAddress(){
 		//Store the chosen block
 		setblock = futureblock;
@@ -54,6 +56,7 @@
 		});
 	}
 	
+	//Send fund to the time lock address
 	function sendFunds(){
 		Minima.cmd("send 1 "+address, function(resp){
 			var json = JSON.parse(resp);
@@ -65,6 +68,7 @@
 		});
 	}
 	
+	//Scan for the arrival of coins
 	function scanCoins(){
 		Minima.cmd("coins "+address, function(resp){
 			var json = JSON.parse(resp);
@@ -97,6 +101,7 @@
 		}
 	}
 	
+	//Spend the time Lock funds!
 	function sendTXN(){
 		
 		//The transaction is validated first - if you send an invalid transaction 
@@ -197,7 +202,7 @@ Try and send the transaction before the correct block time has arrived.. it will
 <br>
 
 <br>
-<b>Step 8</b> : And FINALLY.. broadcast the txn! 
+<b>Step 8</b> : And FINALLY.. broadcast the txn.. 
 &nbsp;&nbsp;<button onclick='sendTXN();'>SEND TXN</button><br>
 <br>
     

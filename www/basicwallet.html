@@ -42,10 +42,13 @@
 		window.addEventListener('MinimaEvent', function(evt) {
 			//Deal with each message type
 	 		if(evt.detail.event == "connected"){
+	 			document.getElementById("blockdiv").innerHTML = "Block : "+Minima.block;
 	 			
+	 		}else if(evt.detail.event == "newblock"){
+	 			document.getElementById("blockdiv").innerHTML = "Block : "+Minima.block;
 	 			
 	 		}else if(evt.detail.event == "newbalance"){
-				//Set the Balance..
+	 			//Set the Balance..
 				var bal   = evt.detail.info.response.balance[0].confirmed;
 				var balun = evt.detail.info.response.balance[0].unconfirmed;
 				
@@ -71,6 +74,10 @@
 <br><br>
 
 <table width="400">
+	<tr>
+		<td width=200 colspan=2><div id="blockdiv">0</div></td> 
+	</tr>
+	
 	<tr>
 		<td width=200><div id="balancediv">0</div></td> <td><button onclick="Minima.cmd('gimme50');alert('50 Testnet Mini on their way!!');return false;">Gimme50</button></td>
 	</tr>

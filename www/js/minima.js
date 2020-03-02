@@ -214,49 +214,46 @@ function closeWebSocket(){
  */
 var global_balance = "";
 function startPolling(){
-	//Check it instantly first..
-	pollBalance();
-	
 	//Check Balance every second
-	setInterval(function(){pollStatus();pollBalance();},5000);
+	pollFunction();
+	
+	//Check every 5 secs
+	setInterval(function(){pollFunction();},5000);
 }
 
-function pollStatus(){
+function pollFunction(){	
 	//Check the Status
-	Minima.cmd("status",function(resp){
+	Minima.cmd("status;balance",function(resp){
 		//And set the block
 		var json = JSON.parse(resp);
 
-		//Store..
-		Minima.status = json;
+		//Status is first..
+		var stat = json[0];
+		var bal  = json[1];
 		
-		//Check for a change
-		if(json.response.tip.txpowid !== Minima.txpowid){
+		//Store..
+		Minima.status  = stat;
+		Minima.balance = bal;
+		
+		if(Minima.status.response.tip.txpowid !== Minima.txpowid){
 			//Store the details
-			Minima.block   = parseInt(json.response.lastblock,10);
-			Minima.txpowid = json.response.tip.txpowid;
+			Minima.block   = parseInt(Minima.status.response.lastblock,10);
+			Minima.txpowid = Minima.status.response.tip.txpowid;
 			
 			//Tell-tale..
 			postMinimaMessage("newblock",json);
 		}
-	},false);
-}
-
-function pollBalance(){
-	Minima.cmd("balance",function(resp){
-		//Make a json
-		var balancejson = JSON.parse(resp);
-
-		//Store
-		Minima.balance = balancejson;
+		
+		//Check balance..
+		var balstr = JSON.stringify(Minima.balance);
 		
 		//Simple string check for change
-		if(resp !== global_balance){
-			postMinimaMessage("newbalance",balancejson);
+		if(balstr !== global_balance){
+			postMinimaMessage("newbalance",Minima.balance);
 		}
 		
 		//Store it
-		global_balance = resp;
+		global_balance = balstr;
 	},false);
 }
 
