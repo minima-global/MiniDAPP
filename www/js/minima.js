@@ -210,7 +210,7 @@ function closeWebSocket(){
 }
 
 /**
- * Start polling to see if something has changed.. Should be a websocket but the iPhone version not working..
+ * Start polling to see if something has changed.. 
  */
 var global_balance = "";
 function startPolling(){
@@ -224,24 +224,21 @@ function startPolling(){
 function pollFunction(){	
 	//Check the Status
 	Minima.cmd("status;balance",function(resp){
-		//And set the block
+		//Convert to JSON
 		var json = JSON.parse(resp);
 
 		//Status is first..
-		var stat = json[0];
-		var bal  = json[1];
+		Minima.status  = json[0];
+		Minima.balance = json[1];
 		
-		//Store..
-		Minima.status  = stat;
-		Minima.balance = bal;
-		
+		//Check for new block
 		if(Minima.status.response.tip.txpowid !== Minima.txpowid){
 			//Store the details
 			Minima.block   = parseInt(Minima.status.response.lastblock,10);
 			Minima.txpowid = Minima.status.response.tip.txpowid;
 			
 			//Tell-tale..
-			postMinimaMessage("newblock",json);
+			postMinimaMessage("newblock",Minima.status);
 		}
 		
 		//Check balance..
