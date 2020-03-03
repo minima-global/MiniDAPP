@@ -1,0 +1,211 @@
+<html>
+
+<head>
+	
+	<!--   The MINIMA MiFi Javascript Library -->
+	<script type="text/javascript" src="./js/minima.js"></script>
+		
+</head>
+
+<body>
+
+<script type="text/javascript">
+
+	var coldkey = "";
+	var hotkey  = "";
+	var reckey  = "";
+	
+	function initVault(){
+		//we need to create 3 keys.. a hot, a cold, and a receiver address 
+		var keycommand = "keys new;keys new";
+		Minima.cmd(keycommand, function(resp){
+			var json = JSON.parse(resp);
+			
+			//Now get the 3 values..
+			coldkey = json[0].response.key;
+			hotkey  = json[1].response.key;
+			
+			//Set these details
+			document.getElementById("coldkey").innerHTML = coldkey;
+			document.getElementById("hotkey").innerHTML = hotkey;
+				
+			//Now create the Vault..
+			createVault();
+		});
+	}
+	
+	function createVault(){
+		
+	}
+
+	//Wait for the page to load..
+	window.addEventListener("load", function(){
+	    
+		//Listen for Minima Events
+		window.addEventListener('MinimaEvent', function(evt) {
+			
+			//Deal with each message type
+	 		if(evt.detail.event == "connected"){
+	 			//Do some setup..
+	 			initVault();
+	 			
+	 		}else if(evt.detail.event == "newblock"){
+	 		
+	 		}else if(evt.detail.event == "newbalance"){
+		 		
+	 		}
+			
+	    });
+		
+		//Initialise MiFi
+		Minima.init();
+	});
+	
+</script>
+
+<center>
+<br>
+<h3>Vault Wallet</h3>
+<br>
+<br>
+<div style='width:900;text-align:left;'>
+Vault wallets are special. They use covenants to ensure that funds are ALWAYS sent to a safe house first. 
+
+<br><br>
+Vaults use 2 sets of keys. One that is HOT. These are kept ONLINE and are used to send funds to the safe house. 
+And another set that is COLD. These are NEVER kept online and are only used in the event of a hack - or error in recipient.
+
+<br><br>
+What this means is that when you wish to send funds they MUST first be sent to a special address for 
+a period of time. This is enforced by the smart contract. Even you the owner must do this, and so therefore 
+even the hacker who has pinched the keys. Once the funds are at the safe house, the recipient must wait 
+until he can claim them, and if they were sent by a hacker - you the owner can claim them back within the time-limit 
+with your COLD key.
+
+<br><br>
+It puts an obligatory time-lock on the output so that there is time to check if this is a hack or not.
+
+<br><br>
+So - let's play.. All the setup is done in the background.. just make sure you have some funds so that the Vault Wallet can be filled.
+
+<br><br>
+</div>
+<br>
+<table>
+
+<tr>
+<td>
+	<b>VAULT</b>
+	<div style="font-family:monospace; font-size=14;width: 750px; height: 300px;background-color: #ccc;border-radius: 10px;">
+	<br>
+	<table width=100% heigth=100% border=1>
+	<tr>
+		<td width=150 align=right nowrap>Cold Key : </td>
+		<td> <div id='coldkey'>0</div></td>
+	</tr>
+	
+	<tr>
+		<td align=right nowrap>Hot Key : </td>
+		<td> <div id='hotkey'>0</div></td>
+	</tr>
+	
+	<tr>
+		<td colspan=2>&nbsp;</td>
+	</tr>
+	
+	<tr>
+		<td align=right nowrap>Vault Address : </td>
+		<td> <div id='vaultaddress'>0</div></td>
+	</tr>
+	
+	<tr>
+		<td align=right nowrap>Vault Balance : </td>
+		<td> <div id='vaultbalance'>0</div></td>
+	</tr>
+	
+	<tr>
+		<td colspan=2>&nbsp;</td>
+	</tr>
+	
+	<tr>
+		<td align=right>Amount : </td> <td> <input type='text' id='amount'></td>
+	</tr>
+	
+	<tr>
+		<td align=right>Address : </td> <td> <input type='text' id='address'></td>
+	</tr>
+	
+	<tr>
+		<td colspan=2>&nbsp;</td>
+	</tr>
+	
+	<tr>
+		<td colspan=2 align=right> <button onclick='send();return false;'>SEND TO SAFE HOUSE</button> </td>
+	</tr>
+		
+	</table>
+</div>
+
+<br><br>
+
+<b>SAFE HOUSE</b> 
+<div style="font-family:monospace; font-size=14;width: 750px; height: 300px;background-color: #ccc;border-radius: 10px;">
+<br>
+<table>
+<table width=100% heigth=100% border=1>
+	<tr>
+		<td width=150 align=right nowrap>Address : </td>
+		<td> <div id='reckey'>0</div></td>
+	</tr>
+	
+	<tr>
+		<td align=right nowrap>Hot Key : </td>
+		<td> <div id='hotkey'>0</div></td>
+	</tr>
+	
+</table>
+</div>
+
+</td>
+
+
+</tr>
+
+
+</table>
+
+
+<br>
+Here is the vault address script used : <br>
+<div style='width:900;text-align:left;font-size:13px'>
+<br>
+<b>
+LET pkcold = 0x876876876<br>
+IF SIGNEDBY pkcold THEN RETURN TRUE ENDIF<br>
+LET pkhot = 0x75765765765<br>
+LET amt = GETSTATE ( 20 )<br>
+LET recip = GETSTATE ( 21 )<br>
+LET root = CONCAT ( [ IF SIGNEDBY ] SCRIPT ( pkcold ) [ THEN RETURN TRUE ENDIF ] )<br>
+LET user = CONCAT ( [ IF SIGNEDBY ] SCRIPT ( recip ) [ AND ( @BLKNUM - @INBLKNUM ) GT 20 THEN RETURN TRUE ENDIF ] )<br>
+LET final = CONCAT ( root user )<br>
+ASSERT VERIFYOUT ( @INPUT SHA3 ( final ) amt @TOKENID )<br>
+ASSERT VERIFYOUT ( ( @INPUT + 1 ) @ADDRESS ( @AMOUNT - amt ) @TOKENID )<br>
+IF SIGNEDBY pkhot THEN RETURN TRUE ENDIF<br>
+</b>
+</div>
+
+<br><Br>And here is the script created in the vault script used for the recipient : <br>
+<div style='width:900;text-align:left;font-size:13px'>
+<br>
+<b>
+IF SIGNEDBY pkcold THEN RETURN TRUE ENDIF<br>
+IF SIGNEDBY recip AND @BLKNUM - @INBLKNUM GT 20 THEN RETURN TRUE ENDIF<br>
+</b>
+</div>
+
+<br><br><a href='index.html'>HOME</a>
+</center>
+
+</body>
+
+</html>

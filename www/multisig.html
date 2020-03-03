@@ -11,21 +11,6 @@
 
 <script type="text/javascript">
 
-	//Update the info..
-	function updateInfo(info){
-		document.getElementById("infodiv").innerHTML = 
-			"Host : "+Minima.host+"<br><br>"+
-			"Block : "+Minima.block+"<br><br>"+
-			"TxPoWID : <a href='#' onclick='updateTxPow(Minima.txpowid); return false;'>"+Minima.txpowid+"</a><br><br>";	
-	}
-
-	//When you click on a txpowid.. get it and print info..
-	function updateTxPow(txpowid){
-		Minima.cmd("txpowinfo "+txpowid,function(resp){
-			document.getElementById("txpowinfo").value = resp;
-		});
-	}
-	
 	//Wait for the page to load..
 	window.addEventListener("load", function(){
 	    
@@ -35,16 +20,7 @@
 			//Deal with each message type
 	 		if(evt.detail.event == "connected"){
 	 			
-	 			//Print some data
-	 			updateInfo();
-	 			
-	 			//And set the initial 
-	 			updateTxPow(Minima.txpowid);
-	 			
 	 		}else if(evt.detail.event == "newblock"){
-	 			
-	 			//Print some data
-	 			updateInfo();
 	 		
 	 		}else if(evt.detail.event == "newbalance"){
 		 		
@@ -60,16 +36,26 @@
 
 <center>
 <br>
-<h3>Super Simple MiFi Block Explorer</h3>
-<br>
+<h3>Multi Sig Wallet</h3>
 <br>
 
-<div id="infodiv">no info yet..</div> 
+
+Ok .. You have funds and you want 2 people to sign a transaction to be able to spend them.<br>
 <br>
+This works best if you have 2 people playing.. so get someone to open this page on their computer on their separate version of Minima.<br>
 <br>
-TxPow Info :
+
+<div style='width:900;text-align:left;'>
+
+Step 1 : You need to make you Keys.<br>
+<Br>
+Step 2 : Ask your friend for their PUBLIC KEY.. and paste it here. We'll create an address with 1 Minima that can only be spent if BOTH sign.<br>
+<Br>
+Step 4 : Now create the transaction that tries to spend those funds.. <br>
 <br>
-<textarea spellcheck="false" rows="35" cols="100" style="border:none;" id="txpowinfo"></textarea>
+
+</div>
+
 
 <br><br><a href='index.html'>HOME</a>
 </center>
