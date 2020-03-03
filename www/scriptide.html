@@ -40,7 +40,6 @@
 		
 		//Clean it..
 		Minima.cmd("cleanscript \""+nocomm+"\"",function(resp){
-			console.log(resp);
 			var json = JSON.parse(resp);
 			
 			var brkscr = json.response.parse.replace(/\n/g,"<br>");
@@ -71,8 +70,10 @@
 		var txt = window.localStorage.getItem('ScriptIDE'+sel);
 		
 		//Save the OLD
-		var save = document.getElementById("scriptarea").value;
-		window.localStorage.setItem('ScriptIDE'+prevsel,save);
+		if(document.getElementById("autosave").checked){
+			var save = document.getElementById("scriptarea").value;
+			window.localStorage.setItem('ScriptIDE'+prevsel,save);
+		}
 		prevsel = sel;
 		
 		//Load the NEW
@@ -124,12 +125,15 @@
 		  <option value="7">SCRIPT_7</option>
 		  <option value="8">SCRIPT_8</option>
 		</select>
-	<!-- <button onclick='loadScript();'>LOAD</button>
-		<button onclick='saveScript();'>SAVE</button>  -->	
+		<input type="checkbox" id="autosave" name='autosave'> <label for="autosave">AUTOSAVE</label>
+		&nbsp;
+		&nbsp;
+		<button onclick='loadScript();'>LOAD</button>
+		<button onclick='saveScript();'>SAVE</button>
 	</td>
 	
 	<td align=right>
-	    <button onclick='document.getElementById("scriptarea").value = "";'>CLEAR</button>
+	    <!-- <button onclick='document.getElementById("scriptarea").value = "";'>CLEAR</button> -->
 		<button onclick='cleanScript();'>PARSE SCRIPT</button>
 	</td>
 </tr>
