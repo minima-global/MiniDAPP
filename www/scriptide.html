@@ -23,10 +23,7 @@
 		Minima.init();
 		
 		//Load cached if available..
-		var txt = window.localStorage.getItem('ScriptIDE');
-		if(txt !== null){
-			document.getElementById("scriptarea").value = txt;
-		}
+		loadScript();
 	});
 
 	//Clean the script to make it easy to use in commands..
@@ -61,18 +58,32 @@
 	}
 	
 	function saveScript(){
-	    var save = document.getElementById("scriptarea").value;
-		window.localStorage.setItem('ScriptIDE',save);
+		var sel = document.getElementById("scripts").selectedIndex;
+		var save = document.getElementById("scriptarea").value;
+		
+	    window.localStorage.setItem('ScriptIDE'+sel,save);
 	}
 	
+	var prevsel = 0;
 	function loadScript(){
 		//Load cached if available..
-		var txt = window.localStorage.getItem('ScriptIDE');
+		var sel = document.getElementById("scripts").selectedIndex;
+		var txt = window.localStorage.getItem('ScriptIDE'+sel);
+		
+		//Save the OLD
+		var save = document.getElementById("scriptarea").value;
+		window.localStorage.setItem('ScriptIDE'+prevsel,save);
+		prevsel = sel;
+		
+		//Load the NEW
 		if(txt !== null){
 			document.getElementById("scriptarea").value = txt;
 		}else{
-			alert("No saved script found");	
+			document.getElementById("scriptarea").value = "";
 		}
+		
+		document.getElementById("parse").innerHTML = "";
+		document.getElementById("clean").innerHTML = "";
 	}
 	
 	
@@ -84,19 +95,37 @@
 <br>
 
 <table>
-
 <tr>
-	<td colspan=2>You can write your script in here. /* .. */ Comments are supported and will be removed.</td>
+	<td colspan=2>PREVSTATE - comma seperated list of previous state state number:value <br><textarea placeholder='0:0xFF , 34:123' style='resize: none;width: 800px;' rows=1 id='prevstate' spellcheck="false" ></textarea></td>
 </tr>
 
 <tr>
-	<td colspan=2><textarea style='width: 800px;height: 360px;' id='scriptarea' spellcheck="false" ></textarea></td>
+	<td colspan=2>STATE - comma seperated list of state number:value <br><textarea style='resize: none;width: 800px;' rows=1 id='state' spellcheck="false" ></textarea></td>
+</tr>
+
+<tr>
+	<td colspan=2>SIGNATURES - comma separated list of signatures<br><textarea placeholder='0x3A5D322E1F3562ABDDF6FB23E120E233BEADD695E38A2012DF349B26A040CBAA , 0x2ADF94A41D1885514226F6E76CFAA889762E22152A79AA36B66BF1EACA670983' style='resize: none;width: 800px;' rows=1 id='sigs' spellcheck="false" ></textarea></td>
+</tr>
+
+<tr>
+	<td colspan=2><br>SCRIPT - /* .. */ comments are supported and will be removed automatically<br>
+	<textarea style='resize: none;width: 800px;height: 360px;' id='scriptarea' spellcheck="false" ></textarea></td>
 </tr>
 
 <tr>
 	<td align=left>
-		<button onclick='loadScript();'>LOAD SCRIPT</button>
-		<button onclick='saveScript();'>SAVE SCRIPT</button>
+		<select id="scripts" onchange="loadScript();">
+		  <option value="1">SCRIPT_1</option>
+		  <option value="2">SCRIPT_2</option>
+		  <option value="3">SCRIPT_3</option>
+		  <option value="4">SCRIPT_4</option>
+		  <option value="5">SCRIPT_5</option>
+		  <option value="6">SCRIPT_6</option>
+		  <option value="7">SCRIPT_7</option>
+		  <option value="8">SCRIPT_8</option>
+		</select>
+	<!-- <button onclick='loadScript();'>LOAD</button>
+		<button onclick='saveScript();'>SAVE</button>  -->	
 	</td>
 	
 	<td align=right>
