@@ -198,7 +198,7 @@ IF SIGNEDBY pkhot THEN RETURN TRUE ENDIF<br>
 <div style='width:900;text-align:left;font-size:13px'>
 <br>
 <b>
-IF SIGNEDBY pkcold THEN RETURN TRUE ENDIF<br>
+IF SIGNEDBY pkcold AND @BLKNUM - @INBLKNUM LTE 20 THEN RETURN TRUE ENDIF<br>
 IF SIGNEDBY recip AND @BLKNUM - @INBLKNUM GT 20 THEN RETURN TRUE ENDIF<br>
 </b>
 </div>
