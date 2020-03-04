@@ -68,16 +68,20 @@ var Minima = {
 	
 	//Runs a function on the phone
 	cmd : function(minifunc, callback, logenabled){
+		//Encode ready for transmission..
+		var enc = encodeURIComponent(minifunc);
+		
 		//Create the string..
-		var rpc = "http://"+Minima.host+"/"+minifunc;
+		var rpcplain = "http://"+Minima.host+"/"+minifunc;
+		var rpc = "http://"+Minima.host+"/"+enc;
 
 		//log it..
 		if(logenabled !== undefined){
 			if(logenabled){
-				log("RPC call "+rpc);	
+				log("RPC call "+rpcplain);	
 			}
 		}else{
-			log("RPC call "+rpc);
+			log("RPC call "+rpcplain);
 		}
 		
 		//And Call it..
@@ -583,7 +587,7 @@ function log(info){
  * @returns
  */
 function httpGetAsync(theUrl, callback)
-{
+{	
     var xmlHttp = new XMLHttpRequest();
     xmlHttp.onreadystatechange = function() { 
         if (xmlHttp.readyState == 4 && xmlHttp.status == 200){
