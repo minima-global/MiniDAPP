@@ -95,7 +95,7 @@ var Minima = {
 };
 
 function postMinimaMessage(event, info){
-   log("Event Dispatch "+event+" "+info);
+//   log("Event Dispatch "+event+" "+info);
 	
    //And finally..
    var data = { "event": event, "info" : info }

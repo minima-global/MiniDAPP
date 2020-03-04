@@ -72,18 +72,18 @@
 Vault wallets are special. They use covenants to ensure that funds are ALWAYS sent to a safe house first. 
 
 <br><br>
-Vaults use 2 sets of keys. One that is HOT. These are kept ONLINE and are used to send funds to the safe house. 
-And another set that is COLD. These are NEVER kept online and are only used in the event of a hack - or error in recipient.
+Vaults use 2 sets of keys. One that is HOT. These are kept ONLINE and are used to send funds from the vault to the safe house and eventually beyond. 
+Another set is COLD. These are NEVER kept online and are only used in the event of a hack - or error in recipient. The HOT keys can be hacked.. and it's really no big deal.
 
 <br><br>
 What this means is that when you wish to send funds they MUST first be sent to a special address for 
-a period of time. This is enforced by the smart contract. Even you the owner must do this, and so therefore 
-even the hacker who has pinched the keys. Once the funds are at the safe house, the recipient must wait 
-until he can claim them, and if they were sent by a hacker - you the owner can claim them back within the time-limit 
-with your COLD key.
+a period of time - the Safe House. This is enforced by the smart contract. Even you the owner of the vault must do this, and so therefore 
+even the hacker who has pinched the keys. Once the funds are at the safe house, you must wait a certain amount of time 
+until you can send them on to ONLY the pre-specified address. If they were sent by a hacker - you the owner can claim them 
+back with your COLD key.
 
 <br><br>
-It puts an obligatory time-lock on the output so that there is time to check if this is a hack or not.
+Hot wallet convenience with cold wallet security and all it takes is a little delay. An exchange, for instance, can keep large amounts online and available to send this way. Simple (yet secure).  
 
 <br><br>
 So - let's play.. All the setup is done in the background.. just make sure you have some funds so that the Vault Wallet can be filled.
@@ -163,6 +163,11 @@ So - let's play.. All the setup is done in the background.. just make sure you h
 		<td> <div id='hotkey'>0</div></td>
 	</tr>
 	
+	<tr>
+		<td align=left><br><br>Using the COLD key..<br><button>RESCUE FUNDS</button></td>
+		<td align=right><br><br>Recipient using his key..<br><button>COLLECT FUNDS</button></td>
+		
+	</tr>
 </table>
 </div>
 
@@ -176,30 +181,49 @@ So - let's play.. All the setup is done in the background.. just make sure you h
 
 
 <br>
-Here is the vault address script used : <br>
-<div style='width:900;text-align:left;font-size:13px'>
+Here is the Vault script : <br>
+<div style='width:900;text-align:left;font-size:13px;font-family:monospace;'>
 <br>
 <b>
+/* The COLD key always has root access */ <br>
 LET pkcold = 0x876876876<br>
-IF SIGNEDBY pkcold THEN RETURN TRUE ENDIF<br>
+IF SIGNEDBY ( pkcold ) THEN RETURN TRUE ENDIF<br>
+<br>
+/* The HOT key is kept online */<br>
 LET pkhot = 0x75765765765<br>
-LET amt = GETSTATE ( 20 )<br>
-LET recip = GETSTATE ( 21 )<br>
+<br>
+/* How much are you sending and to who is specified in the STATE <br>
+and accessible in PREVSTATE from the Safe House */<br>
+LET amt = STATE ( 20 )<br>
+LET recip = STATE ( 21 )<br>
+<br>
+/* Construct the script output for the safe house */<br>
 LET root = CONCAT ( [ IF SIGNEDBY ] SCRIPT ( pkcold ) [ THEN RETURN TRUE ENDIF ] )<br>
 LET user = CONCAT ( [ IF SIGNEDBY ] SCRIPT ( recip ) [ AND ( @BLKNUM - @INBLKNUM ) GT 20 THEN RETURN TRUE ENDIF ] )<br>
 LET final = CONCAT ( root user )<br>
+<br>
+/* Check that the correct output exists */<br> 
 ASSERT VERIFYOUT ( @INPUT SHA3 ( final ) amt @TOKENID )<br>
+<br>
+/* Make sure the change is sent back to the Vault */<br>
 ASSERT VERIFYOUT ( ( @INPUT + 1 ) @ADDRESS ( @AMOUNT - amt ) @TOKENID )<br>
-IF SIGNEDBY pkhot THEN RETURN TRUE ENDIF<br>
+<br>
+/* Finally - it must be signed by the HOT key*/<br>
+IF SIGNEDBY ( pkhot ) THEN RETURN TRUE ENDIF<br>
 </b>
 </div>
 
-<br><Br>And here is the script created in the vault script used for the recipient : <br>
-<div style='width:900;text-align:left;font-size:13px'>
+<br><Br>Here is the Safe House : <br>
+<div style='width:900;text-align:left;font-size:13px;font-family:monospace;'>
 <br>
 <b>
-IF SIGNEDBY pkcold AND @BLKNUM - @INBLKNUM LTE 20 THEN RETURN TRUE ENDIF<br>
-IF SIGNEDBY recip AND @BLKNUM - @INBLKNUM GT 20 THEN RETURN TRUE ENDIF<br>
+/* COLD key has root */<br>
+IF SIGNEDBY ( pkcold ) THEN RETURN TRUE ENDIF<br>
+<br>
+/* MUST wait a certain amount of time then you can forward the amount */<br>
+IF SIGNEDBY ( pkhot ) AND @BLKNUM - @INBLKNUM GT 20 THEN<br> 
+&nbsp;&nbsp;&nbsp;ASSERT VERIFYOUT ( @INPUT PREVSTATE ( 21 ) @AMOUNT @TOKENID )<br> 
+ENDIF<br>
 </b>
 </div>
 

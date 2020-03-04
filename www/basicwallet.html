@@ -30,10 +30,16 @@
 			}else{
 				alert(json.error);
 			}
-			
 		});
 	}
 
+	//Create a new address
+	function newAddress(){
+		Minima.cmd("newaddress", function(resp){
+			var json = JSON.parse(resp);
+			document.getElementById("addressdiv").innerHTML = "<b>"+json.response.address+"</b>";
+		});
+	}
 
 	//Wait for the page to load..
 	window.addEventListener("load", function(){
@@ -43,6 +49,9 @@
 			//Deal with each message type
 	 		if(evt.detail.event == "connected"){
 	 			document.getElementById("blockdiv").innerHTML = "Block : "+Minima.block;
+	 			
+	 			//Get an address
+	 			newAddress();
 	 			
 	 		}else if(evt.detail.event == "newblock"){
 	 			document.getElementById("blockdiv").innerHTML = "Block : "+Minima.block;
@@ -80,7 +89,14 @@
 	</tr>
 	
 	<tr>
-		<td width=200><div id="balancediv">0</div></td> <td><button onclick="Minima.cmd('gimme50');alert('50 Testnet Mini on their way!!');return false;">Gimme50</button></td>
+		<td width=200><div id="balancediv">0</div></td> <td><button onclick="Minima.cmd('gimme50');alert('50 Testnet Mini on their way!!');">Gimme50</button></td>
+	</tr>
+	
+	<tr>
+		<td width=200>Address : </td> <td><button onclick="newAddress();">New Address</button></td>
+	</tr>
+	<tr>
+		<td colspan=2><div id="addressdiv" style="font-size:12px;">..</div></td> 
 	</tr>
 	
 	<tr>
