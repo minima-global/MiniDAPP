@@ -41,20 +41,32 @@
 		var nocomm = txt.replace(/\n/g," ");
 		
 		//Clean it..
-		Minima.cmd("cleanscript \""+nocomm+"\"",function(resp){
+		Minima.cmd("runscript \""+nocomm+"\"",function(resp){
 			var json = JSON.parse(resp);
-			
 			var brkscr = json.response.parse.replace(/\n/g,"<br>");
 			
+			var res = "-------------------<br>";
 			if(json.response.parseok){
-				document.getElementById("parse").innerHTML = "PARSE OK<br>"+brkscr;	
+				res += "PARSE OK : ";	
 			}else{
-				document.getElementById("parse").innerHTML = "PARSE FAIL<br>"+brkscr;
+				res += "PARSE FAIL : ";	
 			}
+			
+			if(json.response.return){
+				res += "RUN OK ";	
+			}else{
+				res += "RUN FAIL ";	
+			}
+			
+			//Set it
+			document.getElementById("parse").innerHTML = res+"<br>-------------------<br>"+brkscr;	
 			document.getElementById("parse").scrollTop = 0;
 			
 			document.getElementById("clean").innerHTML = json.response.clean;
 			document.getElementById("clean").scrollTop = 0;
+			
+			//Set the global address
+			document.getElementById("globaddress").value = json.response.address;
 		});
 	}
 	
@@ -102,14 +114,23 @@
 		var tokenid = row.insertCell(3);
 		
 		//Get the data..
-		
+		var out  = len-2;
+		var addr = document.getElementById("output_address").value;
+		var amt  = document.getElementById("output_amount").value;
+		var tok  = document.getElementById("output_tokenid").value;
 		
 		//Data..
 		output.id = "table_output_"+len;
-		output.innerHTML = "NEW CELL"+len;
+		output.innerHTML = ""+out;
 		
 		address.id = "table_address_"+len;
-		address.innerHTML = "NEW CELL"+len;
+		address.innerHTML = ""+addr;
+		
+		amount.id = "table_amount_"+len;
+		amount.innerHTML = ""+amt;
+		
+		tokenid.id = "table_tokenid_"+len;
+		tokenid.innerHTML = ""+tok;
 	}
 	
 	function deleteOutput(){
@@ -131,42 +152,37 @@
 
 <table border=0>
 <tr>
-	<td colspan=2><b>STATE</b> - comma seperated list of state number:value<br>
-	<textarea placeholder='0:0xFF , 34:123' style='resize: none;width: 950px;' rows=1 id='state' spellcheck="false" ></textarea></td>
+	<td colspan=2><b>STATE</b> - semicolon separated list of state variables.. number:value<br>
+	<textarea placeholder='0:0xFF ; 34:123.32 ; 45:[ LET cc = 43 ]' style='resize: none;width: 950px;' rows=1 id='state' spellcheck="false" ></textarea></td>
 </tr>
 
 <tr>
-	<td colspan=2><b>PREVSTATE</b> - comma seperated list of previous state state number:value<br>
+	<td colspan=2><b>PREVSTATE</b> - semicolon separated list of previous state variables.. number:value<br>
 	<textarea style='resize: none;width: 950px;' rows=1 id='prevstate' spellcheck="false" ></textarea></td>
 </tr>
 
 <tr>
-	<td colspan=2><b>SIGNATURES</b> - comma separated list of public keys (can be shorter 0xFF for debugging)<br>
-	<textarea placeholder='0XFF, 0x123, 0x3A5D322E1F3562ABDDF6FB23E120E233BEADD695E38A2012DF349B26A040CBAA' style='resize: none;width: 950px;' rows=1 id='sigs' spellcheck="false" ></textarea></td>
+	<td colspan=2><b>SIGNATURES</b> - semicolon separated list of public keys (can be shorter 0xFF for debugging)<br>
+	<textarea placeholder='0XFF; 0x123; 0x3A5D322E1F3562ABDDF6FB23E120E233BEADD695E38A2012DF349B26A040CBAA' style='resize: none;width: 950px;' rows=1 id='sigs' spellcheck="false" ></textarea></td>
 </tr>
 
 <tr>
-	<td colspan=2><br><b>GLOBALS</b> - the predefined variables every script has access to<br>
+	<td colspan=2><br><b>GLOBALS</b> - the predefined variables every script has access to. NON-Blank are set<br>
 	<table style='background-color:#CCCCCC;font-size:12px;font-family:monospace;width:950px;'>
 		<tr> 
-			<td align=right>@BLKNUM : </td>  <td align=left><input type=text id="globblknum" value=0></td>
-		    <td align=right>@INBLKNUM : </td>  <td align=left><input type=text id="globinblknum" value=0></td>
-		    <td align=right>@INPUT : </td>  <td align=left><input type=text id="globinput" value=0></td>
+			<td align=right>@BLKNUM : </td>  <td align=left><input type=text id="globblknum" value=""></td>
+		    <td align=right>@INBLKNUM : </td>  <td align=left><input type=text id="globinblknum" value=""></td>
+		    <td align=right>@INPUT : </td>  <td align=left><input type=text id="globinput" value=""></td>
 		</tr>
 		<tr> 
-			<td align=right>@ADDRESS : </td>  <td align=left><input type=text id="globaddress" value="0x00"></td>
-		    <td align=right>@AMOUNT : </td>  <td align=left><input type=text id="globamount" value=0></td>
-		    <td align=right>@TOKENID : </td>  <td align=left><input type=text id="globtokenid" value="0x00"></td>
+			<td align=right>@ADDRESS : </td>  <td align=left><input readonly type=text id="globaddress" value=""></td>
+		    <td align=right>@AMOUNT : </td>  <td align=left><input type=text id="globamount" value=""></td>
+		    <td align=right>@TOKENID : </td>  <td align=left><input type=text id="globtokenid" value=""></td>
 		</tr>
 		<tr> 
-			<td align=right>@COINID : </td>  <td align=left><input type=text id="globcoinid" value="0x00"></td>
-		    <td align=right>@SCRIPT : </td>  <td align=left><input type=text id="globscript" value=""></td>
-		    <td align=right>&nbsp;</td>  <td align=left>&nbsp;</td>
-		</tr>
-		<tr> 
-			<td align=right>@TOTIN : </td>  <td align=left><input type=text id="globtotin" value=1></td>
-		    <td align=right>@TOTOUT : </td>  <td align=left><input type=text id="globtotout" value=0></td>
-		    <td align=right>&nbsp;</td>  <td align=left>&nbsp;</td>
+			<td align=right>@COINID : </td>  <td align=left><input type=text id="globcoinid" value=""></td>
+		    <td align=right>@TOTIN : </td>  <td align=left><input type=text id="globtotin"  spellcheck="false" value=""></td>
+		    <td align=right>@TOTOUT : </td>  <td align=left><input type=text id="globtotout"  spellcheck="false" value=""></td>
 		</tr>
 	</table>
 	</td>
@@ -175,19 +191,19 @@
 <tr>
 	<td colspan=2><br><b>OUTPUTS</b> - outputs that exist in the transaction<br>
 	
-	<table id="outputtable" style='font-size:12px;font-family:monospace;'>
+	<table id="outputtable" style='font-size:13px;font-family:monospace;'>
 		<tr>
 			<th align=left>OUTPUT</th>
 			<th align=left>ADDRESS</th>
 			<th align=left>AMOUNT</th>
 			<th align=left>TOKENID</th>
+			<th>&nbsp;</th>
 		</tr>
-		
 		<tr>
-			<td><input type='text' name='output_num' value=0 size=10></td>
-			<td><input type='text' name='output_address' value="0xFF"></td>
-			<td><input type='text' name='output_amount' value=0 size=10></td>
-			<td><input type='text' name='output_tokenid' value="0x00"></td>
+			<td>&nbsp;</td>
+			<td><input type='text' id='output_address' value="0xFF"></td>
+			<td><input type='text' id='output_amount' value=0 size=10></td>
+			<td><input type='text' id='output_tokenid' value="0x00"></td>
 			<td><button onclick='addOutput();'>ADD</button>&nbsp;<button onclick='deleteOutput();'>DELETE</button> </td>
 		</tr>
 		
@@ -220,7 +236,7 @@
 	
 	<td align=right>
 	    <!-- <button onclick='document.getElementById("scriptarea").value = "";'>CLEAR</button> -->
-		<button onclick='cleanScript();'>PARSE SCRIPT</button>
+		<button onclick='cleanScript();'>RUN SCRIPT</button>
 	</td>
 </tr>
 
@@ -229,7 +245,7 @@
 </tr>
 
 <tr>
-	<td colspan=2><br>RUN PARSE RESULTS<div id='parse' style='font-size:12px;font-family:monospace;overflow-y: auto;text-align:left;width:950px;height:200px;background-color:#CCCCCC;color:#000000;'></div></td>
+	<td colspan=2><br>RUN RESULT<div id='parse' style='font-size:12px;font-family:monospace;overflow-y: auto;text-align:left;width:950px;height:200px;background-color:#CCCCCC;color:#000000;'></div></td>
 </tr>
 
 </table>
