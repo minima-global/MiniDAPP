@@ -43,11 +43,11 @@
 		var state = "state:"+document.getElementById("state").value.trim();
 		var prevstate = "prevstate:"+document.getElementById("prevstate").value.trim();
 		var sigs = "sigs:"+document.getElementById("sigs").value.trim();
-		
+		var outputs = "outputs:"+getOutputString();
 		
 		//Clean it..
-		Minima.cmd("runscript \""+script+"\" \""+state+"\" \""+prevstate+"\" \""+sigs+"\" ",function(resp){
-			console.log(resp);
+		Minima.cmd("runscript \""+script+"\" \""+outputs+"\" \""+state+"\" \""+prevstate+"\" \""+sigs+"\" ",function(resp){
+			//console.log(resp);
 			var json = JSON.parse(resp);
 			var brkscr = json.response.parse.replace(/\n/g,"<br>");
 			
@@ -76,6 +76,23 @@
 		});
 	}
 	
+	function getOutputString(){
+		//Get the outputs..
+		var outputs    = "";
+		var table = document.getElementById("outputtable");
+		var rows  = table.getElementsByTagName("tr")
+		var len   = rows.length;
+		for(i=2;i<len;i++){
+			var address = document.getElementById("table_address_"+i).innerHTML;
+			var amount  = document.getElementById("table_amount_"+i).innerHTML;
+			var tokenid = document.getElementById("table_tokenid_"+i).innerHTML;
+			
+			outputs += address+":"+amount+":"+tokenid+"#";
+		}
+		
+		return outputs;
+	}
+	
 	function saveScript(){
 		//Which script is this..
 		var sel = document.getElementById("scripts").selectedIndex;
@@ -85,9 +102,11 @@
 		var state      = document.getElementById("state").value;
 		var prevstate  = document.getElementById("prevstate").value;
 		var sigs       = document.getElementById("sigs").value;
+		var outputs    = getOutputString();
+		
 		
 		//Create a JSON out of it..
-		var storejson = { "script":scriptarea, "state":state, "prevstate":prevstate, "sigs":sigs };
+		var storejson = { "script":scriptarea, "state":state, "prevstate":prevstate, "sigs":sigs, "outputs":outputs };
 		
 		//Convert the whole thing to a tring
 		var jsontext = JSON.stringify(storejson);
@@ -166,6 +185,11 @@
 		
 		tokenid.id = "table_tokenid_"+len;
 		tokenid.innerHTML = ""+tok;
+		
+		
+		var str = document.getElementById("table_amount_"+len).innerHTML;
+		console.log("newoutput:"+len+ " "+str);
+		
 	}
 	
 	function deleteOutput(){
