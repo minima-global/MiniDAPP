@@ -30,18 +30,24 @@
 	function cleanScript(){
 		var txt = document.getElementById("scriptarea").value.trim();
 		
-		if(document.getElementById("autosave").checked){
-			saveScript();	
-		}
+		//if(document.getElementById("autosave").checked){
+		//	saveScript();	
+		//}
 		
 		//small touch..
 		//var nocomm = txt.replace(/\n/g," ");
 		//nocomm =  nocomm.replace(/\/\*.*\*\//g, " ");
 		//nocomm =  nocomm.replace(/\s+/g, " ").trim();
-		var nocomm = txt.replace(/\n/g," ");
+		
+		var script = txt.replace(/\n/g," ");
+		var state = "state:"+document.getElementById("state").value.trim();
+		var prevstate = "prevstate:"+document.getElementById("prevstate").value.trim();
+		var sigs = "sigs:"+document.getElementById("sigs").value.trim();
+		
 		
 		//Clean it..
-		Minima.cmd("runscript \""+nocomm+"\"",function(resp){
+		Minima.cmd("runscript \""+script+"\" \""+state+"\" \""+prevstate+"\" \""+sigs+"\" ",function(resp){
+			console.log(resp);
 			var json = JSON.parse(resp);
 			var brkscr = json.response.parse.replace(/\n/g,"<br>");
 			
@@ -71,32 +77,61 @@
 	}
 	
 	function saveScript(){
+		//Which script is this..
 		var sel = document.getElementById("scripts").selectedIndex;
-		var save = document.getElementById("scriptarea").value;
 		
-	    window.localStorage.setItem('ScriptIDE'+sel,save);
+		//Get all this different parts..
+		var scriptarea = document.getElementById("scriptarea").value;
+		var state      = document.getElementById("state").value;
+		var prevstate  = document.getElementById("prevstate").value;
+		var sigs       = document.getElementById("sigs").value;
+		
+		//Create a JSON out of it..
+		var storejson = { "script":scriptarea, "state":state, "prevstate":prevstate, "sigs":sigs };
+		
+		//Convert the whole thing to a tring
+		var jsontext = JSON.stringify(storejson);
+		
+		console.log("SAVE JSON:"+jsontext);
+		
+		//Now store it..
+	    window.localStorage.setItem('ScriptIDE'+sel,jsontext);
 	}
 	
 	var prevsel = 0;
 	function loadScript(){
 		//Load cached if available..
 		var sel = document.getElementById("scripts").selectedIndex;
-		var txt = window.localStorage.getItem('ScriptIDE'+sel);
+		
+		//Load the JSON
+		var jsontext = window.localStorage.getItem('ScriptIDE'+sel);
+		
+		console.log("LOAD JSON:"+jsontext);
+		
+		if(jsontext != null){
+			//Convert to a JSON
+			var json = JSON.parse(jsontext);
+			
+			document.getElementById("scriptarea").value = json.script;
+			document.getElementById("state").value      = json.state;
+			document.getElementById("prevstate").value  = json.prevstate;
+			document.getElementById("sigs").value       = json.sigs;
+		}else{
+			//Reset the values..
+			document.getElementById("scriptarea").value = "";
+			document.getElementById("state").value      = "";
+			document.getElementById("prevstate").value  = "";
+			document.getElementById("sigs").value       = "";
+		}
 		
 		//Save the OLD
-		if(document.getElementById("autosave").checked){
-			var save = document.getElementById("scriptarea").value;
-			window.localStorage.setItem('ScriptIDE'+prevsel,save);
-		}
-		prevsel = sel;
+		//if(document.getElementById("autosave").checked){
+		//	var save = document.getElementById("scriptarea").value;
+		//	window.localStorage.setItem('ScriptIDE'+prevsel,save);
+		//}
+		//prevsel = sel;
 		
-		//Load the NEW
-		if(txt !== null){
-			document.getElementById("scriptarea").value = txt;
-		}else{
-			document.getElementById("scriptarea").value = "";
-		}
-		
+		//reset..
 		document.getElementById("parse").innerHTML = "";
 		document.getElementById("clean").innerHTML = "";
 	}
@@ -152,18 +187,18 @@
 
 <table border=0>
 <tr>
-	<td colspan=2><b>STATE</b> - semicolon separated list of state variables.. number:value<br>
-	<textarea placeholder='0:0xFF ; 34:123.32 ; 45:[ LET cc = 43 ]' style='resize: none;width: 950px;' rows=1 id='state' spellcheck="false" ></textarea></td>
+	<td colspan=2><b>STATE</b> - # separated list of state variables.. number:value<br>
+	<textarea placeholder='0:0xFF # 34:123.32 # 45:[ LET cc = 43 ]' style='resize: none;width: 950px;' rows=1 id='state' spellcheck="false" ></textarea></td>
 </tr>
 
 <tr>
-	<td colspan=2><b>PREVSTATE</b> - semicolon separated list of previous state variables.. number:value<br>
+	<td colspan=2><b>PREVSTATE</b> - # separated list of previous state variables.. number:value<br>
 	<textarea style='resize: none;width: 950px;' rows=1 id='prevstate' spellcheck="false" ></textarea></td>
 </tr>
 
 <tr>
-	<td colspan=2><b>SIGNATURES</b> - semicolon separated list of public keys (can be shorter 0xFF for debugging)<br>
-	<textarea placeholder='0XFF; 0x123; 0x3A5D322E1F3562ABDDF6FB23E120E233BEADD695E38A2012DF349B26A040CBAA' style='resize: none;width: 950px;' rows=1 id='sigs' spellcheck="false" ></textarea></td>
+	<td colspan=2><b>SIGNATURES</b> - # separated list of public keys (can be shorter 0xFF for debugging)<br>
+	<textarea placeholder='0XFF # 0x123 # 0x3A5D322E1F3562ABDDF6FB23E120E233BEADD695E38A2012DF349B26A040CBAA' style='resize: none;width: 950px;' rows=1 id='sigs' spellcheck="false" ></textarea></td>
 </tr>
 
 <tr>
@@ -191,7 +226,7 @@
 <tr>
 	<td colspan=2><br><b>OUTPUTS</b> - outputs that exist in the transaction<br>
 	
-	<table id="outputtable" style='font-size:13px;font-family:monospace;'>
+	<table id="outputtable" style='font-family:monospace;'>
 		<tr>
 			<th align=left>OUTPUT</th>
 			<th align=left>ADDRESS</th>
