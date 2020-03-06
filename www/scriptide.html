@@ -35,11 +35,10 @@
 			save();	
 		}
 		
-		//small touch..
+		//Ready the RPC call
 		//var nocomm = txt.replace(/\n/g," ");
 		//nocomm =  nocomm.replace(/\/\*.*\*\//g, " ");
 		//nocomm =  nocomm.replace(/\s+/g, " ").trim();
-		
 		var script = txt.replace(/\n/g," ");
 		var state = "state:"+document.getElementById("state").value.trim();
 		var prevstate = "prevstate:"+document.getElementById("prevstate").value.trim();
@@ -153,8 +152,7 @@
 		
 		//Convert the whole thing to a tring
 		var jsontext = JSON.stringify(storejson);
-		
-		console.log("SAVE JSON:"+jsontext);
+		//console.log("SAVE JSON:"+jsontext);
 		
 		//Now store it..
 	    window.localStorage.setItem('ScriptIDE'+sel,jsontext);
@@ -173,8 +171,7 @@
 		
 		//Load the JSON
 		var jsontext = window.localStorage.getItem('ScriptIDE'+sel);
-		
-		console.log("LOAD JSON:"+jsontext);
+		//console.log("LOAD JSON:"+jsontext);
 		
 		if(jsontext != null){
 			//Convert to a JSON
@@ -213,6 +210,9 @@
 			document.getElementById("state").value      = "";
 			document.getElementById("prevstate").value  = "";
 			document.getElementById("sigs").value       = "";
+			
+			clearGlobals();
+			clearAllOutputs();
 		}
 		
 		//reset..
@@ -221,7 +221,7 @@
 	}
 	
 	/**
-	* The OUPUTS table
+	* The OUTPUTS table
 	*/
 	function addDefault(){
 		var addr = document.getElementById("output_address").value;
