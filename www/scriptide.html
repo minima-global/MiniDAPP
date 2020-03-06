@@ -48,25 +48,31 @@
 		
 		//Clean it..
 		Minima.cmd("runscript \""+script+"\" \""+outputs+"\" \""+globals+"\" \""+state+"\" \""+prevstate+"\" \""+sigs+"\" ",function(resp){
-			//console.log(resp);
+			console.log(resp);
 			var json = JSON.parse(resp);
 			var brkscr = json.response.parse.replace(/\n/g,"<br>");
 			
-			var res = "-------------------<br>";
+			var res = "---------------------------------<br>";
 			if(json.response.parseok){
 				res += "PARSE OK : ";	
 			}else{
 				res += "PARSE FAIL : ";	
 			}
 			
-			if(json.response.return){
-				res += "RUN OK ";	
+			if(!json.response.exception){
+				res += "RUN OK : ";	
 			}else{
-				res += "RUN FAIL ";	
+				res += "RUN FAIL : ";	
+			}
+			
+			if(json.response.result){
+				res += "RESULT TRUE ";	
+			}else{
+				res += "RESULT FALSE ";	
 			}
 			
 			//Set it
-			document.getElementById("parse").innerHTML = res+"<br>-------------------<br>"+brkscr;	
+			document.getElementById("parse").innerHTML = res+"<br>---------------------------------<br>"+brkscr;	
 			document.getElementById("parse").scrollTop = 0;
 			
 			document.getElementById("clean").innerHTML = json.response.clean;
@@ -377,15 +383,15 @@
 </tr>
 
 <tr>
-	<td colspan=2><br>RUN RESULT<div id='parse' style='font-size:14px;font-family:monospace;overflow-y: auto;text-align:left;width:950px;height:200px;background-color:#CCCCCC;color:#000000;'></div></td>
+	<td colspan=2><br>RUN RESULT<div id='parse' style='padding:5;font-size:14px;font-family:monospace;overflow-y: auto;text-align:left;width:950px;height:200px;background-color:#CCCCCC;color:#000000;'></div></td>
 </tr>
 
 <tr>
-	<td colspan=2><br>CLEAN SCRIPT<div id='clean' style='font-size:14px;font-family:monospace;overflow-y: auto;text-align:left;width:950px;height:80px;background-color:#CCCCCC;color:#000000;'></div></td>
+	<td colspan=2><br>CLEAN SCRIPT<div id='clean' style='padding:5;font-size:14px;font-family:monospace;overflow-y: auto;text-align:left;width:950px;height:80px;background-color:#CCCCCC;color:#000000;'></div></td>
 </tr>
 
 <tr>
-	<td colspan=2><br>ADDRESS<div id='cleanaddress' style='font-size:14px;font-family:monospace;overflow-y: auto;text-align:left;width:950px;height:30px;background-color:#CCCCCC;color:#000000;'></div></td>
+	<td colspan=2><br>ADDRESS<div id='cleanaddress' style='padding:5;font-size:14px;font-family:monospace;overflow-y: auto;text-align:left;width:950px;height:20px;background-color:#CCCCCC;color:#000000;'></div></td>
 </tr>
 
 </table>
