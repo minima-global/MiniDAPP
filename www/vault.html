@@ -11,43 +11,78 @@
 
 <script type="text/javascript">
 
-	var coldkey = "";
-	var hotkey  = "";
-	var reckey  = "";
+	var coldkey  = "";
+	var hotkey   = "";
+	var resckey  = "";
 	
 	function initVault(){
 		//we need to create 3 keys.. a hot, a cold, and a receiver address 
-		var keycommand = "keys new;keys new";
+		var keycommand = "keys new;keys new;keys new";
 		Minima.cmd(keycommand, function(resp){
-			var json = JSON.parse(resp);
+			//Save it for later..
+			window.localStorage.setItem('MiniVault',resp);
 			
-			//Now get the 3 values..
-			coldkey = json[0].response.key;
-			hotkey  = json[1].response.key;
-			
-			//Set these details
-			document.getElementById("coldkey").innerHTML = coldkey;
-			document.getElementById("hotkey").innerHTML = hotkey;
-				
-			//Now create the Vault..
-			createVault();
+			//Set them..
+			setVaultKeys(resp);	
 		});
 	}
 	
-	function createVault(){
+	function setVaultKeys(resp){
+		var json = JSON.parse(resp);
 		
+		//Now get the 3 values..
+		coldkey = json[0].response.key;
+		hotkey  = json[1].response.key;
+		resckey = json[2].response.key;
+		
+		//Set these details
+		document.getElementById("coldkey").innerHTML   = coldkey;
+		document.getElementById("hotkey").innerHTML    = hotkey;
+		document.getElementById("rescuekey").innerHTML = resckey;
+		
+		createVault();
+	}
+	
+	function createVault(){
+		var vscript =   "LET pkcold = "+coldkey
+			+ " LET pkhot = "+hotkey
+			+ " IF SIGNEDBY ( pkcold ) THEN RETURN TRUE ENDIF "
+			+ " LET amt = STATE ( 20 ) LET recip = STATE ( 21 ) "
+			+ " LET safehouse = [ LET pkcold = "+coldkey
+			+ " LET pkhot = "+hotkey
+			+ " IF SIGNEDBY ( pkcold ) THEN RETURN TRUE ENDIF "
+			+ " IF SIGNEDBY ( pkhot ) THEN LET blkdiff = @BLKNUM - @INBLKNUM IF blkdiff GT 20 THEN"
+			+ " RETURN VERIFYOUT ( @INPUT PREVSTATE ( 21 ) @AMOUNT @TOKENID ) ENDIF ENDIF ] "
+			+ " ASSERT VERIFYOUT ( @INPUT SHA3 ( safehouse ) amt @TOKENID ) "
+			+ " LET chg = @AMOUNT - amt "
+			+ " IF chg GT 0 THEN ASSERT VERIFYOUT ( ( @INPUT + 1 ) @ADDRESS ( @AMOUNT - amt ) @TOKENID ) ENDIF "
+			+ " IF SIGNEDBY ( pkhot ) THEN RETURN TRUE ENDIF";
+	
+		document.getElementById("vaultscript").innerHTML   = vscript;
+		
+		var shouse = "[ LET pkcold = "+coldkey
+			+ " LET pkhot = "+hotkey
+			+ " IF SIGNEDBY ( pkcold ) THEN RETURN TRUE ENDIF "
+			+ " IF SIGNEDBY ( pkhot ) THEN LET blkdiff = @BLKNUM - @INBLKNUM IF blkdiff GT 20 THEN"
+			+ " RETURN VERIFYOUT ( @INPUT PREVSTATE ( 21 ) @AMOUNT @TOKENID ) ENDIF ENDIF ]"
+		
+			
 	}
 
 	//Wait for the page to load..
 	window.addEventListener("load", function(){
-	    
-		//Listen for Minima Events
+	    //Listen for Minima Events
 		window.addEventListener('MinimaEvent', function(evt) {
-			
 			//Deal with each message type
 	 		if(evt.detail.event == "connected"){
-	 			//Do some setup..
-	 			initVault();
+	 			//Do we have them already..
+	 			var jsontext = window.localStorage.getItem('MiniVault');
+				if(jsontext!==null && jsontext!==""){
+					setVaultKeys(jsontext);
+				}else{
+					//Do some setup..
+		 			initVault();
+				}
 	 			
 	 		}else if(evt.detail.event == "newblock"){
 	 		
@@ -91,6 +126,7 @@ So - let's play.. All the setup is done in the background.. just make sure you h
 <br><br>
 </div>
 <br>
+<button onclick='initVault();';>NEW VAULT</button>
 <table>
 
 <tr>
@@ -107,6 +143,11 @@ So - let's play.. All the setup is done in the background.. just make sure you h
 	<tr>
 		<td align=right nowrap>Hot Key : </td>
 		<td> <div id='hotkey'>0</div></td>
+	</tr>
+	
+	<tr>
+		<td align=right nowrap>Rescue Key : </td>
+		<td> <div id='rescuekey'>0</div></td>
 	</tr>
 	
 	<tr>
@@ -185,45 +226,64 @@ Here is the Vault script : <br>
 <div style='width:900;text-align:left;font-size:13px;font-family:monospace;'>
 <br>
 <b>
-/* The COLD key always has root access */ <br>
-LET pkcold = 0x876876876<br>
+/* The HOT and COLD keys */<br>
+LET pkcold = THE_COLD_KEY<br>
+LET pkhot = THE_HOT_KEY<br>
+<br>
+/* COLD key always has root access*/<br>
 IF SIGNEDBY ( pkcold ) THEN RETURN TRUE ENDIF<br>
 <br>
-/* The HOT key is kept online */<br>
-LET pkhot = 0x75765765765<br>
-<br>
-/* How much are you sending and to who is specified in the STATE <br>
-and accessible in PREVSTATE from the Safe House */<br>
+/* How much are you sending and to who is specified in the STATE and accessible in PREVSTATE from the Safe House */<br>
 LET amt = STATE ( 20 )<br>
+<br>
+/* Allthough specified it's not actuallly used.. it's for the follow up transaction */<br> 
 LET recip = STATE ( 21 )<br>
 <br>
 /* Construct the script output for the safe house */<br>
-LET root = CONCAT ( [ IF SIGNEDBY ] SCRIPT ( pkcold ) [ THEN RETURN TRUE ENDIF ] )<br>
-LET user = CONCAT ( [ IF SIGNEDBY ] SCRIPT ( recip ) [ AND ( @BLKNUM - @INBLKNUM ) GT 20 THEN RETURN TRUE ENDIF ] )<br>
-LET final = CONCAT ( root user )<br>
+LET safehouse = [ LET pkcold = 0x7B23F0670FE0DFE17EE74D5DCB3AF4AE00E454044F1CF1DA4FDADC133EC7A3E6 LET pkhot = 0x74A2222436C592046A6F576F67200C75DB3D9051BE31262BD0A0BF0DB30137C4 IF SIGNEDBY ( pkcold ) THEN RETURN TRUE ENDIF IF SIGNEDBY ( pkhot ) THEN LET blkdiff = @BLKNUM - @INBLKNUM IF blkdiff GT 20 THEN RETURN VERIFYOUT ( @INPUT PREVSTATE ( 21 ) @AMOUNT @TOKENID ) ENDIF ENDIF ]<br> 
 <br>
-/* Check that the correct output exists */<br> 
-ASSERT VERIFYOUT ( @INPUT SHA3 ( final ) amt @TOKENID )<br>
+/* Check that the correct output exists */<br>
+ASSERT VERIFYOUT ( @INPUT SHA3 ( safehouse ) amt @TOKENID )<br>
 <br>
 /* Make sure the change is sent back to the Vault */<br>
-ASSERT VERIFYOUT ( ( @INPUT + 1 ) @ADDRESS ( @AMOUNT - amt ) @TOKENID )<br>
+LET change = @AMOUNT - amt<br>
+IF change GT 0 THEN <br>
+&nbsp;&nbsp;ASSERT VERIFYOUT ( ( @INPUT + 1 ) @ADDRESS change @TOKENID )<br>
+ENDIF<br>
 <br>
 /* Finally - it must be signed by the HOT key*/<br>
 IF SIGNEDBY ( pkhot ) THEN RETURN TRUE ENDIF<br>
 </b>
 </div>
+<br>
+<b>FINAL CODE</b> : 
+<div id="vaultscript" style='background-color:#CCCCCC;color:#000000;width:900;text-align:left;font-size:13px;font-family:monospace;'></div>
 
 <br><Br>Here is the Safe House : <br>
 <div style='width:900;text-align:left;font-size:13px;font-family:monospace;'>
 <br>
 <b>
-/* COLD key has root */<br>
+/* The HOT and COLD key */<br>
+LET pkcold = THE_COLD_KEY<br>
+LET pkhot = THE_HOT_KEY<br>
+<br>
+/* Cold key has root - rescue the funds */<br>
 IF SIGNEDBY ( pkcold ) THEN RETURN TRUE ENDIF<br>
 <br>
-/* MUST wait a certain amount of time then you can forward the amount */<br>
-IF SIGNEDBY ( pkhot ) AND @BLKNUM - @INBLKNUM GT 20 THEN<br> 
-&nbsp;&nbsp;&nbsp;ASSERT VERIFYOUT ( @INPUT PREVSTATE ( 21 ) @AMOUNT @TOKENID )<br> 
+/* Can ONLY be forwarded to the pre-designated address.. by the HOT key*/<br> 
+IF SIGNEDBY ( pkhot ) THEN<br>
+<br>
+&nbsp;/* Need to wait a certain amount of time */<br> 
+&nbsp;LET blkdiff = @BLKNUM - @INBLKNUM<br>
+&nbsp;IF blkdiff GT 20 THEN <br>
+<br>
+&nbsp;&nbsp;/* Make sure the output exists to the correct address */<br>
+&nbsp;&nbsp;RETURN VERIFYOUT ( @INPUT PREVSTATE(21) @AMOUNT @TOKENID ) <br>
+<br>  
+&nbsp;ENDIF<br>   
+<br>
 ENDIF<br>
+<br>
 </b>
 </div>
 
