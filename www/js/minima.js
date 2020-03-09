@@ -282,6 +282,7 @@ function setInitPage(){
 	"	<tr>\n" + 
 	"		<td height=100% style='vertical-align:top;font-size:14;' colspan=3>\n" + 
 	"<br>\n" + 
+	
 	"Welcome..<br>\n" + 
 	"<br>\n" + 
 	window.location.host+" would like to access the Minima Network.<br>\n" + 
@@ -321,7 +322,8 @@ function setHelpPage(){
 	//Close the WebSocket
 	closeWebSocket();
 	
-	var text = "<table border=0 width=100% height=100%>\n" + 
+	//Set the Text
+	var text = "<table border=0 width=350px height=100%>\n" + 
 	"	\n" + 
 	
 	"	<tr>\n" + 
@@ -329,12 +331,13 @@ function setHelpPage(){
 	"		<td height=50 width='250px' style='text-align:center;vertical-align:middle;'><br><h3>MINIMA MIFI</h3></td>\n" + 
 	"		<td height=50 width='50px' style='text-align:right;vertical-align:middle;'><img width=50 src='./images/icon.png'></td>\n" + 
 	"	</tr>\n" + 
-	 
 	
 	"	\n" + 
 	"	<tr>\n" + 
-	"		<td style='vertical-align:top;font-size:14;' colspan=3>\n" + 
-	"<br>\n" +
+	"		<td height=100% style='vertical-align:top;font-size:14;' colspan=3>\n" + 
+	"<br>\n" + 
+	
+	
 	"Help<br>" +
 	"<br>" +
 	"Trying to connect this webpage and your phone or instance of Minima can be tricky.<br>" +
@@ -344,7 +347,42 @@ function setHelpPage(){
 	"To get round this you can start a WiFi hotspot on your phone and then connect the computer you are sitting at to that WiFi." + 
 	"\n" +
 	"<br>" +
+	"<br>Home WiFi networks generally do not have these restrictions." + 
+	
+	"		</td>\n" + 
+	"	</tr>\n" + 
+	
+	"	<tr>\n" + 
+	"		<td height=10 colspan=3 align=center>&nbsp;</td>\n" + 
+	"	</tr>\n" + 
+	
+	"    <tr>\n" + 
+	"		<td width=80 height=40 onclick='setInitPage();' style='cursor: pointer;color:#0000ff;font-size:12;text-align:left;vertical-align:bottom;'>\n" + 
+	"			HOME\n" + 
+	"		</td>\n" + 
+	"		<td>&nbsp</td>\n" + 
+	"		<td width=80 height=40 onclick='setAdvancedPage();' style='cursor: pointer;color:#0000ff;font-size:12;text-align:right;vertical-align:bottom;'>\n" + 
+	"			ADVANCED\n" + 
+	"		</td>\n" + 
+	"	</tr>"+ 
+	
+	"</table>\n" + 
+	"";
+	
+	
+	
+/*	"Help<br>" +
+	"<br>" +
+	"Trying to connect this webpage and your phone or instance of Minima can be tricky.<br>" +
+	"<br>" +
+	"If you are having issues it is probably because your WiFi is restricting your outbound and inbound traffic. Office WiFi normally does this.<br>" +
+	"<br>" +
+	"To get round this you can start a WiFi hotspot on your phone and then connect the computer you are sitting at to that WiFi." + 
+	"\n" +
+	"<br>" +
 	"<br>Home WiFi networks generally do not have these restrictions." +
+	
+	
 	"		</td>\n" + 
 	"	</tr>\n" + 
 	
@@ -363,6 +401,7 @@ function setHelpPage(){
 	
 	"</table>\n" + 
 	"";
+	*/
 	
 	setMainDiv(text);
 }

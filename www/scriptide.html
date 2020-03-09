@@ -39,14 +39,15 @@
 		//var nocomm = txt.replace(/\n/g," ");
 		//nocomm =  nocomm.replace(/\/\*.*\*\//g, " ");
 		//nocomm =  nocomm.replace(/\s+/g, " ").trim();
-		var script = txt.replace(/\n/g," ");
+		var script = txt.replace(/\n/g," ").trim();
 		var state = "state:"+document.getElementById("state").value.trim();
 		var prevstate = "prevstate:"+document.getElementById("prevstate").value.trim();
 		var sigs = "sigs:"+document.getElementById("sigs").value.trim();
 		var outputs = "outputs:"+getOutputString();
 		var globals = "globals:"+getGlobals();
 		
-		//Clean it..
+		//
+		if(script == ''){return;}
 		Minima.cmd("runscript \""+script+"\" \""+outputs+"\" \""+globals+"\" \""+state+"\" \""+prevstate+"\" \""+sigs+"\" ",function(resp){
 			console.log(resp);
 			var json = JSON.parse(resp);
@@ -354,7 +355,7 @@
 
 	</td>
 <tr>
-	<td colspan=2><br><b>SCRIPT</b> - Lowercase and comments /* .. */ are supported. Will be fixed-removed automagically.<br>
+	<td colspan=2><br><b>SCRIPT</b> - Lowercase, newlines, tabs, whitespace and comments using /* .. */ are supported. Will be fixed-removed automagically.<br>
 	<textarea style='resize: none;width: 950px;height: 360px;' id='scriptarea' spellcheck="false" ></textarea></td>
 </tr>
 
