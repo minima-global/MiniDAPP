@@ -15,12 +15,22 @@
 	var hotkey   = "";
 	var rescaddr  = "";
 	
+	var vaultaddress = "";
+	var vaultcoinid = "";
+	
+	var safehouseaddress = "";
+	var safehouseid = "";
+	
+	var fundvault = false;
+	
 	function initVault(){
 		//we need to create 3 keys.. a hot, a cold, and a receiver address 
 		var keycommand = "keys new;keys new;newaddress";
 		Minima.cmd(keycommand, function(resp){
 			//Save it for later..
 			window.localStorage.setItem('MiniVault',resp);
+			
+			fundvault = true;
 			
 			//Set them..
 			setVaultKeys(resp);	
@@ -56,17 +66,78 @@
 			+ " ASSERT VERIFYOUT ( @INPUT SHA3 ( safehouse ) amt @TOKENID ) "
 			+ " LET chg = @AMOUNT - amt "
 			+ " IF chg GT 0 THEN ASSERT VERIFYOUT ( ( @INPUT + 1 ) @ADDRESS ( @AMOUNT - amt ) @TOKENID ) ENDIF "
-			+ " IF SIGNEDBY ( pkhot ) THEN RETURN TRUE ENDIF";
+			+ " RETURN SIGNEDBY ( pkhot )";
 	
 		document.getElementById("vaultscript").innerHTML   = vscript;
 		
-		var shouse = "[ LET pkcold = "+coldkey
+		var shouse = "LET pkcold = "+coldkey
 			+ " LET pkhot = "+hotkey
 			+ " IF SIGNEDBY ( pkcold ) THEN RETURN TRUE ENDIF "
 			+ " IF SIGNEDBY ( pkhot ) THEN IF @BLKDIFF GT 20 THEN"
-			+ " RETURN VERIFYOUT ( @INPUT PREVSTATE ( 21 ) @AMOUNT @TOKENID ) ENDIF ENDIF ]"
+			+ " RETURN VERIFYOUT ( @INPUT PREVSTATE ( 21 ) @AMOUNT @TOKENID ) ENDIF ENDIF"
 		
+		document.getElementById("safescript").innerHTML   = shouse;
+	
+		//Now tell Minima Wallet to look out for these 2 addresses
+		var addrcmd = "newscript \""+vscript+"\";newscript \""+shouse+"\"";
+		Minima.cmd(addrcmd, function(resp){
+			var json = JSON.parse(resp);
 			
+			vaultaddress = json[0].response.address;
+			safehouseaddress = json[1].response.address;
+		
+			document.getElementById("vaultaddress").innerHTML   = vaultaddress;
+			document.getElementById("houseaddress").innerHTML   = safehouseaddress;
+			
+			if(fundvault){
+				Minima.cmd("send 10 "+vaultaddress, function(resp){alert(resp);});
+			}
+			
+			StartPoller();
+		});
+	}
+	
+	function StartPoller(){
+		pollFunction();
+		
+		//Check every 5 secs
+		setInterval(function(){pollFunction();},5000);
+	}
+	
+	function pollFunction(){
+		comm = "balance "+vaultaddress+";coins "+vaultaddress+";coins "+safehouseaddress+";balance "+rescaddr;
+		Minima.cmd( comm , function(resp){
+			var json = JSON.parse(resp);
+			
+			document.getElementById("vaultbalance").innerHTML = 
+				json[0].response.balance[0].confirmed + " / " + json[0].response.balance[0].unconfirmed;
+			document.getElementById("rescuebal").innerHTML = 
+				json[3].response.balance[0].confirmed + " / " + json[3].response.balance[0].unconfirmed;
+			
+			if(json[1].response.coins.length > 0){
+				vaultcoinid = json[1].response.coins[0].data.coin.coinid;
+				document.getElementById("vaultcoinid").innerHTML = vaultcoinid;
+			}else{
+				document.getElementById("vaultcoinid").innerHTML = "waiting..";
+			}
+		});
+	}
+	
+	function SendFundsToSafeHouse(){
+		var amt  = document.getElementById("amount").value;
+		var addr = document.getElementById("address").value;
+		var txnid = Math.floor(Math.random()*1000000000);
+		
+		//Now construct a transaction..
+		txncreator =    
+			"txncreate "+txnid+";"+
+			"txninput "+txnid+" "+vaultcoinid+";"+
+			"txnoutput "+txnid+" "+amt+" "+safehouseaddress+";"+
+			"txnstate "+txnid+" "+amt+" "+safehouseaddress+";"+
+			
+			"txnsign "+txnid+" "+hotkey+";";
+
+		alert(txncreator);
 	}
 
 	//Wait for the page to load..
@@ -144,18 +215,18 @@ So - let's play.. All the setup is done in the background.. just make sure you h
 		<td> <div id='hotkey'>0</div></td>
 	</tr>
 	
-	<tr>
-		<td colspan=2>&nbsp;</td>
-	</tr>
+	<tr><td colspan=2>&nbsp;</td></tr>
 	
 	<tr>
 		<td align=right nowrap>Rescue address : </td>
 		<td> <div id='rescuekey'>0</div></td>
 	</tr>
-	
 	<tr>
-		<td colspan=2>&nbsp;</td>
+		<td align=right nowrap>Rescue balance : </td>
+		<td> <div id='rescuebal'>0</div></td>
 	</tr>
+	
+	<tr><td colspan=2>&nbsp;</td></tr>
 	
 	<tr>
 		<td align=right nowrap>Vault Address : </td>
@@ -163,13 +234,22 @@ So - let's play.. All the setup is done in the background.. just make sure you h
 	</tr>
 	
 	<tr>
+		<td align=right nowrap>Vault CoinID : </td>
+		<td> <div id='vaultcoinid'>undefined..</div></td>
+	</tr>
+	
+	<tr>
 		<td align=right nowrap>Vault Balance : </td>
 		<td> <div id='vaultbalance'>0</div></td>
 	</tr>
 	
+	<tr><td colspan=2>&nbsp;</td></tr>
 	<tr>
-		<td colspan=2>&nbsp;</td>
+		<td align=right nowrap>Safe House Address : </td>
+		<td> <div id='houseaddress'>0</div></td>
 	</tr>
+	<tr><td colspan=2>&nbsp;</td></tr>
+	
 	
 	<tr>
 		<td align=right>Amount : </td> <td> <input type='text' id='amount'></td>
@@ -182,7 +262,7 @@ So - let's play.. All the setup is done in the background.. just make sure you h
 	<tr><td colspan=2>&nbsp;</td></tr>
 	
 	<tr>
-		<td colspan=2 align=right> <button onclick='send();return false;'>SEND TO SAFE HOUSE</button>&nbsp;&nbsp;&nbsp;</td>
+		<td colspan=2 align=right> <button onclick='SendFundsToSafeHouse();'>SEND FUNDS VIA SAFE HOUSE</button>&nbsp;&nbsp;&nbsp;</td>
 	</tr>
 		
 	<tr><td colspan=2>&nbsp;</td></tr>
@@ -194,23 +274,7 @@ So - let's play.. All the setup is done in the background.. just make sure you h
 <b>SAFE HOUSE</b> 
 <div style="font-family:monospace; font-size=14;width: 750px; height: 300px;background-color: #ccc;border-radius: 10px;">
 <br>
-<table>
-<table width=100% heigth=100% border=1>
-	<tr>
-		<td width=150 align=right nowrap>Address : </td>
-		<td> <div id='reckey'>0</div></td>
-	</tr>
-	
-	<tr>
-		<td align=right nowrap>Hot Key : </td>
-		<td> <div id='hotkey'>0</div></td>
-	</tr>
-	
-	<tr>
-		<td align=left><br><br>Using the COLD key..<br><button>RESCUE FUNDS</button></td>
-		<td align=right><br><br>If all ok..<br><button>FORWARD FUNDS</button></td>
-	</tr>
-</table>
+
 </div>
 
 </td>
@@ -239,7 +303,7 @@ LET amt = STATE ( 20 )<br>
 LET recip = STATE ( 21 )<br>
 <br>
 /* Construct the script output for the safe house */<br>
-LET safehouse = [ LET pkcold = 0x7B23F0670FE0DFE17EE74D5DCB3AF4AE00E454044F1CF1DA4FDADC133EC7A3E6 LET pkhot = 0x74A2222436C592046A6F576F67200C75DB3D9051BE31262BD0A0BF0DB30137C4 IF SIGNEDBY ( pkcold ) THEN RETURN TRUE ENDIF IF SIGNEDBY ( pkhot ) THEN LET blkdiff = @BLKNUM - @INBLKNUM IF blkdiff GT 20 THEN RETURN VERIFYOUT ( @INPUT PREVSTATE ( 21 ) @AMOUNT @TOKENID ) ENDIF ENDIF ]<br> 
+LET safehouse = [ LET pkcold = THE_COLD_KEY LET pkhot = THE_HOT_KEY IF SIGNEDBY ( pkcold ) THEN RETURN TRUE ENDIF IF SIGNEDBY ( pkhot ) THEN IF @BLKDIFF GT 20 THEN RETURN VERIFYOUT ( @INPUT PREVSTATE ( 21 ) @AMOUNT @TOKENID ) ENDIF ENDIF ]<br> 
 <br>
 /* Check that the correct output exists */<br>
 ASSERT VERIFYOUT ( @INPUT SHA3 ( safehouse ) amt @TOKENID )<br>
@@ -251,7 +315,7 @@ IF change GT 0 THEN <br>
 ENDIF<br>
 <br>
 /* Finally - it must be signed by the HOT key*/<br>
-IF SIGNEDBY ( pkhot ) THEN RETURN TRUE ENDIF<br>
+RETURN SIGNEDBY ( pkhot )<br>
 </b>
 </div>
 <br>
@@ -285,6 +349,10 @@ ENDIF<br>
 <br>
 </b>
 </div>
+
+<br>
+<b>SAFE HOUSE CODE</b> : 
+<div id="safescript" style='background-color:#CCCCCC;color:#000000;width:900;text-align:left;font-size:13px;font-family:monospace;'></div>
 
 <br><br><a href='index.html'>HOME</a>
 </center>

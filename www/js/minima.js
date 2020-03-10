@@ -78,10 +78,10 @@ var Minima = {
 		//log it..
 		if(logenabled !== undefined){
 			if(logenabled){
-				log("RPC call "+rpcplain);	
+				log("RPC : "+rpcplain);	
 			}
 		}else{
-			log("RPC call "+rpcplain);
+			log("RPC : "+rpcplain);
 		}
 		
 		//And Call it..
@@ -130,7 +130,7 @@ function initialStatus(){
 	   show(LOGOUT_BUTTON);
 	   
 	   //Start Polling..
-	   startPolling();
+	   startMinimaPolling();
 	   
 	   MINIMACONNECTED = true;
 	   
@@ -217,15 +217,15 @@ function closeWebSocket(){
  * Start polling to see if something has changed.. 
  */
 var global_balance = "";
-function startPolling(){
+function startMinimaPolling(){
 	//Check Balance every second
-	pollFunction();
+	pollMinimaFunction();
 	
 	//Check every 5 secs
-	setInterval(function(){pollFunction();},5000);
+	setInterval(function(){pollMinimaFunction();},5000);
 }
 
-function pollFunction(){	
+function pollMinimaFunction(){	
 	//Check the Status
 	Minima.cmd("status;balance",function(resp){
 		//Convert to JSON
