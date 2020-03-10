@@ -302,18 +302,17 @@ function setInitPage(){
 	"		<td height=10 colspan=3 align=center><button onclick='setQRPage();'>P R O C E E D &GT;&GT;</button></td>\n" + 
 	"	</tr>\n" + 
 	
-	"    <tr>\n" + 
-	"		<td width=80 height=40 onclick='setHelpPage();' style='cursor: pointer;color:#0000ff;font-size:12;text-align:left;vertical-align:bottom;'>\n" + 
-	"			HELP\n" + 
-	"		</td>\n" + 
-	"		<td>&nbsp</td>\n" + 
-	"		<td width=80 height=40 onclick='setAdvancedPage();' style='cursor: pointer;color:#0000ff;font-size:12;text-align:right;vertical-align:bottom;'>\n" + 
-	"			ADVANCED\n" + 
-	"		</td>\n" + 
+	"    <tr>" + 
+	"		<td width=80 height=40 onclick='setHelpPage();' style='cursor: pointer;color:#0000ff;font-size:12;text-align:left;vertical-align:bottom;'>" + 
+	"			HELP" + 
+	"		</td>" + 
+	"		<td>&nbsp</td>" + 
+	"		<td width=80 height=40 onclick='setAdvancedPage();' style='cursor: pointer;color:#0000ff;font-size:12;text-align:right;vertical-align:bottom;'>" + 
+	"			ADVANCED" + 
+	"		</td>" + 
 	"	</tr>"+ 
 	
-	"</table>\n" + 
-	"";
+	"</table>"
 	
 	setMainDiv(text);
 }
@@ -369,40 +368,6 @@ function setHelpPage(){
 	"</table>\n" + 
 	"";
 	
-	
-	
-/*	"Help<br>" +
-	"<br>" +
-	"Trying to connect this webpage and your phone or instance of Minima can be tricky.<br>" +
-	"<br>" +
-	"If you are having issues it is probably because your WiFi is restricting your outbound and inbound traffic. Office WiFi normally does this.<br>" +
-	"<br>" +
-	"To get round this you can start a WiFi hotspot on your phone and then connect the computer you are sitting at to that WiFi." + 
-	"\n" +
-	"<br>" +
-	"<br>Home WiFi networks generally do not have these restrictions." +
-	
-	
-	"		</td>\n" + 
-	"	</tr>\n" + 
-	
-	
-	"    <tr>\n" + 
-	"		<td width=80 height=40 onclick='setInitPage();' style='cursor: pointer;color:#0000ff;font-size:12;text-align:left;vertical-align:bottom;'>\n" + 
-	"			<div>HOME</div>\n" + 
-	"		</td>\n" + 
-	"		\n" + 
-	"		<td>&nbsp</td>\n" + 
-	"		\n" + 
-	"		<td width=80 height=40 style='color:#0000ff;font-size:12;text-align:right;vertical-align:bottom;'>\n" + 
-	"			&nbsp;" + 
-	"		</td>\n" + 
-	"	</tr>"+ 
-	
-	"</table>\n" + 
-	"";
-	*/
-	
 	setMainDiv(text);
 }
 
@@ -410,7 +375,8 @@ function setAdvancedPage(){
 	//Close the WebSocket
 	closeWebSocket();
 	
-	var text = "<table border=0 width=100% height=100%>\n" + 
+	//Set the Text
+	var text = "<table border=0 width=350px height=100%>\n" + 
 	"	\n" + 
 	
 	"	<tr>\n" + 
@@ -418,12 +384,11 @@ function setAdvancedPage(){
 	"		<td height=50 width='250px' style='text-align:center;vertical-align:middle;'><br><h3>MINIMA MIFI</h3></td>\n" + 
 	"		<td height=50 width='50px' style='text-align:right;vertical-align:middle;'><img width=50 src='./images/icon.png'></td>\n" + 
 	"	</tr>\n" + 
-	 
-	 
-	"	\n" + 
-	"	<tr>\n" + 
-	"		<td height=100% style='vertical-align:top;font-size:14;' colspan=3>\n" + 
-	"<br>\n" +
+	
+	"	<tr>" + 
+	"		<td height=100% style='vertical-align:top;font-size:14;' colspan=3>" + 
+	"<br>" + 
+	
 	"Advanced<br>" +
 	"<br>" + 
 	"Here you can directly specify the address of the Minima instance you wish to connect to.<br>\n" + 
@@ -434,24 +399,27 @@ function setAdvancedPage(){
 	"<br><br>\n" + 
 	"<center>\n" + 
 	"	<input placeholder='127.0.0.1:8999' type=text id='minimaconnect'>\n" + 
-	"\n" + 
 	"</center>\n" + 
-	"\n" + 
+
 	"		</td>\n" + 
 	"	</tr>\n" + 
-	"	\n" + 
+	
+
 	"	<tr>\n" + 
 	"		<td height=10 colspan=3 align=center><button onclick='advancedConnect();'>C O N N E C T &GT;&GT;</button></td>\n" + 
 	"	</tr>\n" + 
-	"	\n" + 
-	"	<tr>\n" + 
-	"		<td height=40 onclick='setInitPage();' colspan=3 style='cursor: pointer;color:#0000ff;font-size:12;text-align:right;vertical-align:bottom;'>\n" + 
-	"			BACK\n" + 
-	"		</td>\n" + 
-	"	</tr>\n" + 
-	"	\n" + 
-	"</table>\n" + 
-	"";
+	
+	
+	"    <tr>" + 
+	"		<td width=80 height=40 onclick='setHelpPage();' style='cursor: pointer;color:#0000ff;font-size:12;text-align:left;vertical-align:bottom;'>" + 
+	"			HELP" + 
+	"		</td>" + 
+	"		<td>&nbsp</td>" + 
+	"		<td width=80 height=40 onclick='setInitPage();' style='cursor: pointer;color:#0000ff;font-size:12;text-align:right;vertical-align:bottom;'>" + 
+	"			HOME" + 
+	"		</td>" + 
+	"	</tr>"+ 
+	"</table>";
 	
 	setMainDiv(text);
 }
@@ -492,7 +460,7 @@ function setQRPage(){
 	
 	"	<tr>\n" + 
 	"		<td height=20 onclick='setInitPage();' colspan=3 style='cursor: pointer;color:#0000ff;font-size:12;text-align:right;vertical-align:bottom;'>\n" + 
-	"			<div>BACK</div>\n" + 
+	"			<div>HOME</div>\n" + 
 	"		</td>\n" + 
 	"	</tr>\n" + 
 	
