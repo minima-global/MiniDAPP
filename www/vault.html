@@ -4,6 +4,9 @@
 	
 	<!--   The MINIMA MiFi Javascript Library -->
 	<script type="text/javascript" src="./js/minima.js"></script>
+	
+	<!--   You need to use proper Decimla Maths.. -->
+	<script type="text/javascript" src="./js/decimal.js"></script>
 		
 </head>
 
@@ -16,6 +19,7 @@
 	var rescaddr  = "";
 	
 	var vaultaddress = "";
+	var vaultamount = 0;
 	var vaultcoinid = "";
 	
 	var safehouseaddress = "";
@@ -109,35 +113,79 @@
 		Minima.cmd( comm , function(resp){
 			var json = JSON.parse(resp);
 			
+			//Set the balances..
+			vaultamount = json[0].response.balance[0].confirmed;
 			document.getElementById("vaultbalance").innerHTML = 
 				json[0].response.balance[0].confirmed + " / " + json[0].response.balance[0].unconfirmed;
 			document.getElementById("rescuebal").innerHTML = 
 				json[3].response.balance[0].confirmed + " / " + json[3].response.balance[0].unconfirmed;
 			
+			//Get the vault coinid
 			if(json[1].response.coins.length > 0){
 				vaultcoinid = json[1].response.coins[0].data.coin.coinid;
 				document.getElementById("vaultcoinid").innerHTML = vaultcoinid;
 			}else{
 				document.getElementById("vaultcoinid").innerHTML = "waiting..";
 			}
-		});
+			
+			//Now get the safe houses..
+			var safelen = json[2].response.coins.length;
+			
+			var safetext = "<table width=100% border=0>";
+			
+			for(i=0;i<safelen;i++){
+				var data = json[2].response.coins[i].data;
+				var blkdiff = json[2].response.coins[i].blocktime - data.inblock;
+				safetext +="<tr><td align=center nowrap colspan=2><br>"
+						+" SAFE HOUSE FOUND WITH "+data.coin.amount
+						+" FOR "+data.prevstate[1].data+" .. TIME REMAINING : "+blkdiff+" / 20 <br></td></tr>";
+				safetext +="<tr> <td align=left><br><button>RESCUE</button></td>  <td align=right onclick=''><br><button>FORWARD FUNDS</button></td> </tr>";
+				safetext +="<tr> <td colspan=2>&nbsp; <hr> &nbsp;</td> </tr>";		
+			}
+			
+			safetext +="<tr> <td colspan=2>&nbsp;</td> </tr>";
+			safetext +="</table>";
+
+			
+			document.getElementById("allsafehouses").innerHTML = safetext;
+			
+			
+		},false);
 	}
 	
 	function SendFundsToSafeHouse(){
-		var amt  = document.getElementById("amount").value;
-		var addr = document.getElementById("address").value;
 		var txnid = Math.floor(Math.random()*1000000000);
+		var amt  = document.getElementById("amount").value.trim();
+		var addr = document.getElementById("address").value.trim();
+		if(amt == "" || addr == ""){
+			alert("Must specify an address and amount!");
+			return;
+		}
+		
+		document.getElementById("amount").value = "";
+		document.getElementById("address").value = "";
+		
+		//Big Maths..
+		tamount = new Decimal(amt);
+		tvault  = new Decimal(vaultamount);
+		tchg = tvault.minus(tamount);
 		
 		//Now construct a transaction..
 		txncreator =    
 			"txncreate "+txnid+";"+
 			"txninput "+txnid+" "+vaultcoinid+";"+
 			"txnoutput "+txnid+" "+amt+" "+safehouseaddress+";"+
-			"txnstate "+txnid+" "+amt+" "+safehouseaddress+";"+
-			
-			"txnsign "+txnid+" "+hotkey+";";
-
-		alert(txncreator);
+			"txnoutput "+txnid+" "+tchg+" "+vaultaddress+";"+
+			"txnstate "+txnid+" 20 "+amt+";"+
+			"txnstate "+txnid+" 21 "+addr+";"+
+			"txnsign "+txnid+" "+hotkey+";"+
+			"txnpost "+txnid+";"+
+			"txndelete "+txnid+";";
+		
+		//Post it..
+		Minima.cmd( txncreator , function(resp){
+			alert("Safe House Created!..");
+		});
 	}
 
 	//Wait for the page to load..
@@ -198,11 +246,10 @@ So - let's play.. All the setup is done in the background.. just make sure you h
 <br>
 <button onclick='initVault();';>NEW VAULT</button>
 <table>
-
 <tr>
 <td>
 	<b>VAULT</b>
-	<div style="font-family:monospace; font-size=14;width: 750px; background-color: #ccc;border-radius: 10px;">
+	<div style="padding:10;font-family:monospace; font-size=14;width: 750px; background-color: #ccc;border-radius: 10px;">
 	<br>
 	<table width=100% border=0>
 	<tr>
@@ -271,10 +318,9 @@ So - let's play.. All the setup is done in the background.. just make sure you h
 
 <br><br>
 
-<b>SAFE HOUSE</b> 
-<div style="font-family:monospace; font-size=14;width: 750px; height: 300px;background-color: #ccc;border-radius: 10px;">
-<br>
-
+<b>SAFE HOUSES</b> 
+<div id="allsafehouses" style="padding:10;font-family:monospace; font-size=14;width: 750px;background-color: #ccc;border-radius: 10px;">
+<br>NO HOUSES FOUND YET..<br><br>
 </div>
 
 </td>
@@ -283,7 +329,7 @@ So - let's play.. All the setup is done in the background.. just make sure you h
 
 </table>
 
-
+<br>
 <br>
 Here is the Vault script : <br>
 <div style='width:900;text-align:left;font-size:13px;font-family:monospace;'>
@@ -299,7 +345,7 @@ IF SIGNEDBY ( pkcold ) THEN RETURN TRUE ENDIF<br>
 /* How much are you sending and to who is specified in the STATE and accessible in PREVSTATE from the Safe House */<br>
 LET amt = STATE ( 20 )<br>
 <br>
-/* Allthough specified it's not actuallly used.. it's for the follow up transaction */<br> 
+/* Allthough specified it's not actually used.. it's for the follow up transaction */<br> 
 LET recip = STATE ( 21 )<br>
 <br>
 /* Construct the script output for the safe house */<br>
