@@ -136,11 +136,26 @@
 			for(i=0;i<safelen;i++){
 				var data = json[2].response.coins[i].data;
 				var blkdiff = json[2].response.coins[i].blocktime - data.inblock;
+				var timetxt = "TIME REMAINING : "+blkdiff+" / 20";
+				if(blkdiff > 20){
+					timetxt = "WAIT COMPLETE ";
+				}
+				
+				forwfunc = "ForwardFundsFromSafeHouse("+data.coin.amount
+										+",'"+data.prevstate[1].data+"','"+data.coin.coinid+"');";
+				
+				rescfunc = "RescueFundsFromSafeHouse("+data.coin.amount+",'"+data.coin.coinid+"');";
+				
 				safetext +="<tr><td align=center nowrap colspan=2><br>"
 						+" SAFE HOUSE FOUND WITH "+data.coin.amount
-						+" FOR "+data.prevstate[1].data+" .. TIME REMAINING : "+blkdiff+" / 20 <br></td></tr>";
-				safetext +="<tr> <td align=left><br><button>RESCUE</button></td>  <td align=right onclick=''><br><button>FORWARD FUNDS</button></td> </tr>";
+						+"<br>"+data.prevstate[1].data+"<br>"+timetxt+"<br></td></tr>";
+				safetext +="<tr> <td align=left>ANYTIME<br><button onclick=\""+rescfunc+"\">RESCUE</button></td>"
+				+"  <td align=right onclick=''>AFTER WAIT<br><button onclick=\""+forwfunc+"\">FORWARD FUNDS</button></td> </tr>";
 				safetext +="<tr> <td colspan=2>&nbsp; <hr> &nbsp;</td> </tr>";		
+			}
+			
+			if(safelen==0){
+				safetext +="<tr> <td colspan=2><br>NO SAFE HOUSES FOUND..</td> </tr>";	
 			}
 			
 			safetext +="<tr> <td colspan=2>&nbsp;</td> </tr>";
@@ -185,6 +200,42 @@
 		//Post it..
 		Minima.cmd( txncreator , function(resp){
 			alert("Safe House Created!..");
+		});
+	}
+	
+	function  ForwardFundsFromSafeHouse(amount,address,coinid){
+		var txnid = Math.floor(Math.random()*1000000000);
+		
+		//Now construct a transaction..
+		txncreator =    
+			"txncreate "+txnid+";"+
+			"txninput "+txnid+" "+coinid+";"+
+			"txnoutput "+txnid+" "+amount+" "+address+";"+
+			"txnsign "+txnid+" "+hotkey+";"+
+			"txnpost "+txnid+";"+
+			"txndelete "+txnid+";";
+		
+		//Post it..
+		Minima.cmd( txncreator , function(resp){
+			alert("Funds Forwarded to Recipient!");
+		});
+	}
+	
+	function  RescueFundsFromSafeHouse(amount,coinid){
+		var txnid = Math.floor(Math.random()*1000000000);
+		
+		//Now construct a transaction..
+		txncreator =    
+			"txncreate "+txnid+";"+
+			"txninput "+txnid+" "+coinid+";"+
+			"txnoutput "+txnid+" "+amount+" "+rescaddr+";"+
+			"txnsign "+txnid+" "+coldkey+";"+
+			"txnpost "+txnid+";"+
+			"txndelete "+txnid+";";
+		
+		//Post it..
+		Minima.cmd( txncreator , function(resp){
+			alert("Funds Rescued!");
 		});
 	}
 
@@ -319,8 +370,8 @@ So - let's play.. All the setup is done in the background.. just make sure you h
 <br><br>
 
 <b>SAFE HOUSES</b> 
-<div id="allsafehouses" style="padding:10;font-family:monospace; font-size=14;width: 750px;background-color: #ccc;border-radius: 10px;">
-<br>NO HOUSES FOUND YET..<br><br>
+<div id="allsafehouses" style="padding:10;font-family:monospace; font-size=14;width: 750px;background-color: #ccc;border-radius:10px;">
+<br><br><br>
 </div>
 
 </td>
@@ -329,6 +380,7 @@ So - let's play.. All the setup is done in the background.. just make sure you h
 
 </table>
 
+<!--
 <br>
 <br>
 Here is the Vault script : <br>
@@ -364,10 +416,13 @@ ENDIF<br>
 RETURN SIGNEDBY ( pkhot )<br>
 </b>
 </div>
+  -->
+  
 <br>
 <b>VAULT CODE</b> : 
-<div id="vaultscript" style='background-color:#CCCCCC;color:#000000;width:900;text-align:left;font-size:13px;font-family:monospace;'></div>
+<div id="vaultscript" style='border-radius:10px;padding:10;background-color:#CCCCCC;color:#000000;width:750px;text-align:left;font-size:13px;font-family:monospace;'></div>
 
+<!-- 
 <br><Br>Here is the Safe House : <br>
 <div style='width:900;text-align:left;font-size:13px;font-family:monospace;'>
 <br>
@@ -395,10 +450,11 @@ ENDIF<br>
 <br>
 </b>
 </div>
-
+ -->
+ 
 <br>
 <b>SAFE HOUSE CODE</b> : 
-<div id="safescript" style='background-color:#CCCCCC;color:#000000;width:900;text-align:left;font-size:13px;font-family:monospace;'></div>
+<div id="safescript" style='border-radius:10px;padding:10;background-color:#CCCCCC;color:#000000;width:750px;text-align:left;font-size:13px;font-family:monospace;'></div>
 
 <br><br><a href='index.html'>HOME</a>
 </center>
