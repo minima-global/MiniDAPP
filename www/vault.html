@@ -138,7 +138,7 @@
 				var blkdiff = json[2].response.coins[i].blocktime - data.inblock;
 				var timetxt = "TIME REMAINING : "+blkdiff+" / 20";
 				
-				forwfunc = "alert('You have not waited enough timne. This transaction is INVALID!');";
+				forwfunc = "alert('You have not waited enough time. This transaction is INVALID!');";
 
 				if(blkdiff > 20){
 					timetxt = "WAIT COMPLETE ";
@@ -154,8 +154,8 @@
 				safetext +="<tr><td align=center nowrap colspan=2><br>"
 						+" SAFE HOUSE FOUND WITH "+data.coin.amount
 						+"<br>"+data.prevstate[1].data+"<br>"+timetxt+"<br></td></tr>";
-				safetext +="<tr> <td align=left>ANYTIME<br><button onclick=\""+rescfunc+"\">RESCUE</button></td>"
-				+"  <td align=right onclick=''>AFTER WAIT<br><button onclick=\""+forwfunc+"\">FORWARD FUNDS</button></td> </tr>";
+				safetext +="<tr> <td align=left><button onclick=\""+rescfunc+"\">RESCUE</button></td>"
+				+"  <td align=right onclick=''><button onclick=\""+forwfunc+"\">FORWARD FUNDS</button></td> </tr>";
 				safetext +="<tr> <td colspan=2>&nbsp; <hr> &nbsp;</td> </tr>";		
 			}
 			
