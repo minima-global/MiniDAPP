@@ -13,19 +13,13 @@
 
 	//Wait for the page to load..
 	window.addEventListener("load", function(){
-	    
 		//Listen for Minima Events
 		window.addEventListener('MinimaEvent', function(evt) {
-			
 			//Deal with each message type
 	 		if(evt.detail.event == "connected"){
-	 			
 	 		}else if(evt.detail.event == "newblock"){
-	 		
 	 		}else if(evt.detail.event == "newbalance"){
-		 		
 	 		}
-			
 	    });
 		
 		//Initialise MiFi
@@ -39,22 +33,40 @@
 <h3>Multi Sig Wallet</h3>
 <br>
 
-
 Ok .. You have funds and you want 2 people to sign a transaction to be able to spend them.<br>
 <br>
 This works best if you have 2 people playing.. so get someone to open this page on their computer on their separate version of Minima.<br>
 <br>
+It Shows how to Export a partially signed transaction from one instance of Minima and Import it into another.
 
-<div style='width:900;text-align:left;'>
-
-Step 1 : You need to make you Keys.<br>
-<Br>
-Step 2 : Ask your friend for their PUBLIC KEY.. and paste it here. We'll create an address with 1 Minima that can only be spent if BOTH sign.<br>
-<Br>
-Step 4 : Now create the transaction that tries to spend those funds.. <br>
+<br>
+<br>
+PLAYER 1 :  <button>GENERATE KEY</button>
+<div id='player1key' style='padding:10;'>..</div>
 <br>
 
-</div>
+<br>
+PLAYER 2 :  <button>GENERATE KEY</button>
+<div id='player2key' style='padding:10;'>..</div>
+<br>
+
+Lets make an output.. copy 2 keys here..<br>
+<br>
+key1:<input type=text id='ply1'> &nbsp;&nbsp;&nbsp; key2:<input type=text id='ply2'> &nbsp;&nbsp;&nbsp;<button>GENERATE ADDRESS</button>
+<div id='multiaddress' style='padding:10;'>..</div>
+<br>
+
+Now send some funds to that address.. <button>SEND FUNDS TO MULTI SIG</button><br>
+<div id='multiaddressbal' style='padding:10;'>Balance : 0</div>
+
+<br>
+<br>
+NOW.. to SPEND that multi sig.. you BOTH need to sign the transaction..<br>
+First let's make a transaction with that multi-sig as an input.. <button>CREATE TXN</button> <br>
+<br>
+And now 
+
+
 
 
 <br><br><a href='index.html'>HOME</a>
