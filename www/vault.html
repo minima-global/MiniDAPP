@@ -5,7 +5,7 @@
 	<!--   The MINIMA MiFi Javascript Library -->
 	<script type="text/javascript" src="./js/minima.js"></script>
 	
-	<!--   You need to use proper Decimla Maths.. -->
+	<!--   You need to use proper Decimal Maths.. -->
 	<script type="text/javascript" src="./js/decimal.js"></script>
 		
 </head>
@@ -137,12 +137,17 @@
 				var data = json[2].response.coins[i].data;
 				var blkdiff = json[2].response.coins[i].blocktime - data.inblock;
 				var timetxt = "TIME REMAINING : "+blkdiff+" / 20";
+				
+				forwfunc = "alert('You have not waited enough timne. This transaction is INVALID!');";
+
 				if(blkdiff > 20){
 					timetxt = "WAIT COMPLETE ";
+					forwfunc = "ForwardFundsFromSafeHouse("+data.coin.amount
+								+",'"+data.prevstate[1].data+"','"+data.coin.coinid+"');";
 				}
 				
-				forwfunc = "ForwardFundsFromSafeHouse("+data.coin.amount
-										+",'"+data.prevstate[1].data+"','"+data.coin.coinid+"');";
+				//forwfunc = "ForwardFundsFromSafeHouse("+data.coin.amount
+				//							+",'"+data.prevstate[1].data+"','"+data.coin.coinid+"');";
 				
 				rescfunc = "RescueFundsFromSafeHouse("+data.coin.amount+",'"+data.coin.coinid+"');";
 				
@@ -238,6 +243,24 @@
 			alert("Funds Rescued!");
 		});
 	}
+	
+	function RescueVault(){
+		var txnid = Math.floor(Math.random()*1000000000);
+		
+		//Now construct a transaction..
+		txncreator =    
+			"txncreate "+txnid+";"+
+			"txninput "+txnid+" "+vaultcoinid+";"+
+			"txnoutput "+txnid+" "+vaultamount+" "+rescaddr+";"+
+			"txnsign "+txnid+" "+coldkey+";"+
+			"txnpost "+txnid+";"+
+			"txndelete "+txnid+";";
+		
+		//Post it..
+		Minima.cmd( txncreator , function(resp){
+			alert("Vault Funds Rescued!");
+		});
+	}
 
 	//Wait for the page to load..
 	window.addEventListener("load", function(){
@@ -254,7 +277,9 @@
 		 			initVault();
 				}
 	 		}else if(evt.detail.event == "newblock"){
-	 		
+	 			//Set the time..
+	 			document.getElementById("blocktime").innerHTML = "BLOCK TIME : "+Minima.block;
+	 				
 	 		}else if(evt.detail.event == "newbalance"){
 		 		
 	 		}
@@ -295,7 +320,13 @@ So - let's play.. All the setup is done in the background.. just make sure you h
 <br><br>
 </div>
 <br>
-<button onclick='initVault();';>NEW VAULT</button>
+<table>
+	<tr>
+		<td><div id='blocktime'>..</div></td>
+		<td>&nbsp;&nbsp;&nbsp;<button onclick='initVault();';>&nbsp;&nbsp;NEW VAULT&nbsp;&nbsp;</button></td> 
+	</tr>
+</table>
+
 <table>
 <tr>
 <td>
@@ -360,10 +391,10 @@ So - let's play.. All the setup is done in the background.. just make sure you h
 	<tr><td colspan=2>&nbsp;</td></tr>
 	
 	<tr>
-		<td colspan=2 align=right> <button onclick='SendFundsToSafeHouse();'>SEND FUNDS VIA SAFE HOUSE</button>&nbsp;&nbsp;&nbsp;</td>
+		<td align=left> <button onclick="RescueVault();">RESCUE VAULT</button></td>
+		<td align=right> <button onclick='SendFundsToSafeHouse();'>SEND FUNDS VIA SAFE HOUSE</button> </td>
 	</tr>
 		
-	<tr><td colspan=2>&nbsp;</td></tr>
 	</table>
 </div>
 
