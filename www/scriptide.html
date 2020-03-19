@@ -39,16 +39,16 @@
 		//var nocomm = txt.replace(/\n/g," ");
 		//nocomm =  nocomm.replace(/\/\*.*\*\//g, " ");
 		//nocomm =  nocomm.replace(/\s+/g, " ").trim();
-		var script = txt.replace(/\n/g," ").trim();
-		var state = "state:"+document.getElementById("state").value.trim();
-		var prevstate = "prevstate:"+document.getElementById("prevstate").value.trim();
-		var sigs = "sigs:"+document.getElementById("sigs").value.trim();
-		var outputs = "outputs:"+getOutputString();
-		var globals = "globals:"+getGlobals();
+		var script     = txt.replace(/\n/g," ").trim();
+		var state      = "state:"+document.getElementById("state").value.trim();
+		var prevstate  = "prevstate:"+document.getElementById("prevstate").value.trim();
+		var sigs       = "sigs:"+document.getElementById("sigs").value.trim();
+		var scripts    = "scripts:"+document.getElementById("mastscripts").value.trim();
+		var outputs    = "outputs:"+getOutputString();
+		var globals    = "globals:"+getGlobals();
 		
-		//
 		if(script == ''){return;}
-		Minima.cmd("runscript \""+script+"\" \""+outputs+"\" \""+globals+"\" \""+state+"\" \""+prevstate+"\" \""+sigs+"\" ",function(resp){
+		Minima.cmd("runscript \""+script+"\" \""+outputs+"\" \""+globals+"\" \""+state+"\" \""+prevstate+"\" \""+sigs+"\" \""+scripts+"\" ",function(resp){
 			console.log(resp);
 			var json = JSON.parse(resp);
 			var brkscr = json.response.parse.replace(/\n/g,"<br>");
@@ -145,6 +145,7 @@
 		var state      = document.getElementById("state").value;
 		var prevstate  = document.getElementById("prevstate").value;
 		var sigs       = document.getElementById("sigs").value;
+		var scripts    = document.getElementById("mastscripts").value;
 		var outputs    = getOutputString();
 		var globals    = getGlobals();
 		
@@ -154,6 +155,7 @@
 							"prevstate":prevstate, 
 							"sigs":sigs, 
 							"outputs":outputs,
+							"scripts":scripts,
 							"globals":globals
 						};
 		
@@ -187,6 +189,7 @@
 			document.getElementById("scriptarea").value = json.script;
 			document.getElementById("state").value      = json.state;
 			document.getElementById("prevstate").value  = json.prevstate;
+			document.getElementById("mastscripts").value  = json.scripts;
 			document.getElementById("sigs").value       = json.sigs;
 			
 			//Load the OUTPUTS..
@@ -308,6 +311,11 @@
 <tr>
 	<td colspan=2><b>SIGNATURES</b> - # separated list of public keys (can be shorter 0xFF for debugging)<br>
 	<textarea placeholder='0XFF # 0x123 # 0x3A5D322E1F3562ABDDF6FB23E120E233BEADD695E38A2012DF349B26A040CBAA' style='resize: none;width: 950px;' rows=1 id='sigs' spellcheck="false" ></textarea></td>
+</tr>
+
+<tr>
+	<td colspan=2><b>SCRIPTS</b> - # separated list of extra scripts (MAST) with the chainsha proofs<br>
+	<textarea placeholder='RETURN TRUE:0xA6657D2133E29B0A343871CAE44224BBA6BB87A972A5247A38A45D3D2065F7E4' style='resize: none;width: 950px;' rows=1 id='mastscripts' spellcheck="false" ></textarea></td>
 </tr>
 
 <tr>
