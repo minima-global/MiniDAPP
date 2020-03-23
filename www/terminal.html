@@ -24,13 +24,16 @@
 	
 	//Disable all arrow keys..  
 	window.addEventListener("keydown", function(e) { 
-        //Arrow keys
-		if([37, 38, 39, 40].indexOf(e.keyCode) > -1){ 
+        //LEFT RIGHT
+		if([37, 39].indexOf(e.keyCode) > -1){ 
+	        
+			
+		//UP DOWN	
+		}else if([38, 40].indexOf(e.keyCode) > -1){ 
             e.preventDefault(); 
-        }
-        
-        //When you press ENTER send the message to Minima..
-		if([13].indexOf(e.keyCode) > -1){ 
+
+        //ENTER    
+		}else if([13].indexOf(e.keyCode) > -1){ 
             //Grab the Last Line..
             var txt      = document.getElementById("terminal");
 			var content  = txt.value;
@@ -44,6 +47,10 @@
 		    }else{
 		    	addText("");
 		    }
+		    
+		    //Move to the end..
+		    txt.focus();
+		    txt.setSelectionRange(txt.value.length,txt.value.length);
         }
         
     }, false); 
@@ -75,11 +82,15 @@
 </script>
 
 <center>
+<br>
 <h1>Terminal</h1>
 <br>
-<textarea onmousedown="addText('');return false;" spellcheck="false" rows="35" cols="120" style="background-color:#000000;color:#FFFFFF;" id="terminal"></textarea>
+<textarea spellcheck="false" rows="35" cols="120" style="background-color:#000000;color:#FFFFFF;" id="terminal"></textarea>
 
-<br><br><a href='index.html'>HOME</a>
+<br>
+<br>
+<a href='index.html'>HOME</a>
+
 </center>
 
 </body>
