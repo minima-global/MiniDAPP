@@ -124,7 +124,7 @@
 			//Get the vault coinid
 			if(json[1].response.coins.length > 0){
 				vaultcoinid = json[1].response.coins[0].data.coin.coinid;
-				document.getElementById("vaultcoinid").innerHTML = vaultcoinid.substr(0,32)+"..";
+				document.getElementById("vaultcoinid").innerHTML = vaultcoinid.substr(0,64)+"..";
 			}else{
 				document.getElementById("vaultcoinid").innerHTML = "waiting..";
 			}
