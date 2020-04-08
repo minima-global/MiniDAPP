@@ -45,9 +45,9 @@
 		var json = JSON.parse(resp);
 		
 		//Now get the 3 values..
-		coldkey = json[0].response.key;
-		hotkey  = json[1].response.key;
-		rescaddr = json[2].response.address;
+		coldkey  = json[0].response.key.publickey;
+		hotkey   = json[1].response.key.publickey;
+		rescaddr = json[2].response.address.hexaddress;
 		
 		//Set these details
 		document.getElementById("coldkey").innerHTML   = coldkey;
@@ -67,7 +67,7 @@
 			+ " IF SIGNEDBY ( pkcold ) THEN RETURN TRUE ENDIF "
 			+ " IF SIGNEDBY ( pkhot ) THEN IF @BLKDIFF GT 20 THEN"
 			+ " RETURN VERIFYOUT ( @INPUT PREVSTATE ( 21 ) @AMOUNT @TOKENID ) ENDIF ENDIF ] "
-			+ " ASSERT VERIFYOUT ( @INPUT SHA3 ( safehouse ) amt @TOKENID ) "
+			+ " ASSERT VERIFYOUT ( @INPUT SHA3 ( 256 safehouse ) amt @TOKENID ) "
 			+ " LET chg = @AMOUNT - amt "
 			+ " IF chg GT 0 THEN ASSERT VERIFYOUT ( ( @INPUT + 1 ) @ADDRESS ( @AMOUNT - amt ) @TOKENID ) ENDIF "
 			+ " RETURN SIGNEDBY ( pkhot )";
@@ -87,13 +87,14 @@
 		Minima.cmd(addrcmd, function(resp){
 			var json = JSON.parse(resp);
 			
-			vaultaddress = json[0].response.address;
-			safehouseaddress = json[1].response.address;
+			vaultaddress = json[0].response.address.hexaddress;
+			safehouseaddress = json[1].response.address.hexaddress;
 		
 			document.getElementById("vaultaddress").innerHTML   = vaultaddress;
 			document.getElementById("houseaddress").innerHTML   = safehouseaddress;
 			
 			if(fundvault){
+				fundvault = false;
 				Minima.cmd("send 10 "+vaultaddress, function(resp){alert(resp);});
 			}
 			
@@ -116,14 +117,14 @@
 			//Set the balances..
 			vaultamount = json[0].response.balance[0].confirmed;
 			document.getElementById("vaultbalance").innerHTML = 
-				json[0].response.balance[0].confirmed + " / " + json[0].response.balance[0].unconfirmed;
+				json[0].response.balance[0].confirmed + " / " + json[0].response.balance[0].unconfirmed+ " / " + json[0].response.balance[0].mempool;
 			document.getElementById("rescuebal").innerHTML = 
-				json[3].response.balance[0].confirmed + " / " + json[3].response.balance[0].unconfirmed;
+				json[3].response.balance[0].confirmed + " / " + json[3].response.balance[0].unconfirmed+ " / " + json[3].response.balance[0].mempool;
 			
 			//Get the vault coinid
 			if(json[1].response.coins.length > 0){
 				vaultcoinid = json[1].response.coins[0].data.coin.coinid;
-				document.getElementById("vaultcoinid").innerHTML = vaultcoinid;
+				document.getElementById("vaultcoinid").innerHTML = vaultcoinid.substr(0,32)+"..";
 			}else{
 				document.getElementById("vaultcoinid").innerHTML = "waiting..";
 			}
@@ -204,6 +205,8 @@
 		
 		//Post it..
 		Minima.cmd( txncreator , function(resp){
+			console.log(resp);
+			
 			alert("Safe House Created!..");
 		});
 	}
@@ -410,78 +413,10 @@ So - let's play.. All the setup is done in the background.. just make sure you h
 </tr>
 
 </table>
-
-<!--
-<br>
-<br>
-Here is the Vault script : <br>
-<div style='width:900;text-align:left;font-size:13px;font-family:monospace;'>
-<br>
-<b>
-/* The HOT and COLD keys */<br>
-LET pkcold = THE_COLD_KEY<br>
-LET pkhot = THE_HOT_KEY<br>
-<br>
-/* COLD key always has root access*/<br>
-IF SIGNEDBY ( pkcold ) THEN RETURN TRUE ENDIF<br>
-<br>
-/* How much are you sending and to who is specified in the STATE and accessible in PREVSTATE from the Safe House */<br>
-LET amt = STATE ( 20 )<br>
-<br>
-/* Allthough specified it's not actually used.. it's for the follow up transaction */<br> 
-LET recip = STATE ( 21 )<br>
-<br>
-/* Construct the script output for the safe house */<br>
-LET safehouse = [ LET pkcold = THE_COLD_KEY LET pkhot = THE_HOT_KEY IF SIGNEDBY ( pkcold ) THEN RETURN TRUE ENDIF IF SIGNEDBY ( pkhot ) THEN IF @BLKDIFF GT 20 THEN RETURN VERIFYOUT ( @INPUT PREVSTATE ( 21 ) @AMOUNT @TOKENID ) ENDIF ENDIF ]<br> 
-<br>
-/* Check that the correct output exists */<br>
-ASSERT VERIFYOUT ( @INPUT SHA3 ( safehouse ) amt @TOKENID )<br>
-<br>
-/* Make sure the change is sent back to the Vault */<br>
-LET change = @AMOUNT - amt<br>
-IF change GT 0 THEN <br>
-&nbsp;&nbsp;ASSERT VERIFYOUT ( ( @INPUT + 1 ) @ADDRESS change @TOKENID )<br>
-ENDIF<br>
-<br>
-/* Finally - it must be signed by the HOT key*/<br>
-RETURN SIGNEDBY ( pkhot )<br>
-</b>
-</div>
-  -->
   
 <br>
 <b>VAULT SCRIPT</b> : 
 <div id="vaultscript" style='border-radius:10px;padding:10;background-color:#CCCCCC;color:#000000;width:750px;text-align:left;font-size:13px;font-family:monospace;'></div>
-
-<!-- 
-<br><Br>Here is the Safe House : <br>
-<div style='width:900;text-align:left;font-size:13px;font-family:monospace;'>
-<br>
-<b>
-/* The HOT and COLD key */<br>
-LET pkcold = THE_COLD_KEY<br>
-LET pkhot = THE_HOT_KEY<br>
-<br>
-/* Cold key has root - rescue the funds */<br>
-IF SIGNEDBY ( pkcold ) THEN RETURN TRUE ENDIF<br>
-<br>
-/* Can ONLY be forwarded to the pre-designated address.. by the HOT key*/<br> 
-IF SIGNEDBY ( pkhot ) THEN<br>
-<br>
-&nbsp;/* Need to wait a certain amount of time */<br> 
-&nbsp;LET blkdiff = @BLKNUM - @INBLKNUM<br>
-&nbsp;IF blkdiff GT 20 THEN <br>
-<br>
-&nbsp;&nbsp;/* Make sure the output exists to the correct address */<br>
-&nbsp;&nbsp;RETURN VERIFYOUT ( @INPUT PREVSTATE(21) @AMOUNT @TOKENID ) <br>
-<br>  
-&nbsp;ENDIF<br>   
-<br>
-ENDIF<br>
-<br>
-</b>
-</div>
- -->
  
 <br>
 <b>SAFE HOUSE SCRIPT</b> : 

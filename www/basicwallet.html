@@ -37,7 +37,7 @@
 	function newAddress(){
 		Minima.cmd("newaddress", function(resp){
 			var json = JSON.parse(resp);
-			document.getElementById("addressdiv").innerHTML = "<b>"+json.response.address+"</b>";
+			document.getElementById("addressdiv").innerHTML = "<b>"+json.response.address.miniaddress+"</b>";
 		});
 	}
 
@@ -57,13 +57,15 @@
 	 			document.getElementById("blockdiv").innerHTML = "Block : "+Minima.block;
 	 			
 	 		}else if(evt.detail.event == "newbalance"){
+	 			
 	 			//Set the Balance..
-				var bal   = evt.detail.info.response.balance[0].confirmed;
-				var balun = evt.detail.info.response.balance[0].unconfirmed;
+				var bal     = evt.detail.info.response.balance[0].confirmed;
+				var balun   = evt.detail.info.response.balance[0].unconfirmed;
+				var mempool = evt.detail.info.response.balance[0].mempool;
 				
 				//Is there unconfirmed money coming..
-				if(balun !== "0"){
-					document.getElementById("balancediv").innerHTML = "Balance : "+bal+" / "+balun;	
+				if(balun !== "0" || mempool !== "0"){
+					document.getElementById("balancediv").innerHTML = "Balance : "+bal+" / "+balun+" / "+mempool;	
 				}else{
 					document.getElementById("balancediv").innerHTML = "Balance : "+bal;
 				}

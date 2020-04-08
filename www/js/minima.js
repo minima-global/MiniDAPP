@@ -122,7 +122,7 @@ function initialStatus(){
 
 	   //Store this..
 	   Minima.block   = parseInt(json.response.lastblock,10);
-	   Minima.txpowid = json.response.tip.txpowid;
+	   Minima.txpowid = json.response.tip;
 	   
 	   //Hide the Divs..
 	   hide(MAIN_DIV);
@@ -239,7 +239,7 @@ function pollMinimaFunction(){
 		if(Minima.status.response.tip.txpowid !== Minima.txpowid){
 			//Store the details
 			Minima.block   = parseInt(Minima.status.response.lastblock,10);
-			Minima.txpowid = Minima.status.response.tip.txpowid;
+			Minima.txpowid = Minima.status.response.tip;
 			
 			//Tell-tale..
 			postMinimaMessage("newblock",Minima.status);

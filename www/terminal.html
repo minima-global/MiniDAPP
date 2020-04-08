@@ -42,7 +42,9 @@
 		    //Run it on Minima
 		    if(lastLine !== ""){
 		    	Minima.cmd(lastLine,function(resp){
-			    	addText(resp+"\n");
+			    	//Replace \\n with \n..
+			    	var linebreaker = resp.replace(/\\n/g,"\n");
+			    	addText(linebreaker+"\n");
 			    });	
 		    }else{
 		    	addText("");

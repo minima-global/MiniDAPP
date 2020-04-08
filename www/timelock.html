@@ -33,7 +33,7 @@
 	function newKey(){
 		Minima.cmd("keys new", function(resp){
 			var json = JSON.parse(resp);
-			pubkey   = json.response.key;
+			pubkey   = json.response.key.publickey;
 			document.getElementById("pubkey").innerHTML = pubkey+"";
 			
 			script = "IF SIGNEDBY ( "+pubkey+" ) AND @BLKNUM GT "+futureblock+" THEN RETURN TRUE ENDIF";
