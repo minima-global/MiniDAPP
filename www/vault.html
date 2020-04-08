@@ -117,9 +117,9 @@
 			//Set the balances..
 			vaultamount = json[0].response.balance[0].confirmed;
 			document.getElementById("vaultbalance").innerHTML = 
-				json[0].response.balance[0].confirmed + " / " + json[0].response.balance[0].unconfirmed+ " / " + json[0].response.balance[0].mempool;
+				json[0].response.balance[0].confirmed + " / " + json[0].response.balance[0].unconfirmed;
 			document.getElementById("rescuebal").innerHTML = 
-				json[3].response.balance[0].confirmed + " / " + json[3].response.balance[0].unconfirmed+ " / " + json[3].response.balance[0].mempool;
+				json[3].response.balance[0].confirmed + " / " + json[3].response.balance[0].unconfirmed;
 			
 			//Get the vault coinid
 			if(json[1].response.coins.length > 0){
