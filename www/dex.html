@@ -4,10 +4,7 @@
 	
 	<!--   The MINIMA MiFi Javascript Library -->
 	<script type="text/javascript" src="./js/minima.js"></script>
-		
-	<!--   You need to use proper Decimal Maths.. -->
-	<script type="text/javascript" src="./js/decimal.js"></script>
-	
+			
 </head>
 
 <body>
@@ -18,20 +15,12 @@
 	function updateInfo(info){
 		document.getElementById("infodiv").innerHTML = 
 			"Host : "+Minima.host+"<br><br>"+
-			"Block : "+Minima.block+"<br><br>"+
-			"TxPoWID : <a href='#' onclick='updateTxPow(Minima.txpowid); return false;'>"+Minima.txpowid+"</a><br><br>";	
+			"Block : "+Minima.block+"<br><br>";	
 	}
 
-	//When you click on a txpowid.. get it and print info..
-	function updateTxPow(txpowid){
-		Minima.cmd("txpowinfo "+txpowid,function(resp){
-			document.getElementById("txpowinfo").value = resp;
-		});
-	}
-	
 	//Wait for the page to load..
 	window.addEventListener("load", function(){
-	    
+	
 		//Listen for Minima Events
 		window.addEventListener('MinimaEvent', function(evt) {
 			
@@ -40,9 +29,6 @@
 	 			
 	 			//Print some data
 	 			updateInfo();
-	 			
-	 			//And set the initial 
-	 			updateTxPow(Minima.txpowid);
 	 			
 	 		}else if(evt.detail.event == "newblock"){
 	 			
@@ -56,25 +42,155 @@
 	    });
 		
 		//Initialise MiFi
-		Minima.init();
+		//Minima.init();
 	});
 	
 </script>
 
+<style>
+.infobox {text-align:center;vertical-align:top;background-color: #eee;border-radius: 10px;}
+.infoboxgreen {text-align:center;vertical-align:middle;background-color: #dfd;border-radius: 10px;}
+.infoboxred {text-align:center;vertical-align:middle;background-color: #fdd;border-radius: 10px;}
+.infoboxblue {text-align:center;vertical-align:middle;background-color: #ddf;border-radius: 10px;}
+p {color:blue;}
+</style>
+
 <center>
 <br>
-<h3>Super Simple MiFi Block Explorer</h3>
+<h3>Super Simple On-Chain DEX</h3>
 <br>
 <br>
 
-<div id="infodiv">no info yet..</div> 
-<br>
-<br>
-TxPow Info :
-<br>
-<textarea spellcheck="false" rows="35" cols="100" style="border:none;" id="txpowinfo"></textarea>
+<table width=1000 height=600 border=1>
+
+<tr height=10%>
+	<td colspan=3 class="infoboxblue">
+		<b>CHOOSE TOKEN : </b> <select name=token  style="max-width:100%"> 
+			  <option value="volvo">PADDY : 0x6728628476234897598379834373534874628374628734622328364</option>
+			  <option value="saab">BITCOIN : 0x6728628476234897598379834373534874628374628734622328364</option>
+			  <option value="volvo">PADDY : 0x6728628476234897598379834373534874628374628734622328364</option>
+			  <option value="saab">BITCOIN : 0x6728628476234897598379834373534874628374628734622328364</option>
+			  
+		</select>
+	</td>
+</tr>
+
+<tr>
+	
+	<td width=30%>
+		<table width=100% height=100%>
+			<tr>
+				<td class="infobox">
+					<br><h3>MINIMA BALANCE</h3>
+					
+					<div id="minima_balance">
+						0
+					</div>
+				</td>
+			</tr>
+			
+			<tr>
+				<td class="infobox">
+					<br><h3>TOKEN BALANCE</h3>
+					
+					<div id="token_balance">
+						0
+					</div>
+					
+				</td>
+			</tr>
+			
+			<tr>
+				<td class="infobox">
+					<br><h3>CREATE TOKEN</h3>
+				</td>
+			</tr>
+		</table>
+		
+	</td>
+	
+	<td width=40%>
+	
+		<table width=100% height=100% border=1>
+			
+			<tr>
+				<td height=70%>
+					ORDERBOOK
+				</td>
+			</tr>
+			
+			<tr>
+				<td height=15% class="infoboxgreen">
+					BUY <input type="text" size=10 id="buyamt" placeholder="Token Amount"> @ <input type="text" size=14 id="buyprice" placeholder="Price in Minima">
+					&nbsp;<input type="submit" value="Confirm"> 
+				</td>
+			</tr>
+			
+			<tr>
+				<td height=15% class="infoboxred">
+					SELL <input type="text" size=10 id="sellamt" placeholder="Token Amount"> @ <input type="text" size=14 id="sellprice" placeholder="Price in Minima">
+					&nbsp;<input type="submit" value="Confirm"> 
+				</td>
+			</tr>
+			
+		</table>
+	
+	</td>
+	
+	<td width=30%>
+	
+		<table border=0 width=100% height=100%>
+			
+			<tr>
+				<td style="vertical-align:top;background-color:#ffd;border-radius: 10px;">
+					
+					<div style="overflow-y:scroll;height:100%;'">
+						<table width=100%>
+							<tr> <th>AMOUNT</th> <th>PRICE</th> <th>TIME</th> </tr>
+							
+							<tr class="infoboxgreen"> <td>10</td> <td>0.02</td> <td>345</td> </tr>
+							<tr class="infoboxred"> <td>10</td> <td>0.02</td> <td>345</td> </tr>
+							<tr class="infoboxgreen"> <td>10</td> <td>0.02</td> <td>345</td> </tr>
+							<tr class="infoboxred"> <td>10</td> <td>0.02</td> <td>345</td> </tr>
+							<tr class="infoboxgreen"> <td>10</td> <td>0.02</td> <td>345</td> </tr>
+							<tr class="infoboxred"> <td>10</td> <td>0.02</td> <td>345</td> </tr>
+							<tr class="infoboxgreen"> <td>10</td> <td>0.02</td> <td>345</td> </tr>
+							<tr class="infoboxred"> <td>10</td> <td>0.02</td> <td>345</td> </tr>
+							<tr class="infoboxgreen"> <td>10</td> <td>0.02</td> <td>345</td> </tr>
+							<tr class="infoboxred"> <td>10</td> <td>0.02</td> <td>345</td> </tr>
+							<tr class="infoboxgreen"> <td>10</td> <td>0.02</td> <td>345</td> </tr>
+							<tr class="infoboxred"> <td>10</td> <td>0.02</td> <td>345</td> </tr>
+							<tr class="infoboxgreen"> <td>10</td> <td>0.02</td> <td>345</td> </tr>
+							<tr class="infoboxred"> <td>10</td> <td>0.02</td> <td>345</td> </tr>
+							<tr class="infoboxgreen"> <td>10</td> <td>0.02</td> <td>345</td> </tr>
+							<tr class="infoboxred"> <td>10</td> <td>0.02</td> <td>345</td> </tr>
+							<tr class="infoboxred"> <td>10</td> <td>0.02</td> <td>345</td> </tr>
+							<tr class="infoboxgreen"> <td>10</td> <td>0.02</td> <td>345</td> </tr>
+							<tr class="infoboxred"> <td>10</td> <td>0.02</td> <td>345</td> </tr>
+							<tr class="infoboxgreen"> <td>10</td> <td>0.02</td> <td>345</td> </tr>
+							<tr class="infoboxred"> <td>10</td> <td>0.02</td> <td>345</td> </tr>
+							<tr class="infoboxgreen"> <td>10</td> <td>0.02</td> <td>345</td> </tr>
+							<tr class="infoboxred"> <td>10</td> <td>0.02</td> <td>345</td> </tr>
+							<tr class="infoboxgreen"> <td>10</td> <td>0.02</td> <td>345</td> </tr>
+							<tr class="infoboxred"> <td>10</td> <td>0.02</td> <td>345</td> </tr>
+						
+						</table>
+					</div>
+					
+				</td>
+			</tr>
+			
+		</table>
+	
+	</td>
+	
+</tr>
+
+</table>
+
 
 <br><br><a href='index.html'>HOME</a>
+
 </center>
 
 </body>
