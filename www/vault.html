@@ -318,9 +318,8 @@ back with your COLD key.
 Hot wallet convenience with cold wallet security and all it takes is a little delay. An exchange, for instance, can keep large amounts online and available to send this way. Simple (yet secure).  
 
 <br><br>
-So - let's play.. All the setup is done in the background.. just make sure you have some funds so that the Vault Wallet can be filled.
-
-<br><br>
+So - let's play.. All the setup is done in the background.. just <b>make sure you have some funds</b> so that the Vault Wallet can be filled.<br>
+<br>
 </div>
 <br>
 <table>
@@ -421,6 +420,57 @@ So - let's play.. All the setup is done in the background.. just make sure you h
 <br>
 <b>SAFE HOUSE SCRIPT</b> : 
 <div id="safescript" style='border-radius:10px;padding:10;background-color:#CCCCCC;color:#000000;width:750px;text-align:left;font-size:13px;font-family:monospace;'></div>
+
+<br><br>
+Here are the scripts in an easier to read format..<br>
+<br>
+<div style='width:800px;text-align:left;font-size:13px;font-family:monospace;'>
+<b>VAULT</b><br>
+<br>
+/* You need 2 keys */<br>
+LET pkcold = COLD_KEY<br>
+LET pkhot = HOT_KEY<br>
+<br>
+/* COLD key has root access*/<br>
+IF SIGNEDBY ( pkcold ) THEN RETURN TRUE ENDIF<br>
+<br>
+/* The Amount and Recipient are specified in the State */<br>
+LET amt = STATE ( 20 ) LET recip = STATE ( 21 )<br>
+<br>
+/* Now generate the Safe House Address */<br>
+LET safehouse = [ LET pkcold = COLD_KEY LET pkhot = HOT_KEY<br>
+IF SIGNEDBY ( pkcold ) THEN RETURN TRUE ENDIF<br>
+IF SIGNEDBY ( pkhot ) THEN IF @BLKDIFF GT 20 THEN<br>
+RETURN VERIFYOUT ( @INPUT PREVSTATE ( 21 ) @AMOUNT @TOKENID ) ENDIF ENDIF ]<br>
+<br>
+/* Make sure The Safe House Address is the opposite output */<br>
+ASSERT VERIFYOUT ( @INPUT SHA3 ( 256 safehouse ) amt @TOKENID )<br>
+<br>
+/* Send the change back to the Vault */<br>
+LET chg = @AMOUNT - amt<br>
+IF chg GT 0 THEN ASSERT VERIFYOUT ( ( @INPUT + 1 ) @ADDRESS ( @AMOUNT - amt ) @TOKENID ) ENDIF<br>
+<br>
+/* Make sure is signed by the HOT key */<br>
+RETURN SIGNEDBY ( pkhot )<br>
+
+<br><br>
+<b>SAFE HOUSE</b><br>
+<br>
+/* Same Keys as Vault */<br>
+LET pkcold = COLD_KEY<br>
+LET pkhot = HOT_KEY<br>
+<br>
+/* COLD key again has root access */<br>
+IF SIGNEDBY ( pkcold ) THEN RETURN TRUE ENDIF<br>
+<br>
+/* ONLY spend after 20 blocks and ONLY to the pre-specified address for the whole amount */<br>
+IF SIGNEDBY ( pkhot ) THEN<br>
+&nbsp;IF @BLKDIFF GT 20 THEN<br>
+&nbsp;&nbsp;RETURN VERIFYOUT ( @INPUT PREVSTATE ( 21 ) @AMOUNT @TOKENID )<br>
+&nbsp;ENDIF<br>
+ENDIF<br>
+<br>
+</div>
 
 <br><br><a href='index.html'>HOME</a>
 </center>
