@@ -120,13 +120,17 @@ function postMinimaMessage(event, info){
  */
 function initialStatus(){
    //Run Status once to populate the main details..
-   Minima.cmd("status",function(resp){
-	   //And set the block
-	   var json = JSON.parse(resp);
+   Minima.cmd("status;balance",function(resp){
+	    //Convert to JSON
+		var json = JSON.parse(resp);
+
+		//Status is first..
+		Minima.status  = json[0].response;
+		Minima.balance = json[1].response;
 
 	   //Store this..
-	   Minima.block   = parseInt(json.response.lastblock,10);
-	   Minima.txpowid = json.response.tip;
+	   Minima.txpowid = status.tip;
+	   Minima.block   = parseInt(status.lastblock,10);
 	   
 	   //Hide the Divs..
 	   hide(MAIN_DIV);
@@ -236,14 +240,14 @@ function pollMinimaFunction(){
 		var json = JSON.parse(resp);
 
 		//Status is first..
-		Minima.status  = json[0];
-		Minima.balance = json[1];
+		Minima.status  = json[0].response;
+		Minima.balance = json[1].response;
 		
 		//Check for new block
-		if(Minima.status.response.tip.txpowid !== Minima.txpowid){
+		if(Minima.status.tip !== Minima.txpowid){
 			//Store the details
-			Minima.block   = parseInt(Minima.status.response.lastblock,10);
-			Minima.txpowid = Minima.status.response.tip;
+			Minima.block   = parseInt(Minima.status.lastblock,10);
+			Minima.txpowid = Minima.status.tip;
 			
 			//Tell-tale..
 			postMinimaMessage("newblock",Minima.status);
