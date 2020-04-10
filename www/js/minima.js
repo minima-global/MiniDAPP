@@ -100,6 +100,7 @@ var Minima = {
 		//And refresh the page..
 		location.reload();
 	}
+	
 };
 
 function postMinimaMessage(event, info){
