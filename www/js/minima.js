@@ -128,23 +128,23 @@ function initialStatus(){
 		//Status is first..
 		Minima.status  = json[0].response;
 		Minima.balance = json[1].response;
-
-	   //Store this..
-	   Minima.txpowid = status.tip;
-	   Minima.block   = parseInt(status.lastblock,10);
+		
+	    //Store this..
+	    Minima.txpowid = Minima.status.tip;
+	    Minima.block   = parseInt(Minima.status.lastblock,10);
 	   
-	   //Hide the Divs..
-	   hide(MAIN_DIV);
-	   hide(OVERLAY_DIV);
-	   show(LOGOUT_BUTTON);
+	    //Hide the Divs..
+	    hide(MAIN_DIV);
+	    hide(OVERLAY_DIV);
+	    show(LOGOUT_BUTTON);
 	   
-	   //Start Polling..
-	   startMinimaPolling();
+	    //Start Polling..
+	    startMinimaPolling();
 	   
-	   MINIMACONNECTED = true;
+	    MINIMACONNECTED = true;
 	   
-	   //Send a message
-	   postMinimaMessage("connected", "success");
+	    //Send a message
+	    postMinimaMessage("connected", "success");
    });
 }
 

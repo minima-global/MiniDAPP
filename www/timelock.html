@@ -51,7 +51,7 @@
 		
 		Minima.cmd("newscript \""+script+"\" ", function(resp){
 			var json = JSON.parse(resp);
-			address  = json.response.address;
+			address  = json.response.address.hexaddress;
 			document.getElementById("scriptdiv").innerHTML = "SCRIPT : "+script+"<br><br>ADDRESS : "+address;
 		});
 	}

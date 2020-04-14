@@ -59,9 +59,9 @@
 	 		}else if(evt.detail.event == "newbalance"){
 	 			
 	 			//Set the Balance..
-				var bal     = evt.detail.info.response.balance[0].confirmed;
-				var balun   = evt.detail.info.response.balance[0].unconfirmed;
-				var mempool = evt.detail.info.response.balance[0].mempool;
+				var bal     = evt.detail.info.balance[0].confirmed;
+				var balun   = evt.detail.info.balance[0].unconfirmed;
+				var mempool = evt.detail.info.balance[0].mempool;
 				
 				//Is there unconfirmed money coming..
 				if(balun !== "0" || mempool !== "0"){
