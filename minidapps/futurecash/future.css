@@ -2,11 +2,13 @@
 	background-size:100%;
 	background-image: url(backdrop.jpg);
 	background-size:100% 100%;
-	text-align:center;
 }
 
 .maindiv {
-  position:relative;
+  margin: auto;
+  position: absolute;
+  top: 0; left: 0; bottom: 0; right: 0;
+  
   width:800;
   height:600;
   background-color:#ddf;
@@ -14,6 +16,14 @@
   opacity:0.8;
   font-size:16px;
   text-align:center;
+}
+
+.timediv{
+	position: absolute;
+	top: 20; 
+	right: 20;
+	font-size:16px;
+    font-weight:bold;
 }
 
 .tableheader{
@@ -29,12 +39,37 @@
 	vertical-align:top;
 }
 
+.sendtd{
+	text-align:right;
+	font-size:20px;
+}
+
 .headerbutton{
   background-color: #fdd;
   border-radius: 10px;
   font-size:24px;
   font-weight:bold;
   font-family:monospace;
+  outline: none;
+}
+
+.futurecash{
+  background-color: #dfd;
+  border-radius: 10px;
+  font-size:20px;
+  font-weight:bold;
+  font-family:monospace;
+  text-align:center;
+  outline: none;
+}
+
+.collect{
+  background-color: #dff;
+  border-radius: 10px;
+  font-size:16px;
+  font-weight:bold;
+  font-family:monospace;
+  text-align:center;
   outline: none;
 }
 

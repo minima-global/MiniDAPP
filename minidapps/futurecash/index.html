@@ -8,15 +8,18 @@
 	<link rel="stylesheet" type="text/css" href="future.css">
 </head>
 
-<body class="mainbody">
+<body class=mainbody>
 
-<center>
 
 	<script type="text/javascript">
 	
+		//Global Variables - used Script IDE..
+		var timescript  = "LET owner = PREVSTATE ( 0 ) LET time = PREVSTATE ( 1 ) RETURN SIGNEDBY ( owner ) AND @BLKNUM GTE time";
+ 		var timeaddress = "0x142A1F523C222BA9B64DBF77F596D9BA0C71BF12783B9D8E0BD0786C9A8276A6";
+ 			
 		function setTime(){
 			//Set the right time
-			document.getElementById("blocktime").innerHTML = ""+Minima.block;	
+			document.getElementById("blocktime").innerHTML = "BLOCKTIME : "+Minima.block;	
 		}
 		
 		function setBalance(){
@@ -33,10 +36,10 @@
 			}
 		}
 		
-		function newAddress(){
-			Minima.cmd("newaddress", function(resp){
+		function newKey(){
+			Minima.cmd("keys new", function(resp){
 				var json = JSON.parse(resp);
-				document.getElementById("myaddress").innerHTML = "<b>"+json.response.address.miniaddress+"</b>";
+				document.getElementById("myaddress").innerHTML = ""+json.response.key.publickey;
 			});
 		}
 		
@@ -60,43 +63,159 @@
 		}
 	
 		function sendFunds(){
-			confirm("You are about to send money INTO THE FUTURE!");
+			amount = document.getElementById("amount").value.trim();
+			time   = document.getElementById("futuretime").value.trim();
+			key    = document.getElementById("futurekey").value.trim();
+			
+			if(amount == "" || time=="" || key =="" ){
+				alert("Blank Entires!");
+				return;
+			}
+			
+			//Check..
+			if(confirm("You are about to send money INTO THE FUTURE!")){
+				//Clear it..
+				document.getElementById("amount").value = "";
+				document.getElementById("futuretime").value = "";
+				document.getElementById("futurekey").value = "";
+				
+				//Create a random txn id..
+				var txnid = Math.floor(Math.random()*1000000000);
+				
+				//Construct Transaction..
+				var txncreator = 
+					"txncreate "+txnid+";"+
+					"txnauto "+txnid+" "+amount+" "+timeaddress+";"+
+					"txnstate "+txnid+" 0 "+key+";"+
+					"txnstate "+txnid+" 1 "+time+";"+
+					"txnpost "+txnid+";"+
+					"txndelete "+txnid+";";
+			
+				//Post it..
+				Minima.cmd( txncreator , function(resp){
+					alert("FUNDS SENT!");
+				});
+			}
+		}
+		
+		function getCoinPrevState(coinproof, prevstate){
+			var pslen = coinproof.prevstate.length;
+			for(psloop=0;psloop<pslen;psloop++){
+				if(coinproof.prevstate[psloop].port == prevstate){
+					return coinproof.prevstate[psloop].data;
+				}
+			}
+			return null;
+		}
+		
+		function cashFunction(){
+			Minima.cmd( "coins "+timeaddress , function(resp){
+				var json = JSON.parse(resp);
+				
+				var cashtable="<table width=100% border=0>"+
+				"<tr><th>AMOUNT</th> <th>TIME</th> <th>COLLECT</th></tr>";
+				
+				//get any of these coins that have the time address
+				var coinlen = json.response.coins.length;
+				for(i=0;i<coinlen;i++){
+					var coinproof = json.response.coins[i].data;
+					
+					var keycoin    = getCoinPrevState(coinproof,0);
+					var timecoin   = parseInt(getCoinPrevState(coinproof,1), 10);
+					var amountcoin = coinproof.coin.amount;
+					
+					var collectstring = "";
+					if(timecoin < Minima.block){
+						collectstring="<button onclick='collectCoin(\""+coinproof.coin.coinid+"\",\""+keycoin+"\",\""+amountcoin+"\");' class=collect>COLLECT</button>";
+					}else{
+						var diff = timecoin - Minima.block;
+						collectstring = "Ready in "+diff+"..";
+					}
+					
+					if(coinproof.coin.address == timeaddress){
+						cashtable += 
+						"<tr><td class=futurecash>"+coinproof.coin.amount+"</td>"+
+							"<td class=futurecash>"+getCoinPrevState(coinproof,1)+"</td>"+
+							"<td class=futurecash>"+collectstring+"</td>"+
+						"</tr>";	
+					}
+				}
+				
+				if(coinlen == 0){
+					cashtable += "<tr> <td colspan=3 style='text-align:center;'> NO MONEY YET </td> </tr>";
+				}
+				
+				cashtable += "</table>";
+
+				//And set it..
+				document.getElementById("futuremoney").innerHTML = cashtable;
+			});
+		}
+		
+		function collectCoin(coinid, key, cashamount){
+			//Get a new address and send these funds to that..
+			Minima.cmd("newaddress", function(resp){
+				var json = JSON.parse(resp);
+				var newaddress = json.response.address.miniaddress;
+				
+				//Now build the collect transaction and send..
+				//Create a random txn id..
+				var txnid = Math.floor(Math.random()*1000000000);
+				
+				//Construct Transaction..
+				var txncreator = 
+					"txncreate "+txnid+";"+
+					"txninput "+txnid+" "+coinid+";"+
+					"txnoutput "+txnid+" "+cashamount+" "+newaddress+";"+
+					"txnsign "+txnid+" "+key+";"+
+					"txnpost "+txnid+";"+
+					"txndelete "+txnid+";";
+				
+				console.log(txncreator);	
+					
+				//Post it..
+				Minima.cmd( txncreator , function(resp){
+					console.log(resp);
+					alert("FUNDS COLLECTED! CHECK BALANCE!");
+				});	
+			});
 		}
 		
 		//Wait for the page to load..
 		window.addEventListener("load", function(){
-		    
+
 			//Listen for Minima Events
 			window.addEventListener('MinimaEvent', function(evt) {
-				
 				//Deal with each message type
 		 		if(evt.detail.event == "connected"){
 			 		setTime();
 			 		setBalance();
-			 		
-		 		}else if(evt.detail.event == "newblock"){
+			 		cashFunction();
+		 			
+			 		//Tell Minima about the timescript!
+			 		Minima.cmd("extrascript \""+timescript+"\"");
+			 				
+			 	}else if(evt.detail.event == "newblock"){
 		 			setTime();
-			 		
+		 			cashFunction();
+		 			
 		 		}else if(evt.detail.event == "newbalance"){
 		 			setBalance();
-			 		
 		 		}
-				
 		    });
 			
 			//Initialise MiFi
 			Minima.init();
 			
-			//Hide most..
-			showPage(0);
+			//Show Intro
+			showPage(2);
 		});
 		
 	</script>
 	
-	<br>
-	<br>
 	<div class="maindiv">
-
+		<div class=timediv id=blocktime>...</div>
+	
 		<br>
 		<h1>FUTURE CASH</h1>
 
@@ -124,9 +243,11 @@
 				
 				<br><br>
 				<br>
-				<div id="myaddress"> Your Key.. </div>
+				<div id="myaddress" style="font-size:14;font-weight:bold;"> Your Key.. </div>
 				<br>
-				<button class="userbutton" onclick="newAddress();">GENERATE KEY</button>
+				<button class="userbutton" onclick="newKey();">GENERATE KEY</button>
+				<br><br>
+				Only use the key ONCE!
 			</div>
 		
 			<div id=sendcash class="tablebody" style="display:none;">
@@ -135,23 +256,19 @@
 				<center>
 				<table border=0 style="font-size:18;">
 					<tr>
-						<td align=right>Your Balance : </td> <td> <div id='yourbalance'>...</div> </td>
+						<td class=sendtd>Your Balance : </td> <td> <div id='yourbalance'>...</div> </td>
 					</tr>
 					
 					<tr>
-						<td align=right>Current Time : </td> <td> <div id='blocktime'>...</div> </td>
+						<td class=sendtd>Future Time : </td> <td> <input size=40 type='text' id='futuretime'></td>
 					</tr>
 					
 					<tr>
-						<td align=right>Future Time : </td> <td> <input size=40 type='text' id='futuretime'></td>
+						<td class=sendtd>Amount : </td> <td> <input size=40 type='text' id='amount'></td>
 					</tr>
 					
 					<tr>
-						<td align=right>Amount : </td> <td> <input size=40 type='text' id='amount'></td>
-					</tr>
-					
-					<tr>
-						<td align=right>Key : </td> <td> <input size=40 type='text' id='key'></td>
+						<td class=sendtd>Key : </td> <td> <input size=40 type='text' id='futurekey'></td>
 					</tr>
 					
 					<tr>
@@ -166,7 +283,7 @@
 			<div id=mycash class="tablebody" style="display:none;"> 
 				<br>
 				<div id="futuremoney">
-					NO MONEY YET..
+					NO MONEY..
 				</div>
 			</div>
 		
@@ -176,7 +293,6 @@
 
 	</div>
 
-</center>
 
 </body>
 
