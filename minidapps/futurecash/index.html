@@ -1,0 +1,183 @@
+<html>
+
+<head>
+	<!--   The MINIMA MiFi Javascript Library -->
+	<script type="text/javascript" src="http://127.0.0.1:21000/minima.js"></script>
+	
+	<!--  STYLE -->
+	<link rel="stylesheet" type="text/css" href="future.css">
+</head>
+
+<body class="mainbody">
+
+<center>
+
+	<script type="text/javascript">
+	
+		function setTime(){
+			//Set the right time
+			document.getElementById("blocktime").innerHTML = ""+Minima.block;	
+		}
+		
+		function setBalance(){
+			//Set the Balance..
+			var bal     = Minima.balance.balance[0].confirmed;
+			var balun   = Minima.balance.balance[0].unconfirmed;
+			var mempool = Minima.balance.balance[0].mempool;
+			
+			//Is there unconfirmed money coming..
+			if(balun !== "0" || mempool !== "0"){
+				document.getElementById("yourbalance").innerHTML = bal+" / "+balun+" / "+mempool;	
+			}else{
+				document.getElementById("yourbalance").innerHTML = ""+bal;
+			}
+		}
+		
+		function newAddress(){
+			Minima.cmd("newaddress", function(resp){
+				var json = JSON.parse(resp);
+				document.getElementById("myaddress").innerHTML = "<b>"+json.response.address.miniaddress+"</b>";
+			});
+		}
+		
+		function showPage(page){
+			if(page == 0 ){
+				document.getElementById("intro").style.display = "block";
+				document.getElementById("sendcash").style.display = "none";
+				document.getElementById("mycash").style.display = "none";
+			
+			}else if(page == 1 ){
+				document.getElementById("intro").style.display = "none";
+				document.getElementById("sendcash").style.display = "block";
+				document.getElementById("mycash").style.display = "none";
+				
+			}else if(page == 2 ){
+				document.getElementById("intro").style.display = "none";
+				document.getElementById("sendcash").style.display = "none";
+				document.getElementById("mycash").style.display = "block";
+				
+			}
+		}
+	
+		function sendFunds(){
+			confirm("You are about to send money INTO THE FUTURE!");
+		}
+		
+		//Wait for the page to load..
+		window.addEventListener("load", function(){
+		    
+			//Listen for Minima Events
+			window.addEventListener('MinimaEvent', function(evt) {
+				
+				//Deal with each message type
+		 		if(evt.detail.event == "connected"){
+			 		setTime();
+			 		setBalance();
+			 		
+		 		}else if(evt.detail.event == "newblock"){
+		 			setTime();
+			 		
+		 		}else if(evt.detail.event == "newbalance"){
+		 			setBalance();
+			 		
+		 		}
+				
+		    });
+			
+			//Initialise MiFi
+			Minima.init();
+			
+			//Hide most..
+			showPage(0);
+		});
+		
+	</script>
+	
+	<br>
+	<br>
+	<div class="maindiv">
+
+		<br>
+		<h1>FUTURE CASH</h1>
+
+		<table width=100% height=400 border=0>
+		<tr>
+			<td width=33% class="tableheader"><button onclick="showPage(0);" class="headerbutton">&nbsp;INTRO&nbsp;</button> </td> 
+			<td width=34% class="tableheader"><button onclick="showPage(1);" class="headerbutton">&nbsp;SEND CASH&nbsp;</button> </td>
+			<td width=33% class="tableheader"><button onclick="showPage(2);" class="headerbutton">&nbsp;MY FUTURE&nbsp;</button> </td>
+		</tr>
+
+		<tr>
+			<td colspan=3 height=400>
+		
+			<div id=intro class="tablebody">
+				<br>
+				<br>
+			    <br>
+				<b>Send cash to the Future!</b><br>
+				<br>
+				Ask whoever you are sending cash to, to use this MiniDAPP to generate their key.<br>
+				<br>
+				Or better still - send YOURSELF some cash.. do your future self a favour!<br>
+				<br>
+				The <b>best</b> way to safe-guard your money is not to spend it.. NOW. 
+				
+				<br><br>
+				<br>
+				<div id="myaddress"> Your Key.. </div>
+				<br>
+				<button class="userbutton" onclick="newAddress();">GENERATE KEY</button>
+			</div>
+		
+			<div id=sendcash class="tablebody" style="display:none;">
+				<br>
+				<br>
+				<center>
+				<table border=0 style="font-size:18;">
+					<tr>
+						<td align=right>Your Balance : </td> <td> <div id='yourbalance'>...</div> </td>
+					</tr>
+					
+					<tr>
+						<td align=right>Current Time : </td> <td> <div id='blocktime'>...</div> </td>
+					</tr>
+					
+					<tr>
+						<td align=right>Future Time : </td> <td> <input size=40 type='text' id='futuretime'></td>
+					</tr>
+					
+					<tr>
+						<td align=right>Amount : </td> <td> <input size=40 type='text' id='amount'></td>
+					</tr>
+					
+					<tr>
+						<td align=right>Key : </td> <td> <input size=40 type='text' id='key'></td>
+					</tr>
+					
+					<tr>
+						<td colspan=2 align=center><br> <button class="userbutton" onclick='sendFunds();return false;'>SEND FUNDS</button> </td>
+					</tr>
+					
+				</table>
+				</center>
+				
+			</div>
+		
+			<div id=mycash class="tablebody" style="display:none;"> 
+				<br>
+				<div id="futuremoney">
+					NO MONEY YET..
+				</div>
+			</div>
+		
+		</td>
+		</tr>
+		</table>
+
+	</div>
+
+</center>
+
+</body>
+
+</html>

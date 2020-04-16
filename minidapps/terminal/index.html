@@ -2,7 +2,7 @@
 
 <head>
 	<!--   The MINIMA MiFi Javascript Library -->
-	<script type="text/javascript" src="./js/minima.js"></script>
+	<script type="text/javascript" src="http://127.0.0.1:21000/minima.js"></script>
 </head>
 
 <body>
@@ -79,12 +79,23 @@
 		
 		//Initialise MiFi
 		Minima.init();
+		
+		//Hide the exit button
+		document.getElementById('exitbutton').style.display="none";
 	});
 	
 	function fullscreen(){
+		document.getElementById('exitbutton').style.display="block";
 		document.getElementById('terminaltop').style.display="none";
 		document.getElementById('terminal').style.width="100%";
 		document.getElementById('terminal').style.height="99%";
+	}
+	
+	function exitfullscreen(){
+		document.getElementById('exitbutton').style.display="none";
+		document.getElementById('terminaltop').style.display="block";
+		document.getElementById('terminal').style.width="800";
+		document.getElementById('terminal').style.height="500";
 	}
 	
 </script>
@@ -94,7 +105,9 @@
 You can resize by dragging the corner.. or.. <button onclick='fullscreen();'>FULL SCREEN</button> <br>
 <br>
 </div>
-<textarea spellcheck="false" rows="35" cols="120" style="background-color:#000000;color:#FFFFFF;" id="terminal"></textarea>
+<textarea spellcheck="false" style="width:800;height:500;background-color:#000000;color:#FFFFFF;" id="terminal"></textarea>
+
+<div id="exitbutton" style="position:absolute;right:40;top:20;"><button onclick='exitfullscreen();'>EXIT</button></div>
 
 </center>
 
