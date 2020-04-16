@@ -171,11 +171,8 @@
 					"txnpost "+txnid+";"+
 					"txndelete "+txnid+";";
 				
-				console.log(txncreator);	
-					
 				//Post it..
 				Minima.cmd( txncreator , function(resp){
-					console.log(resp);
 					alert("FUNDS COLLECTED! CHECK BALANCE!");
 				});	
 			});
@@ -192,7 +189,9 @@
 			 		setBalance();
 			 		cashFunction();
 		 			
-			 		//Tell Minima about the timescript!
+			 		// Tell Minima about the timescript!
+			 		// Now it will listen out for any scripts with your KEYS in the STATE or PREVSTATE and track them
+			 		// automagically..
 			 		Minima.cmd("extrascript \""+timescript+"\"");
 			 				
 			 	}else if(evt.detail.event == "newblock"){
@@ -208,7 +207,7 @@
 			Minima.init();
 			
 			//Show Intro
-			showPage(2);
+			showPage(0);
 		});
 		
 	</script>
