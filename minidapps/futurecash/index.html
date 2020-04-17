@@ -85,9 +85,9 @@
 				//Construct Transaction..
 				var txncreator = 
 					"txncreate "+txnid+";"+
-					"txnauto "+txnid+" "+amount+" "+timeaddress+";"+
 					"txnstate "+txnid+" 0 "+key+";"+
 					"txnstate "+txnid+" 1 "+time+";"+
+					"txnauto "+txnid+" "+amount+" "+timeaddress+";"+
 					"txnpost "+txnid+";"+
 					"txndelete "+txnid+";";
 			
@@ -173,8 +173,8 @@
 				
 				//Post it..
 				Minima.cmd( txncreator , function(resp){
-					alert("FUNDS COLLECTED! CHECK BALANCE!");
-				});	
+				    alert("FUNDS COLLECTED! CHECK BALANCE!");
+			    });	
 			});
 		}
 		
