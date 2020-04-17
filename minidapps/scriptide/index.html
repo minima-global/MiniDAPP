@@ -30,6 +30,11 @@
 	function runScript(){
 		var txt = document.getElementById("scriptarea").value.trim();
 		
+		//Check for Killer Characters..
+		if(txt.indexOf(",")!=-1){alert("NO commas Allowed in Scripts!");return;}
+		if(txt.indexOf("\"")!=-1 || txt.indexOf("'")!=-1){alert("NO Quotes Allowed in Scripts!");return;}
+		if(txt.indexOf(":")!=-1 || txt.indexOf(";")!=-1){alert("NO semi-colons Allowed in Scripts!");return;}
+		
 		//Save if you run..
 		if(document.getElementById("autosave").checked){
 			save();	
