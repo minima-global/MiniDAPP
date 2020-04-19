@@ -24,6 +24,8 @@ var MIFIHOST = "127.0.0.1";
 var WEBSOCK = null;
 var MINIMACONNECTED = false;
 
+var MINIDAPPS_MINIMA = false;
+
 /**
  * Main MINIMA Object for all interaction
  */
@@ -41,33 +43,41 @@ var Minima = {
 		//Log a little..
 		log("Initialisation started..");
 		
-		//Create the Overlay Divs - but don't show them yet
-		createOverlayDivs();
-		
-		//Do we have an IP already 
-		var ip = window.localStorage.getItem('MinimaIP');
-		if(ip !== null && ip !== ""){
-			log("Previous host found "+ip);
+		if(!MINIDAPPS_MINIMA){
+			//Create the Overlay Divs - but don't show them yet
+			createOverlayDivs();
 			
+			//Do we have an IP already 
+			var ip = window.localStorage.getItem('MinimaIP');
+			if(ip !== null && ip !== ""){
+				log("Previous host found "+ip);
+				
+				//Use it..
+				Minima.host = ip;
+				
+				//Show Logout.. in case we need to as previous connection is broken
+				show(LOGOUT_BUTTON);
+				
+				//Do the first call..
+				initialStatus();
+			   
+				//That's it.
+				return;
+			}
+			
+			//Set some text..
+			setInitPage();
+			
+			show(OVERLAY_DIV);
+			show(MAIN_DIV);
+			hide(LOGOUT_BUTTON);
+		}else{
 			//Use it..
-			Minima.host = ip;
-			
-			//Show Logout.. in case we need to as previous connection is broken
-			show(LOGOUT_BUTTON);
+			Minima.host = "127.0.0.1:8999";
 			
 			//Do the first call..
 			initialStatus();
-		   
-			//That's it.
-			return;
 		}
-		
-		//Set some text..
-		setInitPage();
-		
-		show(OVERLAY_DIV);
-		show(MAIN_DIV);
-		hide(LOGOUT_BUTTON);
 	},
 	
 	//Runs a function on the phone
@@ -134,10 +144,12 @@ function initialStatus(){
 	    Minima.block   = parseInt(Minima.status.lastblock,10);
 	   
 	    //Hide the Divs..
-	    hide(MAIN_DIV);
-	    hide(OVERLAY_DIV);
-	    show(LOGOUT_BUTTON);
-	   
+	    if(!MINIDAPPS_MINIMA){
+		    hide(MAIN_DIV);
+		    hide(OVERLAY_DIV);
+		    show(LOGOUT_BUTTON);
+	    }
+	    
 	    //Start Polling..
 	    startMinimaPolling();
 	   
@@ -573,15 +585,21 @@ function createOverlayDivs(){
 }
 
 function setMainDiv(html){
-	document.getElementById(MAIN_DIV).innerHTML = html; 
+	if(!MINIDAPPS_MINIMA){
+		document.getElementById(MAIN_DIV).innerHTML = html;	
+	}
 }
 
 function show(id){
-	document.getElementById(id).style.display = "block";
+	if(!MINIDAPPS_MINIMA){
+		document.getElementById(id).style.display = "block";
+	}
 }
 
 function hide(id){
-	document.getElementById(id).style.display = "none";
+	if(!MINIDAPPS_MINIMA){
+		document.getElementById(id).style.display = "none";
+	}
 }
 
 /**

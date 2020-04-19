@@ -10,14 +10,6 @@
 	<!--  STYLE -->
 	<link rel="stylesheet" type="text/css" href="./css/dex.css">
 
-<style>
-.infobox {text-align:center;vertical-align:top;background-color: #ffd;border-radius: 10px;}
-.scrollablediv {overflow-y:scroll;height:100%;}
-.infoboxgreen {text-align:center;vertical-align:middle;background-color: #dfd;border-radius: 10px;}
-.infoboxred {text-align:center;vertical-align:middle;background-color: #fdd;border-radius: 10px;}
-.infoboxblue {text-align:center;vertical-align:middle;background-color: #ddf;border-radius: 10px;}
-</style>
-
 </head>
 
 <body>
@@ -32,8 +24,6 @@
 	 			dex_init();
 	 			
 	 		}else if(evt.detail.event == "newblock"){
-		 		UpdateBlockTime();
-		 		
 		 		//Call the Poll Function.. no need for a new thread polling.. 
 		 		dexPollFunction();
 		 		
@@ -87,14 +77,14 @@
 					<tr><td height=100%>
 							<div class="scrollablediv" id="minima_myorders">
 								
-								<table width=100% border=0>
+								<!--  <table width=100% border=0>
 									<tr><td>
 										<table width=100%>
 											<tr class="infoboxblue"><td colspan=2>PADDY</td> <td><button class="cancelbutton">CANCEL</button> </td> </tr>
 											<tr class="infoboxred"><td>10</td> <td width=34%>0.02</td> <td width=33%>2</td></tr>
 										</table>
 									</td></tr>					
-								</table>
+								</table> -->
 								
 							</div>	
 						</td>
@@ -264,7 +254,7 @@
 
 <tr height=5%>
 	<td colspan=2 class="infoboxblue">
-		Market <b>MAKERS</b> use the <b>BUY</b> or <b>SELL</b> box to add an order to the orderbook. Market <b>TAKERS</b> click an order in the orderbook. Either way 0% fees..
+		Market <b>MAKERS</b> use the <b>BUY</b> or <b>SELL</b> box to add an order to the orderbook. Market <b>TAKERS</b> click an order in the orderbook.
 	</td>
 	<td width=33% class="infoboxblue">
 		 <div id="minima_blocktime"></div> 

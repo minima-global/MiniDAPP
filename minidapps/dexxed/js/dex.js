@@ -17,6 +17,9 @@ function dex_init(){
 	Minima.cmd("tokens", function(resp){
 		//Changed..	
 		UpdateTokensList(JSON.parse(resp).response);
+		
+		//Run it once..
+		dexPollFunction();
 	});
 }
 
@@ -87,6 +90,18 @@ function getCoinPrevState(coinproof, prevstate){
 	return null;
 }
 
+function getTokenName(tokenid){
+	var toklen = allTokens.tokens.length;
+	for(tokloop=0;tokloop<toklen;tokloop++){
+		//check it
+		if(allTokens.tokens[tokloop].tokenid == tokenid){
+			return allTokens.tokens[tokloop].token;
+		}
+	}
+	
+	return "NOT FOUND!";
+}
+
 function dexPollFunction(){
 	//Update the block time..
 	UpdateBlockTime();
@@ -96,19 +111,47 @@ function dexPollFunction(){
 		coinsjson = JSON.parse(resp);
 		
 		//Get the details..
+		var cashtable="<table width=100% border=0>"+
+		"<tr><th>AMOUNT</th> <th>PRICE</th> <th>TOTAL</th></tr>";
+		
 		var coinlen = coinsjson.response.coins.length;
 		for(i=0;i<coinlen;i++){
 			var coinproof = coinsjson.response.coins[i].data;
 			
-			var cashtable="<table width=100% border=0>"+
-			"<tr><th>AMOUNT</th> <th>TIME</th> <th>COLLECT</th></tr>";
 			
+			var owner      = getCoinPrevState(coinproof,0);
+			var address    = getCoinPrevState(coinproof,1);
 			
-			var keycoin    = getCoinPrevState(coinproof,0);
-			var timecoin   = parseInt(getCoinPrevState(coinproof,1), 10);
+			var token    = getCoinPrevState(coinproof,2);
+			
+			var amount   = getCoinPrevState(coinproof,3);
+			var price    = getCoinPrevState(coinproof,4);
+			
 			var amountcoin = coinproof.coin.amount;
+			var basetok    = coinproof.coin.tokenid;
 			
+			//BUY OR SELL
+			buysell = "infoboxred";
+			if(basetok == "0x00"){
+				//It's a BUY
+				buysell = "infoboxgreen";
+			}
+			
+			cashtable+=
+					"<table width=100% border=0>"+
+						"<tr><td>"+
+							"<table width=100%>"+
+								"<tr class='infoboxblue'><td colspan=2>"+getTokenName(token)+"</td> <td><button class='cancelbutton'>CANCEL</button> </td> </tr>"+
+								"<tr class='"+buysell+"'><td>"+amount+"</td> <td width=34%>"+price+"</td> <td width=33%>"+amountcoin+"</td></tr>"+
+							"</table>"+
+						"</td></tr>"+			
+					"</table>";
 		}
+		
+		cashtable+="</table>";
+		
+		//And set it..
+		document.getElementById("minima_myorders").innerHTML = cashtable;
 		
 	});
 	
@@ -194,7 +237,7 @@ function actionBUY(){
 			"txnstate "+txnid+" 2 "+currentToken.tokenid+";"+
 			"txnstate "+txnid+" 3 "+tamount+";"+
 			"txnstate "+txnid+" 4 "+tprice+";"+
-			"txnauto "+txnid+" "+tamount+" "+dexaddress+";"+
+			"txnauto "+txnid+" "+total+" "+dexaddress+";"+
 			"txnpost "+txnid+";";
 			
 		//And Run it..
