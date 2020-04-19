@@ -115,7 +115,8 @@ function dexPollFunction(){
 		coinsjson = JSON.parse(resp);
 		
 		//Get the details..
-		var cashtable="";
+		var cashtable="<table width=100% border=0>"+
+		"<tr> <th>TYPE</th> <th>TOKEN</th> <th>AMOUNT</th> <th>PRICE</th> <th>TOTAL</th> <th>&nbsp;</th> </tr>";
 		
 		//Cycle through the results..
 		var coinlen = coinsjson.response.coins.length;
@@ -140,24 +141,23 @@ function dexPollFunction(){
 			price       = decamt.div(decorderamt);
 			
 			//BUY OR SELL
-			buysell = "infoboxred";
+			buysell     = "infoboxred";
 			buysellword = "SELL";
+			tradetoken  = getTokenName(basetok);
 			if(basetok == "0x00"){
 				//It's a BUY
 				buysell = "infoboxgreen";
 				buysellword = "BUY";
+				tradetoken  = getTokenName(token);
 			}
 			
-			cashtable+=
-					"<table width=100% border=0>"+
-						"<tr><td>"+
-							"<table width=100%>"+
-								"<tr class='infoboxblue'><td colspan=2 style='text-align:left;'>&nbsp;<b>"+buysellword+"</b> "+getTokenName(token)+"</td> <td><button class='cancelbutton'>CANCEL</button> </td> </tr>"+
-								"<tr class='"+buysell+"'><td width=33%>"+amount+"</td> <td width=34%>"+price+"</td> <td width=33%>"+amountcoin+"</td></tr>"+
-							"</table>"+
-						"</td></tr>"+			
-					"</table>";
+			cashtable+="<tr class='"+buysell+"'><td>"+buysellword+"</td> <td style='text-align:left'>"+tradetoken
+			+"</td> <td style='text-align:left'>"+amount+"</td> <td style='text-align:left'>@"+price+"</td> <td style='text-align:left'>"
+			+amountcoin+"</td> <td><button class='cancelbutton'>CANCEL</button> </td></tr>";
 		}
+		
+		//Close the table
+		cashtable+="</table>";
 		
 		//And set it..
 		document.getElementById("minima_myorders").innerHTML = cashtable;
@@ -171,21 +171,31 @@ function tokenSelectChange(){
 	console.log("Token Selected : "+currentToken.token);
 }
 
-function action(buyorsell){
+function buysellaction(buyorsell){
 	//Get the Values..
 	var amount;
 	var price;
 	
+	//The token we are trading
+	var token        = currentToken.token;
+	
+	//The transaction tokens..
+	var transtokenid = "0x00";
+	var wanttokenid  = currentToken.tokenid;
+	
+	//BUY or SelL order
 	if(buyorsell){
 		amount = document.getElementById("buyamt").value.trim();
 		price  = document.getElementById("buyprice").value.trim();
 	}else{
+		//Switch thetokens around
+		transtokenid = currentToken.tokenid;
+		wanttokenid  = "0x00";
+		
 		amount = document.getElementById("sellamt").value.trim();
 		price  = document.getElementById("sellprice").value.trim();
 	}
 	
-	//The token we are trading
-	var token     = currentToken.token;
 	
 	if(amount=="" || price==""){
 		alert("Cannot have BLANK inputs!");
@@ -229,18 +239,22 @@ function action(buyorsell){
 			"txncreate "+txnid+";"+
 			"txnstate "+txnid+" 0 "+pubkey+";"+
 			"txnstate "+txnid+" 1 "+address+";"+
-			"txnstate "+txnid+" 2 "+currentToken.tokenid+";"+
+			"txnstate "+txnid+" 2 "+wanttokenid+";"+
 			"txnstate "+txnid+" 3 "+tamount+";"+
-			"txnauto "+txnid+" "+total+" "+dexaddress+";"+
-			"txnpost "+txnid+";";
+			"txnauto "+txnid+" "+total+" "+dexaddress+" "+transtokenid+";"+
+			"txnpost "+txnid+";"+
+			"txndelete "+txnid+";";
 			
 		//And Run it..
 		Minima.cmd( txncreator , function(resp){
 			respjson = JSON.parse(resp);
-			if(respjson[6].status == true){
-				alert("ORDER POSTED!");
-			}else{
+			if(respjson[6].status != true){
 				alert("Something went wrong.. Insufficient funds ?");
+			}else{
+				document.getElementById("buyamt").value = "";
+				document.getElementById("buyprice").value = "";
+				document.getElementById("sellamt").value = "";
+				document.getElementById("sellprice").value = "";					
 			}
 		});	
 	});
