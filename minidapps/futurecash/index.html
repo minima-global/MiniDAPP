@@ -189,9 +189,9 @@
 			 		setBalance();
 			 		cashFunction();
 		 			
-			 		// Tell Minima about the timescript!
-			 		// Now it will listen out for any scripts with your KEYS in the STATE or PREVSTATE and track them
-			 		// automagically..
+			 		// Tell Minima about the timescript! Now you can spend it when required 
+			 		// Minima listens for any scripts with your PUBLIC KEYS in the STATE or PREVSTATE and 
+			 		// tracks those outputs automagically..
 			 		Minima.cmd("extrascript \""+timescript+"\"");
 			 				
 			 	}else if(evt.detail.event == "newblock"){
