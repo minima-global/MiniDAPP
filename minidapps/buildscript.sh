@@ -12,3 +12,4 @@ zip -r ./bin/scriptide.minidapp scriptide
 
 zip -r ./bin/dexxed.minidapp dexxed
 
+zip -r ./bin/coinflip.minidapp coinflip
