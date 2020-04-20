@@ -325,7 +325,8 @@ function dexPollFunction(){
 function tokenSelectChange(){
 	var tokenSel  = document.getElementById("select_tokenlist").selectedIndex;
 	currentToken  = allTokens.tokens[tokenSel+1];
-	console.log("Token Selected : "+currentToken.token);
+//	console.log("Token Selected : "+currentToken.token);
+	UpdateOrderBook();
 }
 
 function cancelOrder(coinid, owner, address, amount, tokenid){
