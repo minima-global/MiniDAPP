@@ -173,30 +173,50 @@ function UpdateOrderBook(){
 			
 			if(token == currentToken.tokenid){
 				tokenorders_sell.push(coindata);
+				
+				console.log("Order fund SELL : "+getOrderPrice(coindata));
+				
 			}else if(swaptoken==currentToken.tokenid){
 				tokenorders_buy.push(coindata);
+				
+				console.log("Order fund BUY : "+getOrderPrice(coindata));
 			}
 		}
 		
 		//Now ORDER the list..
-//		tokenorders_buy.sort(function (a, b) {
-//			var amount = new Decimal(getCoinPrevState(coinproof,3));
-			
-//			if (a.coin. > b) {
-//		        return -1;
-//		    }
-//		    if (b > a) {
-//		        return 1;
-//		    }
-//		    return 0;
-//		});
+		tokenorders_sell.sort(function (a, b) {
+			var price_a = getOrderPrice(a);
+			var price_b = getOrderPrice(b);
+			if (price_a > price_b) {
+		        return -1;
+		    }
+		    if (price_b > price_a) {
+		        return 1;
+		    }
+		    return 0;
+		});
 		
-		//Get the details..
+		tokenorders_buy.sort(function (b, a) {
+			var price_a = getOrderPrice(a);
+			var price_b = getOrderPrice(b);
+			if (price_a > price_b) {
+		        return -1;
+		    }
+		    if (price_b > price_a) {
+		        return 1;
+		    }
+		    return 0;
+		});
+		
+		//Make the Orderbook
 		var cashtable="<table width=100%>";
 		
 		//Sell Orders first
 		for(i=0;i<tokenorders_sell.length;i++){
-			cashtable+="<tr style='cursor: pointer;' class='infoboxred'> <td width=33%>10</td> <td width=34%>0.02</td> <td width=33%>2</td> </tr>";
+			var amount = getOrderAmount(tokenorders_sell[i]);
+			var price  = getOrderPrice(tokenorders_sell[i]);
+			var total  = amount.mul(price);
+			cashtable+="<tr style='cursor: pointer;' class='infoboxred'> <td width=33%>"+amount+"</td> <td width=34%>"+price+"</td> <td width=33%>"+total+"</td> </tr>";
 		}
 		
 		//Then the middle..
@@ -204,7 +224,10 @@ function UpdateOrderBook(){
 		
 		//Then the Buy orders
 		for(i=0;i<tokenorders_buy.length;i++){
-			cashtable+="<tr style='cursor: pointer;' class='infoboxgreen'> <td width=33%>10</td> <td width=34%>0.02</td> <td width=33%>2</td> </tr>";
+			var amount = getOrderAmount(tokenorders_buy[i]);
+			var price  = getOrderPrice(tokenorders_buy[i]);
+			var total  = amount.mul(price);
+			cashtable+="<tr style='cursor: pointer;' class='infoboxgreen'> <td width=33%>"+amount+"</td> <td width=34%>"+price+"</td> <td width=33%>"+total+"</td> </tr>";
 		}
 		//Finish up..
 		cashtable+="</table>";
@@ -249,6 +272,55 @@ function getTokenScale(tokenid){
 	}
 	
 	return new Decimal(0);
+}
+
+function getOrderPrice(coinproof){
+	//get the PREVSTATE details that define the trade
+	var amount      = new Decimal(getCoinPrevState(coinproof,3));
+	var coin_amount = new Decimal(coinproof.coin.amount);
+	var coin_token  = coinproof.coin.tokenid;
+	
+	//Calculate the price..
+	var dec_amount = new Decimal(0);
+	var dec_price  = new Decimal(0);
+	
+	if(coin_token == "0x00"){
+		//BUY
+		dec_amount   = amount;
+		dec_price    = coin_amount.div(dec_amount);
+	}else{
+		//SELL
+		scale        = getTokenScale(coin_token);
+		dec_amount   = coin_amount.mul(scale);
+		dec_price    = amount.div(dec_amount);
+	}
+	
+	return dec_price;
+}
+
+function getOrderAmount(coinproof){
+	//get the PREVSTATE details that define the trade
+	var amount      = new Decimal(getCoinPrevState(coinproof,3));
+	var coin_amount = new Decimal(coinproof.coin.amount);
+	var coin_token  = coinproof.coin.tokenid;
+	
+	//Calculate the price..
+	var dec_amount = new Decimal(0);
+	var dec_price  = new Decimal(0);
+	
+	if(coin_token == "0x00"){
+		//BUY
+		dec_amount   = amount;
+		dec_price    = coin_amount.div(dec_amount);
+		
+	}else{
+		//SELL
+		scale        = getTokenScale(coin_token);
+		dec_amount   = coin_amount.mul(scale);
+		dec_price    = amount.div(dec_amount);
+	}
+	
+	return dec_amount;
 }
 
 function dexPollFunction(){
