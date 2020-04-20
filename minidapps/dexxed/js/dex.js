@@ -185,7 +185,18 @@ function UpdateOrderBook(){
 		//Make the Orderbook
 		var cashtable="<table width=100%>";
 		
-		//Sell Orders first
+		//Buy orders
+		for(i=0;i<tokenorders_buy.length;i++){
+			var amount = getOrderAmount(tokenorders_buy[i]);
+			var price  = getOrderPrice(tokenorders_buy[i]);
+			var total  = amount.mul(price);
+			cashtable+="<tr style='cursor: pointer;' class='infoboxgreen'> <td width=33%>"+amount+"</td> <td width=34%>"+price+"</td> <td width=33%>"+total+"</td> </tr>";
+		}
+		
+		//Then the middle..
+		cashtable+="<tr class='infoboxblue'><td colspan=3>-------</td></tr>"
+		
+		//Sell Orders
 		for(i=0;i<tokenorders_sell.length;i++){
 			var amount = getOrderAmount(tokenorders_sell[i]);
 			var price  = getOrderPrice(tokenorders_sell[i]);
@@ -193,16 +204,6 @@ function UpdateOrderBook(){
 			cashtable+="<tr style='cursor: pointer;' class='infoboxred'> <td width=33%>"+amount+"</td> <td width=34%>"+price+"</td> <td width=33%>"+total+"</td> </tr>";
 		}
 		
-		//Then the middle..
-		cashtable+="<tr class='infoboxblue'><td colspan=3>-------</td></tr>"
-		
-		//Then the Buy orders
-		for(i=0;i<tokenorders_buy.length;i++){
-			var amount = getOrderAmount(tokenorders_buy[i]);
-			var price  = getOrderPrice(tokenorders_buy[i]);
-			var total  = amount.mul(price);
-			cashtable+="<tr style='cursor: pointer;' class='infoboxgreen'> <td width=33%>"+amount+"</td> <td width=34%>"+price+"</td> <td width=33%>"+total+"</td> </tr>";
-		}
 		//Finish up..
 		cashtable+="</table>";
 		
@@ -354,6 +355,12 @@ function cancelOrder(coinid, owner, address, amount, tokenid){
 			alert("ORDER CANCELLED!");
 		}
 	});
+}
+
+function takeOrder(){
+	
+	
+	
 }
 
 function buysellaction(buyorsell){
