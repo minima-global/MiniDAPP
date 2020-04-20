@@ -173,40 +173,14 @@ function UpdateOrderBook(){
 			
 			if(token == currentToken.tokenid){
 				tokenorders_sell.push(coindata);
-				
-				console.log("Order fund SELL : "+getOrderPrice(coindata));
-				
 			}else if(swaptoken==currentToken.tokenid){
 				tokenorders_buy.push(coindata);
-				
-				console.log("Order fund BUY : "+getOrderPrice(coindata));
 			}
 		}
 		
 		//Now ORDER the list..
-		tokenorders_sell.sort(function (a, b) {
-			var price_a = getOrderPrice(a);
-			var price_b = getOrderPrice(b);
-			if (price_a > price_b) {
-		        return -1;
-		    }
-		    if (price_b > price_a) {
-		        return 1;
-		    }
-		    return 0;
-		});
-		
-		tokenorders_buy.sort(function (b, a) {
-			var price_a = getOrderPrice(a);
-			var price_b = getOrderPrice(b);
-			if (price_a > price_b) {
-		        return -1;
-		    }
-		    if (price_b > price_a) {
-		        return 1;
-		    }
-		    return 0;
-		});
+		tokenorders_sell.sort(comparePrice);
+		tokenorders_buy.sort(comparePrice);
 		
 		//Make the Orderbook
 		var cashtable="<table width=100%>";
@@ -236,6 +210,18 @@ function UpdateOrderBook(){
 		document.getElementById("dexxed_orderbook").innerHTML = cashtable;
 	});
 	
+}
+
+function comparePrice(a, b) {
+	var price_a = getOrderPrice(a);
+	var price_b = getOrderPrice(b);
+	if (price_a > price_b) {
+        return -1;
+    }
+    if (price_b > price_a) {
+        return 1;
+    }
+    return 0;
 }
 
 function getCoinPrevState(coinproof, prevstate){
