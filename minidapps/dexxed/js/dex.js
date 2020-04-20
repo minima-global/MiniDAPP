@@ -187,10 +187,15 @@ function UpdateOrderBook(){
 		
 		//Buy orders
 		for(i=0;i<tokenorders_buy.length;i++){
-			var amount = getOrderAmount(tokenorders_buy[i]);
-			var price  = getOrderPrice(tokenorders_buy[i]);
-			var total  = amount.mul(price);
-			cashtable+="<tr style='cursor: pointer;' class='infoboxgreen'> <td width=33%>"+amount+"</td> <td width=34%>"+price+"</td> <td width=33%>"+total+"</td> </tr>";
+			var amount  = getOrderAmount(tokenorders_buy[i]);
+			var price   = getOrderPrice(tokenorders_buy[i]);
+			var total   = amount.mul(price);
+			var data    = tokenorders_buy[i].coin;
+			var address = getCoinPrevState(tokenorders_buy[i],1);
+			
+			cashtable+="<tr style='cursor: pointer;' class='infoboxgreen' "
+		+"onclick='takeOrder(\""+data.coinid+"\", \""+address+"\", \"BUY\", \""+amount+"\", \""+currentToken.token+"\", \""+price+"\", \""+total+"\",34);'> "
+		+"<td width=33%>"+amount+"</td> <td width=34%>"+price+"</td> <td width=33%>"+total+"</td> </tr>";
 		}
 		
 		//Then the middle..
@@ -201,7 +206,13 @@ function UpdateOrderBook(){
 			var amount = getOrderAmount(tokenorders_sell[i]);
 			var price  = getOrderPrice(tokenorders_sell[i]);
 			var total  = amount.mul(price);
-			cashtable+="<tr style='cursor: pointer;' class='infoboxred'> <td width=33%>"+amount+"</td> <td width=34%>"+price+"</td> <td width=33%>"+total+"</td> </tr>";
+			var data    = tokenorders_sell[i].coin;
+			var address = getCoinPrevState(tokenorders_sell[i],1);
+			
+			cashtable+="<tr style='cursor: pointer;' class='infoboxred'"
+		+"onclick='takeOrder(\""+data.coinid+"\", \""+address+"\", \"SELL\", \""+amount+"\", \""+currentToken.token+"\", \""+price+"\", \""+total+"\",34);'> "
+		+"<td width=33%>"+amount+"</td> "
+		+"<td width=34%>"+price+"</td> <td width=33%>"+total+"</td> </tr>";
 		}
 		
 		//Finish up..
@@ -212,6 +223,39 @@ function UpdateOrderBook(){
 	});
 	
 }
+
+function takeOrder(coinid, address, type, amount, token , price, myamount, mytokenid){
+	var order = type+" "+amount+" "+token+" @ "+price+" "+"Total "+myamount+" Minima";
+	
+	if(!confirm("Please confirm Acceptance of this Order..\n\n"+order)){
+		return;
+	}
+	
+	//Create the TXN
+	var txnid = Math.floor(Math.random()*1000000000);
+	
+	//Script to create transaction..
+	var txncreator =    
+		"txncreate "+txnid+";"+
+		"txninput "+txnid+" "+coinid+";"+
+		"txnoutput "+txnid+" "+amount+" "+address+" "+mytokenid+";"+
+		"txnpost "+txnid+";"+
+		"txndelete "+txnid+";";
+	
+	console.log(txncreator);
+	
+	//And Run it..
+//	Minima.cmd( txncreator , function(resp){
+//		respjson = JSON.parse(resp);
+//		if(respjson[3].status != true){
+//			alert("Something went wrong.. ?\n\n"+respjson[4].error+"\n\nCheck console log.. ");
+//			console.log(resp);
+//		}else{
+//			alert("ORDER ACCEPTED!");
+//		}
+//	});
+}
+
 
 function comparePrice(a, b) {
 	var price_a = getOrderPrice(a);
@@ -358,12 +402,6 @@ function cancelOrder(coinid, owner, address, amount, tokenid){
 	});
 }
 
-function takeOrder(){
-	
-	
-	
-}
-
 function buysellaction(buyorsell){
 	//Get the Values..
 	var amount;
@@ -436,14 +474,14 @@ function buysellaction(buyorsell){
 		//Script to create transaction..
 		//TXNAUTO automatically scales the values.. 
 		var txncreator =    
-			"txncreate "+txnid+";\n"+
-			"txnstate "+txnid+" 0 "+pubkey+";\n"+
-			"txnstate "+txnid+" 1 "+address+";\n"+
-			"txnstate "+txnid+" 2 "+wanttokenid+";\n"+
-			"txnstate "+txnid+" 3 "+dec_amount+";\n"+
-			"txnauto "+txnid+" "+dec_total+" "+dexaddress+" "+transtokenid+";\n"+
-			"txnpost "+txnid+";\n"+
-			"txndelete "+txnid+";\n";
+			"txncreate "+txnid+";"+
+			"txnstate "+txnid+" 0 "+pubkey+";"+
+			"txnstate "+txnid+" 1 "+address+";"+
+			"txnstate "+txnid+" 2 "+wanttokenid+";"+
+			"txnstate "+txnid+" 3 "+dec_amount+";"+
+			"txnauto "+txnid+" "+dec_total+" "+dexaddress+" "+transtokenid+";"+
+			"txnpost "+txnid+";"+
+			"txndelete "+txnid+";";
 		
 		//console.log(txncreator);
 		
