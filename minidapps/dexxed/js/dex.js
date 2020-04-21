@@ -583,7 +583,7 @@ function UpdateMyTrades(){
 		
 		//Get the details..
 		var cashtable="<table width=100% border=0> "
-			+"<tr> <th>TYPE</th> <th>TOKEN</th> <th>AMOUNT</th> <th>PRICE</th> <th>TOTAL</th> </tr>";
+			+"<tr> <th>TYPE</th> <th>TOKEN</th> <th>AMOUNT</th> <th>PRICE</th> <th>TOTAL</th> <th>TIME</th> </tr>";
 		
 		//Cycle through the results..
 		var histlen = historyjson.response.history.length;
@@ -618,9 +618,9 @@ function UpdateMyTrades(){
 				var total  = price.mul(amount);
 				
 				if(buysell){
-					cashtable+="<tr class='infoboxred'> <td>SELL</td> <td>"+token+"</td> <td>"+amount+"</td> <td>"+price+"</td> <td>"+total+"</td>";	
+					cashtable+="<tr class='infoboxred'> <td>SELL</td> <td>"+token+"</td> <td>"+amount+"</td> <td>"+price+"</td> <td>"+total+"</td> <td>"+txpow.block+"</td>";	
 				}else{
-					cashtable+="<tr class='infoboxgreen'> <td>BUY</td> <td>"+token+"</td> <td>"+amount+"</td> <td>"+price+"</td> <td>"+total+"</td>";
+					cashtable+="<tr class='infoboxgreen'> <td>BUY</td> <td>"+token+"</td> <td>"+amount+"</td> <td>"+price+"</td> <td>"+total+"</td> <td>"+txpow.block+"</td>";
 				}
 			}
 		}
