@@ -188,7 +188,6 @@ function UpdateOrderBook(){
 		//Current block height
 		var currblk = new Decimal(Minima.block);
 		
-		
 		//Sell Orders
 		for(i=0;i<tokenorders_sell.length;i++){
 			//Trade details..
@@ -291,28 +290,44 @@ function takeOrder(type, coinid, coinamount, cointokenid, reqaddress, reqamount,
 			//Create a new address..
 			Minima.cmd("newaddress" , function(resp){
 				addrjson = JSON.parse(resp);
-				var myaddress = addrjson.response.address.hexaddress;
 				
-				//Now add the final bits to the transaction..
-				txncreator =    
-					//Input the order
-					"txninput "+txnid+" "+coinid+" 0;"+
-					//Send it to yourself..
-					"txnoutput "+txnid+" "+coinamount+" "+myaddress+" "+cointokenid+";"+
-					//Re Sign it.. 
-					"txnsignauto "+txnid+";"+
-					//POST IT!
-					"txnpost "+txnid+";"+
-					"txdelete "+txnid+";";
-				
-				Minima.cmd(txncreator , function(resp){
-					alert("ORDER COMMITED");
-				});
+				//Double check this.. otherwise may LOSE funds..
+				if(addrjson.status == true){
+					//Get the address
+					var myaddress = addrjson.response.address.hexaddress;
+					
+					//Now add the final bits to the transaction..
+					txncreator =    
+						//Input the order
+						"txninput "+txnid+" "+coinid+" 0;"+
+						//Send it to yourself..
+						"txnoutput "+txnid+" "+coinamount+" "+myaddress+" "+cointokenid+";"+
+						//Re Sign it.. 
+						"txnsignauto "+txnid+";";
+						
+					//Build the rest..
+					Minima.cmd(txncreator , function(resp){
+						finaljson = JSON.parse(resp);
+						if(finaljson[0].status!=true || finaljson[1].status!=true || finaljson[2].status!=true){
+							alert("Something went wrong.. ? Check console..");
+							console.log(resp);
+							return;
+						}	
+						
+						//Now add the final bits to the transaction..
+						txncreator = "txnpost "+txnid+";txndelete "+txnid+";";
+						
+						//Send it
+						Minima.cmd(txncreator , function(resp){
+							alert("ORDER SENT!");
+						});
+						
+					});
+				}
 			});
 		}
 	});
 }
-
 
 function comparePrice(a, b) {
 	var price_a = getOrderPrice(a);
@@ -422,15 +437,14 @@ function dexPollFunction(){
 	
 	UpdateOrderBook();
 	
-	//UpdateMyTrades();
+	UpdateMyTrades();
 	
-	//UpdateTrades();
+	UpdateAllTrades();
 }
 
 function tokenSelectChange(){
 	var tokenSel  = document.getElementById("select_tokenlist").selectedIndex;
 	currentToken  = allTokens.tokens[tokenSel+1];
-//	console.log("Token Selected : "+currentToken.token);
 	UpdateOrderBook();
 }
 
@@ -521,6 +535,12 @@ function buysellaction(buyorsell){
 	Minima.cmd( "keys new;newaddress;" , function(resp){
 		keysjson = JSON.parse(resp);
 		
+		if(keysjson[0].status!=true || keysjson[1].status!=true){
+			console.log(resp);
+			alert("Something went wrong.. check logs..");
+			return;
+		}
+		
 		var pubkey  = keysjson[0].response.key.publickey;
 		var address = keysjson[1].response.address.hexaddress;
 
@@ -557,4 +577,116 @@ function buysellaction(buyorsell){
 	});
 }
 
+function UpdateMyTrades(){
+	Minima.cmd("history "+dexaddress, function(resp){
+		historyjson = JSON.parse(resp);
+		
+		//Get the details..
+		var cashtable="<table width=100% border=0> "
+			+"<tr> <th>TYPE</th> <th>TOKEN</th> <th>AMOUNT</th> <th>PRICE</th> <th>TOTAL</th> </tr>";
+		
+		//Cycle through the results..
+		var histlen = historyjson.response.history.length;
+		for(i=0;i<histlen;i++){
+			txpow  = historyjson.response.history[i].txpow;
+			
+			//check has more than 1 input..
+			if(txpow.txn.inputs.length>1){
+				values = historyjson.response.history[i].values;
+				
+				var traded;
+				var token = "";
+				if(values[0].token == "0x00"){
+					token  = values[1].name;
+					traded = values[1].amount;
+				}else{
+					token  = values[0].name;
+					traded = values[0].amount;
+				}
+				
+				proof  = txpow.witness.mmrproofs[0].data;
+				coinid = proof.coin.tokenid;
+				
+				var buysell = true;
+				//if(coinid == "0x00"){
+				if(traded == "0"){
+					buysell = false;
+				}
+				
+				var price  = getOrderPrice(proof);
+				var amount = getOrderAmount(proof);
+				var total  = price.mul(amount);
+				
+				if(buysell){
+					cashtable+="<tr class='infoboxred'> <td>SELL</td> <td>"+token+"</td> <td>"+amount+"</td> <td>"+price+"</td> <td>"+total+"</td>";	
+				}else{
+					cashtable+="<tr class='infoboxgreen'> <td>BUY</td> <td>"+token+"</td> <td>"+amount+"</td> <td>"+price+"</td> <td>"+total+"</td>";
+				}
+			}
+		}
+		
+		cashtable+="</table>";
+		
+		document.getElementById("minima_mytrades").innerHTML = cashtable;
+	});
+}
 
+function UpdateAllTrades(){
+	Minima.cmd("txpowsearch "+dexaddress, function(resp){
+		searchjson = JSON.parse(resp);
+		
+		//Get the details..
+		var cashtable="<table width=100% border=0> "
+			+"<tr> <th>TYPE</th> <th>TOKEN</th> <th>AMOUNT</th> <th>PRICE</th> <th>TOTAL</th> <th>TIME</th> </tr>";
+		
+		//Sort the list
+		var txpowlist = searchjson.response.txpowlist;
+		txpowlist.sort(compareTxPOW);
+		
+		//Cycle through the results..
+		var len = txpowlist.length;
+		console.log("FOUND:"+len);
+		for(i=0;i<len;i++){
+			txpow  = txpowlist[i];
+			
+			//check has more than 1 input..
+			if(txpow.txn.inputs.length>1){
+				proof  = txpow.witness.mmrproofs[0].data;
+				coinid = proof.coin.tokenid;
+				
+				var buysell = true;
+				if(coinid == "0x00"){
+					buysell = false;
+				}
+				
+				var price  = getOrderPrice(proof);
+				var amount = getOrderAmount(proof);
+				var total  = price.mul(amount);
+				
+				var time = txpow.block;
+				
+				if(buysell){
+					cashtable+="<tr class='infoboxred'> <td>SELL</td> <td>token</td> <td>"+amount+"</td> <td>"+price+"</td> <td>"+total+"</td> <td>"+time+"</td>";	
+				}else{
+					cashtable+="<tr class='infoboxgreen'> <td>BUY</td> <td>token</td> <td>"+amount+"</td> <td>"+price+"</td> <td>"+total+"</td> <td>"+time+"</td>";
+				}
+			}
+		}
+		
+		cashtable+="</table>";
+		
+		document.getElementById("alltrades").innerHTML = cashtable;
+	});
+}
+
+function compareTxPOW(a, b) {
+	var txpow_a = a.block;
+	var txpow_b = b.block;
+	if (txpow_a > txpow_b) {
+        return -1;
+    }
+    if (txpow_b > txpow_a) {
+        return 1;
+    }
+    return 0;
+}
