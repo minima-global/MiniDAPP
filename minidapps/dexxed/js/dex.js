@@ -5,8 +5,8 @@
 //Some Global variables..
 var allTokens    = {};
 var currentToken = {};
-var dexcontract  = "LET owner = PREVSTATE ( 0 ) IF SIGNEDBY ( owner ) THEN RETURN TRUE ENDIF LET address = PREVSTATE ( 1 ) LET token = PREVSTATE ( 2 ) LET amount = PREVSTATE ( 3 ) ASSERT VERIFYOUT ( @INPUT address amount token )";
-var dexaddress   = "0x511A76500BB841B1D7F56EA90C7C23AB4CACA37DE98943924B8D613CAE8493D0";
+var dexcontract  = "LET owner = PREVSTATE ( 0 ) IF SIGNEDBY ( owner ) THEN RETURN TRUE ENDIF LET address = PREVSTATE ( 1 ) LET token = PREVSTATE ( 2 ) LET amount = PREVSTATE ( 3 ) RETURN VERIFYOUT ( @INPUT address amount token )";
+var dexaddress   = "0xB68787A65D917793643F1F2E7D9E3DFA020767AA85CE38640135297A0A553C8C";
 
 //The INIT function called once connected
 function dex_init(){
@@ -185,34 +185,69 @@ function UpdateOrderBook(){
 		//Make the Orderbook
 		var cashtable="<table width=100%>";
 		
-		//Buy orders
-		for(i=0;i<tokenorders_buy.length;i++){
-			var amount  = getOrderAmount(tokenorders_buy[i]);
-			var price   = getOrderPrice(tokenorders_buy[i]);
+		//Current block height
+		var currblk = new Decimal(Minima.block);
+		
+		
+		//Sell Orders
+		for(i=0;i<tokenorders_sell.length;i++){
+			//Trade details..
+			var amount  = getOrderAmount(tokenorders_sell[i]);
+			var price   = getOrderPrice(tokenorders_sell[i]);
 			var total   = amount.mul(price);
-			var data    = tokenorders_buy[i].coin;
-			var address = getCoinPrevState(tokenorders_buy[i],1);
 			
-			cashtable+="<tr style='cursor: pointer;' class='infoboxgreen' "
-		+"onclick='takeOrder(\""+data.coinid+"\", \""+address+"\", \"BUY\", \""+amount+"\", \""+currentToken.token+"\", \""+price+"\", \""+total+"\",34);'> "
-		+"<td width=33%>"+amount+"</td> <td width=34%>"+price+"</td> <td width=33%>"+total+"</td> </tr>";
+			var coinid     = tokenorders_sell[i].coin.coinid;
+			var coinamount = tokenorders_sell[i].coin.amount;
+			var cointoken  = tokenorders_sell[i].coin.tokenid;
+			
+			var reqaddress = getCoinPrevState(tokenorders_sell[i],1);
+			var reqtokenid = getCoinPrevState(tokenorders_sell[i],2);
+			var reqamount  = getCoinPrevState(tokenorders_sell[i],3);
+			
+			//Are we deep enough..
+			var inblk =  new Decimal(tokenorders_sell[i].inblock);
+			var diff  =  currblk.sub(inblk);
+			if(diff.gte(3)){
+				//Create the order function
+				var tkorder = "takeOrder('BUY', '"+coinid+"', '"+coinamount+"', '"+cointoken+"', '"+reqaddress+"', '"+reqamount+"', '"+reqtokenid+"', '"+price+"', '"+amount+"', '"+total+"' );";
+				cashtable+="<tr style='cursor: pointer;' class='infoboxred' onclick=\""+tkorder+"\">"
+						  +"<td width=33%>"+amount+"</td> <td width=34%>"+price+"</td> <td width=33%>"+total+"</td> </tr>";
+			}else{
+				cashtable+="<tr class='infoboxgrey'> "
+					+"<td width=33%>"+amount+"</td> <td width=34%>"+price+"</td> <td width=33%>"+total+"</td> </tr>";
+			}
 		}
 		
 		//Then the middle..
 		cashtable+="<tr class='infoboxblue'><td colspan=3>-------</td></tr>"
 		
-		//Sell Orders
-		for(i=0;i<tokenorders_sell.length;i++){
-			var amount = getOrderAmount(tokenorders_sell[i]);
-			var price  = getOrderPrice(tokenorders_sell[i]);
-			var total  = amount.mul(price);
-			var data    = tokenorders_sell[i].coin;
-			var address = getCoinPrevState(tokenorders_sell[i],1);
+		//Buy orders
+		for(i=0;i<tokenorders_buy.length;i++){
+			//Trade details..
+			var amount  = getOrderAmount(tokenorders_buy[i]);
+			var price   = getOrderPrice(tokenorders_buy[i]);
+			var total   = amount.mul(price);
 			
-			cashtable+="<tr style='cursor: pointer;' class='infoboxred'"
-		+"onclick='takeOrder(\""+data.coinid+"\", \""+address+"\", \"SELL\", \""+amount+"\", \""+currentToken.token+"\", \""+price+"\", \""+total+"\",34);'> "
-		+"<td width=33%>"+amount+"</td> "
-		+"<td width=34%>"+price+"</td> <td width=33%>"+total+"</td> </tr>";
+			var coinid     = tokenorders_buy[i].coin.coinid;
+			var coinamount = tokenorders_buy[i].coin.amount;
+			var cointoken  = tokenorders_buy[i].coin.tokenid;
+			
+			var reqaddress = getCoinPrevState(tokenorders_buy[i],1);
+			var reqtokenid = getCoinPrevState(tokenorders_buy[i],2);
+			var reqamount  = getCoinPrevState(tokenorders_buy[i],3);
+			
+			//Are we deep enough..
+			var inblk =  new Decimal(tokenorders_buy[i].inblock);
+			var diff  =  currblk.sub(inblk);
+			if(diff.gte(3)){
+				//Create the order function
+				var tkorder = "takeOrder('SELL', '"+coinid+"', '"+coinamount+"', '"+cointoken+"', '"+reqaddress+"', '"+reqamount+"', '"+reqtokenid+"', '"+price+"', '"+amount+"', '"+total+"' );";
+				cashtable+="<tr style='cursor: pointer;' class='infoboxgreen' onclick=\""+tkorder+"\">"
+						  +"<td width=33%>"+amount+"</td> <td width=34%>"+price+"</td> <td width=33%>"+total+"</td> </tr>";
+			}else{
+				cashtable+="<tr class='infoboxgrey'> "
+					+"<td width=33%>"+amount+"</td> <td width=34%>"+price+"</td> <td width=33%>"+total+"</td> </tr>";
+			}
 		}
 		
 		//Finish up..
@@ -224,8 +259,15 @@ function UpdateOrderBook(){
 	
 }
 
-function takeOrder(coinid, address, type, amount, token , price, myamount, mytokenid){
-	var order = type+" "+amount+" "+token+" @ "+price+" "+"Total "+myamount+" Minima";
+function takeOrder(type, coinid, coinamount, cointokenid, reqaddress, reqamount, reqtokenid,  price, amount, total){
+	var order ="";
+	if(type == 'SELL'){
+		var tokenname = getTokenName(reqtokenid);
+		var order = type+" "+reqamount+" "+tokenname+" @ "+price+"\n\n"+"You RECEIVE "+total+" Minima";
+	}else{
+		var tokenname = getTokenName(cointokenid);
+		var order = type+" "+amount+" "+tokenname+" @ "+price+"\n\n"+"You SPEND "+total+" Minima";
+	}
 	
 	if(!confirm("Please confirm Acceptance of this Order..\n\n"+order)){
 		return;
@@ -234,26 +276,41 @@ function takeOrder(coinid, address, type, amount, token , price, myamount, mytok
 	//Create the TXN
 	var txnid = Math.floor(Math.random()*1000000000);
 	
-	//Script to create transaction..
+	//First create a transaction paying him.. and an new address for you..
 	var txncreator =    
 		"txncreate "+txnid+";"+
-		"txninput "+txnid+" "+coinid+";"+
-		"txnoutput "+txnid+" "+amount+" "+address+" "+mytokenid+";"+
-		"txnpost "+txnid+";"+
-		"txndelete "+txnid+";";
+		"txnauto "+txnid+" "+reqamount+" "+reqaddress+" "+reqtokenid+";";
 	
-	console.log(txncreator);
-	
-	//And Run it..
-//	Minima.cmd( txncreator , function(resp){
-//		respjson = JSON.parse(resp);
-//		if(respjson[3].status != true){
-//			alert("Something went wrong.. ?\n\n"+respjson[4].error+"\n\nCheck console log.. ");
-//			console.log(resp);
-//		}else{
-//			alert("ORDER ACCEPTED!");
-//		}
-//	});
+	//Create this first stage
+	Minima.cmd(txncreator, function(resp){
+		respjson = JSON.parse(resp);
+		if(respjson[1].status != true){
+			alert("Something went wrong.. ?\n\n"+respjson[1].error+"\n\nCheck console log.. ");
+			console.log(resp);
+		}else{
+			//Create a new address..
+			Minima.cmd("newaddress" , function(resp){
+				addrjson = JSON.parse(resp);
+				var myaddress = addrjson.response.address.hexaddress;
+				
+				//Now add the final bits to the transaction..
+				txncreator =    
+					//Input the order
+					"txninput "+txnid+" "+coinid+" 0;"+
+					//Send it to yourself..
+					"txnoutput "+txnid+" "+coinamount+" "+myaddress+" "+cointokenid+";"+
+					//Re Sign it.. 
+					"txnsignauto "+txnid+";"+
+					//POST IT!
+					"txnpost "+txnid+";"+
+					"txdelete "+txnid+";";
+				
+				Minima.cmd(txncreator , function(resp){
+					alert("ORDER COMMITED");
+				});
+			});
+		}
+	});
 }
 
 
@@ -280,6 +337,10 @@ function getCoinPrevState(coinproof, prevstate){
 }
 
 function getTokenName(tokenid){
+	if(tokenid == "0x00"){
+		return "Minima";
+	}
+	
 	var toklen = allTokens.tokens.length;
 	for(tokloop=0;tokloop<toklen;tokloop++){
 		//check it
@@ -407,11 +468,6 @@ function buysellaction(buyorsell){
 	var amount;
 	var price;
 	
-	//The token we are trading
-	var token        = currentToken.token;
-	tokenscale       = new Decimal(currentToken.scale); 
-	tokenscalefactor = new Decimal(10).pow(tokenscale); 
-	
 	//The transaction tokens..
 	var transtokenid = "0x00";
 	var wanttokenid  = currentToken.tokenid;
@@ -447,11 +503,11 @@ function buysellaction(buyorsell){
 	
 	//Check is OK
 	if(buyorsell){
-		if(!confirm("Please Confirm :\n\nBUY "+amount+" "+token+" @ "+price+" Minima\n\nTotal Order Value : "+dec_total)){
+		if(!confirm("Please Confirm :\n\nBUY "+amount+" "+currentToken.token+" @ "+price+" Minima\n\nTotal Order Value : "+dec_total)){
 			return;
 		}	
 	}else{
-		if(!confirm("Please Confirm :\n\nSELL "+amount+" "+token+" @ "+price+" Minima\n\nTotal Order Value : "+dec_total)){
+		if(!confirm("Please Confirm :\n\nSELL "+amount+" "+currentToken.token+" @ "+price+" Minima\n\nTotal Order Value : "+dec_total)){
 			return;
 		}
 		

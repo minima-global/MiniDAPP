@@ -1,6 +1,7 @@
 .infobox {text-align:center;vertical-align:top;background-color: #ffd;border-radius: 10px;}
 .scrollablediv {overflow-y:scroll;height:100%;}
 .infoboxgreen {text-align:center;vertical-align:middle;background-color: #dfd;border-radius: 10px;}
+.infoboxgrey {text-align:center;vertical-align:middle;background-color: #ccc;border-radius: 10px;}
 .infoboxred {text-align:center;vertical-align:middle;background-color: #fdd;border-radius: 10px;}
 .infoboxblue {text-align:center;vertical-align:middle;background-color: #ddf;border-radius: 10px;}
 
