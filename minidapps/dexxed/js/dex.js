@@ -8,6 +8,10 @@ var currentToken = {};
 var dexcontract  = "LET owner = PREVSTATE ( 0 ) IF SIGNEDBY ( owner ) THEN RETURN TRUE ENDIF LET address = PREVSTATE ( 1 ) LET token = PREVSTATE ( 2 ) LET amount = PREVSTATE ( 3 ) RETURN VERIFYOUT ( @INPUT address amount token )";
 var dexaddress   = "0xB68787A65D917793643F1F2E7D9E3DFA020767AA85CE38640135297A0A553C8C";
 
+//Cascade and Confirm depth..
+var MAX_ORDER_AGE = 500;
+var MIN_ORDER_AGE = 3;
+
 //The INIT function called once connected
 function dex_init(){
 	//Tell Minima about this contract.. This allows you to spend it when the time comes
@@ -140,7 +144,9 @@ function UpdateMyOrders(){
 			//Are we deep enough..
 			var inblk =  new Decimal(coinproof.inblock);
 			var diff  =  currblk.sub(inblk);
-			if(diff.gte(3)){
+			if(diff.gte(MAX_ORDER_AGE)){
+				cashtable+="<td><button onclick='cancelOrder(\""+coin_id+"\",\""+owner+"\",\""+address+"\",\""+coin_amount+"\",\""+coin_token+"\");' class='cancelbutton'>TOO OLD</button> </td></tr>";	
+			}else if(diff.gte(MIN_ORDER_AGE)){
 				cashtable+="<td><button onclick='cancelOrder(\""+coin_id+"\",\""+owner+"\",\""+address+"\",\""+coin_amount+"\",\""+coin_token+"\");' class='cancelbutton'>CANCEL</button> </td></tr>";	
 			}else{
 				cashtable+="<td>waiting..</td></tr>";
@@ -156,7 +162,6 @@ function UpdateMyOrders(){
 }
 
 function UpdateOrderBook(){
-	
 	//Search for all the coins of this address
 	Minima.cmd( "search "+dexaddress, function(resp){
 		coinsjson = JSON.parse(resp);
@@ -206,14 +211,16 @@ function UpdateOrderBook(){
 			//Are we deep enough..
 			var inblk =  new Decimal(tokenorders_sell[i].inblock);
 			var diff  =  currblk.sub(inblk);
-			if(diff.gte(3)){
+			if(diff.gte(MAX_ORDER_AGE)){
+				//Too OLD! = no one but you can see it..
+				cashtable+="<tr class='infoboxpurple'><td width=33%>"+amount+"</td> <td width=34%>"+price+"</td> <td width=33%>"+total+"</td> </tr>";
+			}else if(diff.gte(MIN_ORDER_AGE)){
 				//Create the order function
 				var tkorder = "takeOrder('BUY', '"+coinid+"', '"+coinamount+"', '"+cointoken+"', '"+reqaddress+"', '"+reqamount+"', '"+reqtokenid+"', '"+price+"', '"+amount+"', '"+total+"' );";
 				cashtable+="<tr style='cursor: pointer;' class='infoboxred' onclick=\""+tkorder+"\">"
 						  +"<td width=33%>"+amount+"</td> <td width=34%>"+price+"</td> <td width=33%>"+total+"</td> </tr>";
 			}else{
-				cashtable+="<tr class='infoboxgrey'> "
-					+"<td width=33%>"+amount+"</td> <td width=34%>"+price+"</td> <td width=33%>"+total+"</td> </tr>";
+				cashtable+="<tr class='infoboxgrey'><td width=33%>"+amount+"</td> <td width=34%>"+price+"</td> <td width=33%>"+total+"</td> </tr>";
 			}
 		}
 		
@@ -238,14 +245,16 @@ function UpdateOrderBook(){
 			//Are we deep enough..
 			var inblk =  new Decimal(tokenorders_buy[i].inblock);
 			var diff  =  currblk.sub(inblk);
-			if(diff.gte(3)){
+			if(diff.gte(MAX_ORDER_AGE)){
+				//Too OLD! = no one but you can see it..
+				cashtable+="<tr class='infoboxpurple'> <td width=33%>"+amount+"</td> <td width=34%>"+price+"</td> <td width=33%>"+total+"</td> </tr>";
+			}else if(diff.gte(MIN_ORDER_AGE)){
 				//Create the order function
 				var tkorder = "takeOrder('SELL', '"+coinid+"', '"+coinamount+"', '"+cointoken+"', '"+reqaddress+"', '"+reqamount+"', '"+reqtokenid+"', '"+price+"', '"+amount+"', '"+total+"' );";
 				cashtable+="<tr style='cursor: pointer;' class='infoboxgreen' onclick=\""+tkorder+"\">"
 						  +"<td width=33%>"+amount+"</td> <td width=34%>"+price+"</td> <td width=33%>"+total+"</td> </tr>";
 			}else{
-				cashtable+="<tr class='infoboxgrey'> "
-					+"<td width=33%>"+amount+"</td> <td width=34%>"+price+"</td> <td width=33%>"+total+"</td> </tr>";
+				cashtable+="<tr class='infoboxgrey'> <td width=33%>"+amount+"</td> <td width=34%>"+price+"</td> <td width=33%>"+total+"</td> </tr>";
 			}
 		}
 		
@@ -268,63 +277,53 @@ function takeOrder(type, coinid, coinamount, cointokenid, reqaddress, reqamount,
 		var order = type+" "+amount+" "+tokenname+" @ "+price+"\n\n"+"You SPEND "+total+" Minima";
 	}
 	
-	if(!confirm("Please confirm Acceptance of this Order..\n\n"+order)){
+	if(!confirm("Please confirm acceptance of this Order..\n\n"+order)){
 		return;
 	}
 	
-	//Create the TXN
-	var txnid = Math.floor(Math.random()*1000000000);
-	
-	//First create a transaction paying him.. and an new address for you..
-	var txncreator =    
-		"txncreate "+txnid+";"+
-		"txnauto "+txnid+" "+reqamount+" "+reqaddress+" "+reqtokenid+";";
-	
-	//Create this first stage
-	Minima.cmd(txncreator, function(resp){
-		respjson = JSON.parse(resp);
-		if(respjson[1].status != true){
-			alert("Something went wrong.. ?\n\n"+respjson[1].error+"\n\nCheck console log.. ");
-			console.log(resp);
-		}else{
-			//Create a new address..
-			Minima.cmd("newaddress" , function(resp){
-				addrjson = JSON.parse(resp);
+	//Create an address and do it..
+	Minima.cmd("newaddress" , function(resp){
+		addrjson = JSON.parse(resp);
+		//Double check this.. otherwise may LOSE funds..
+		if(addrjson.status == true){
+			//Get the address
+			var myaddress = addrjson.response.address.hexaddress;
+		
+			//Create the TXN
+			var txnid = Math.floor(Math.random()*1000000000);
+			
+			//First create a transaction paying him.. and an new address for you..
+			var txncreator =    
+				//Create the Base
+				"txncreate "+txnid+";"+
+				//Auto set up the payment
+				"txnauto "+txnid+" "+reqamount+" "+reqaddress+" "+reqtokenid+";"+
+				//Now ADD the coin to your COINDB - needed fpr proofs..
+				"keepcoin "+coinid+";"+
+				//NOW add that coin.. MUST be the first - as oposite is payment
+				"txninput "+txnid+" "+coinid+" 0;"+
+				//Send it to yourself..
+				"txnoutput "+txnid+" "+coinamount+" "+myaddress+" "+cointokenid+";"+
+				//Re Sign it.. 
+				"txnsignauto "+txnid+";"+
+				//Post
+				"txnpost "+txnid+";"+
+				//Delete..
+				"txndelete "+txnid+";"+
+				//Remove the COINID from our CoinDB.. 
+				//otherwise appears in MY ORDERBOOK while txn is in mempool
+				"unkeepcoin "+coinid+";";
 				
-				//Double check this.. otherwise may LOSE funds..
-				if(addrjson.status == true){
-					//Get the address
-					var myaddress = addrjson.response.address.hexaddress;
-					
-					//Now add the final bits to the transaction..
-					txncreator =    
-						//Input the order
-						"txninput "+txnid+" "+coinid+" 0;"+
-						//Send it to yourself..
-						"txnoutput "+txnid+" "+coinamount+" "+myaddress+" "+cointokenid+";"+
-						//Re Sign it.. 
-						"txnsignauto "+txnid+";";
-						
-					//Build the rest..
-					Minima.cmd(txncreator , function(resp){
-						finaljson = JSON.parse(resp);
-						if(finaljson[0].status!=true || finaljson[1].status!=true || finaljson[2].status!=true){
-							alert("Something went wrong.. ? Check console..");
-							console.log(resp);
-							return;
-						}	
-						
-						//Now add the final bits to the transaction..
-						txncreator = "txnpost "+txnid+";txndelete "+txnid+";";
-						
-						//Send it
-						Minima.cmd(txncreator , function(resp){
-							alert("ORDER SENT!");
-						});
-						
-					});
-				}
+			//Create this first stage
+			Minima.cmd(txncreator, function(resp){
+				console.log(resp);
+				//SHOULD .. Check every response is TRUE
+				alert("ORDER SENT!");
 			});
+			
+		}else{
+			console.log(resp);
+			alert("Something went Wrong! Check Console..");
 		}
 	});
 }
@@ -436,8 +435,6 @@ function dexPollFunction(){
 	UpdateMyOrders();
 	
 	UpdateOrderBook();
-	
-	UpdateMyTrades();
 	
 	UpdateAllTrades();
 }
@@ -577,111 +574,90 @@ function buysellaction(buyorsell){
 	});
 }
 
-function UpdateMyTrades(){
-	Minima.cmd("history "+dexaddress, function(resp){
-		historyjson = JSON.parse(resp);
-		
-		//Get the details..
-		var cashtable="<table width=100% border=0> "
-			+"<tr> <th>TYPE</th> <th>TOKEN</th> <th>AMOUNT</th> <th>PRICE</th> <th>TOTAL</th> <th>TIME</th> </tr>";
-		
-		//Cycle through the results..
-		var histlen = historyjson.response.history.length;
-		for(i=0;i<histlen;i++){
-			txpow  = historyjson.response.history[i].txpow;
-			
-			//check has more than 1 input..
-			if(txpow.txn.inputs.length>1){
-				values = historyjson.response.history[i].values;
-				
-				var traded;
-				var token = "";
-				if(values[0].token == "0x00"){
-					token  = values[1].name;
-					traded = values[1].amount;
-				}else{
-					token  = values[0].name;
-					traded = values[0].amount;
-				}
-				
-				proof  = txpow.witness.mmrproofs[0].data;
-				coinid = proof.coin.tokenid;
-				
-				var buysell = true;
-				//if(coinid == "0x00"){
-				if(traded == "0"){
-					buysell = false;
-				}
-				
-				var price  = getOrderPrice(proof);
-				var amount = getOrderAmount(proof);
-				var total  = price.mul(amount);
-				
-				if(buysell){
-					cashtable+="<tr class='infoboxred'> <td>SELL</td> <td>"+token+"</td> <td>"+amount+"</td> <td>"+price+"</td> <td>"+total+"</td> <td>"+txpow.block+"</td>";	
-				}else{
-					cashtable+="<tr class='infoboxgreen'> <td>BUY</td> <td>"+token+"</td> <td>"+amount+"</td> <td>"+price+"</td> <td>"+total+"</td> <td>"+txpow.block+"</td>";
-				}
-			}
-		}
-		
-		cashtable+="</table>";
-		
-		document.getElementById("minima_mytrades").innerHTML = cashtable;
-	});
-}
-
 function UpdateAllTrades(){
 	Minima.cmd("txpowsearch "+dexaddress, function(resp){
 		searchjson = JSON.parse(resp);
-		
-		//Get the details..
-		var cashtable="<table width=100% border=0> "
-			+"<tr> <th>TYPE</th> <th>TOKEN</th> <th>AMOUNT</th> <th>PRICE</th> <th>TOTAL</th> <th>TIME</th> </tr>";
 		
 		//Sort the list
 		var txpowlist = searchjson.response.txpowlist;
 		txpowlist.sort(compareTxPOW);
 		
 		//Cycle through the results..
+		var mytable="<table width=100% border=0> "
+			+"<tr> <th>TYPE</th> <th>TOKEN</th> <th>AMOUNT</th> <th>PRICE</th> <th>TOTAL</th> <th>TIME</th> </tr>";	
+		var cashtable="<table width=100% border=0> "
+			+"<tr> <th>TYPE</th> <th>TOKEN</th> <th>AMOUNT</th> <th>PRICE</th> <th>TOTAL</th> <th>TIME</th> </tr>";
 		var len = txpowlist.length;
-		console.log("FOUND:"+len);
 		for(i=0;i<len;i++){
-			txpow  = txpowlist[i];
+			//Quicker reference
+			txpitem = txpowlist[i];
 			
 			//check has more than 1 input..
-			if(txpow.txn.inputs.length>1){
+			txpow = txpowlist[i].txpow;
+			if(txpow.txn.inputs.length>1 && txpitem.isinblock){
 				proof  = txpow.witness.mmrproofs[0].data;
 				coinid = proof.coin.tokenid;
 				
-				var buysell = true;
+				var tokenid = coinid;
+				var buysell = false;
 				if(coinid == "0x00"){
-					buysell = false;
+					buysell = true;
+					tokenid = getCoinPrevState(proof,2);
 				}
 				
 				var price  = getOrderPrice(proof);
 				var amount = getOrderAmount(proof);
 				var total  = price.mul(amount);
+				var time   = txpitem.inblock;
 				
-				var time = txpow.block;
+				var tokenname  = getTokenName(tokenid);
+				
+				var selltxt = "<tr class='infoboxred'> <td>SELL</td> <td>"+tokenname+"</td> <td>"+amount+"</td> <td>"+price+"</td> <td>"+total+"</td> <td>"+time+"</td>";
+				var buytxt  = "<tr class='infoboxgreen'> <td>BUY</td> <td>"+tokenname+"</td> <td>"+amount+"</td> <td>"+price+"</td> <td>"+total+"</td> <td>"+time+"</td>";
 				
 				if(buysell){
-					cashtable+="<tr class='infoboxred'> <td>SELL</td> <td>token</td> <td>"+amount+"</td> <td>"+price+"</td> <td>"+total+"</td> <td>"+time+"</td>";	
+					cashtable+=selltxt;	
 				}else{
-					cashtable+="<tr class='infoboxgreen'> <td>BUY</td> <td>token</td> <td>"+amount+"</td> <td>"+price+"</td> <td>"+total+"</td> <td>"+time+"</td>";
+					cashtable+=buytxt;
+				}
+				
+				//Is this a BUY or a SELL for you.. can tell from the values..
+				if(txpitem.relevant){
+//					console.log(JSON.stringify(txpitem.values));
+					var value = new Decimal(txpitem.values[0].value);
+					if(txpitem.values[0].token=="0x00"){
+						if(value.lt(0)){
+							buysell = true;
+						}else{
+							buysell = false;
+						}
+					}else{
+						if(value.lt(0)){
+							buysell = false;
+						}else{
+							buysell = true;
+						}
+					}
+					
+					if(buysell){
+						mytable+=buytxt;	
+					}else{
+						mytable+=selltxt;
+					}
 				}
 			}
 		}
-		
 		cashtable+="</table>";
+		mytable+="</table>";
 		
-		document.getElementById("alltrades").innerHTML = cashtable;
+		document.getElementById("alltrades").innerHTML       = cashtable;
+		document.getElementById("minima_mytrades").innerHTML = mytable;
 	});
 }
 
 function compareTxPOW(a, b) {
-	var txpow_a = a.block;
-	var txpow_b = b.block;
+	var txpow_a = a.inblock;
+	var txpow_b = b.inblock;
 	if (txpow_a > txpow_b) {
         return -1;
     }
