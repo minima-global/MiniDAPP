@@ -149,9 +149,9 @@ function UpdateMyOrders(){
 			var inblk =  new Decimal(coinproof.inblock);
 			var diff  =  currblk.sub(inblk);
 			if(diff.gte(MAX_ORDER_AGE)){
-				cashtable+="<td><button onclick='cancelOrder(\""+coin_id+"\",\""+owner+"\",\""+address+"\",\""+coin_amount+"\",\""+coin_token+"\");' class='cancelbutton'>TOO OLD</button> </td></tr>";	
+				cashtable+="<td><button id=\""+coin_id+"\" onclick='cancelOrder(\""+coin_id+"\",\""+owner+"\",\""+address+"\",\""+coin_amount+"\",\""+coin_token+"\");' class='cancelbutton'>TOO OLD</button> </td></tr>";	
 			}else if(diff.gte(MIN_ORDER_AGE)){
-				cashtable+="<td><button onclick='cancelOrder(\""+coin_id+"\",\""+owner+"\",\""+address+"\",\""+coin_amount+"\",\""+coin_token+"\");' class='cancelbutton'>CANCEL</button> </td></tr>";	
+				cashtable+="<td><button id=\""+coin_id+"\" onclick='cancelOrder(\""+coin_id+"\",\""+owner+"\",\""+address+"\",\""+coin_amount+"\",\""+coin_token+"\");' class='cancelbutton'>CANCEL</button> </td></tr>";	
 			}else{
 				cashtable+="<td>waiting..</td></tr>";
 			}
@@ -489,6 +489,9 @@ function cancelOrder(coinid, owner, address, amount, tokenid){
 			console.log(resp);
 		}else{
 			alert("ORDER CANCELLED!");
+			
+			//Disable the button..
+			document.getElementById(coinid).disabled = 'true';
 		}
 	});
 }
@@ -603,9 +606,9 @@ function UpdateAllTrades(){
 		
 		//Cycle through the results..
 		var mytable="<table width=100% border=0> "
-			+"<tr> <th>TYPE</th> <th>TOKEN</th> <th>AMOUNT</th> <th>PRICE</th> <th>TOTAL</th> <th>TIME</th> </tr>";	
+			+"<tr> <th>TYPE</th> <th>TOKEN</th> <th>AMOUNT</th> <th>PRICE</th> <th>TOTAL</th> <th>BLOCK</th> </tr>";	
 		var cashtable="<table width=100% border=0> "
-			+"<tr> <th>TYPE</th> <th>TOKEN</th> <th>AMOUNT</th> <th>PRICE</th> <th>TOTAL</th> <th>TIME</th> </tr>";
+			+"<tr> <th>TYPE</th> <th>TOKEN</th> <th>AMOUNT</th> <th>PRICE</th> <th>TOTAL</th> <th>BLOCK</th> </tr>";
 		var len = txpowlist.length;
 		for(i=0;i<len;i++){
 			//Quicker reference
