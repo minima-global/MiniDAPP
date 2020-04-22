@@ -5,13 +5,35 @@
 	<script type="text/javascript" src="http://127.0.0.1:21000/minima.js"></script>
 	
 	<!--  STYLE -->
-	<link rel="stylesheet" type="text/css" href="coinflip.css">
+	<link rel="stylesheet" type="text/css" href="./css/coinflip.css">
+	
+	<script type="text/javascript" src="./js/coinflip.js"></script>
+	
 </head>
 
-<body>
+<body class="mainbody">
 
 	<script type="text/javascript">
 
+		function setTime(){
+			//Set the right time
+			document.getElementById("blocktime").innerHTML = "<b>BLOCKTIME : "+Minima.block+"</b>";	
+		}
+	
+		function setBalance(){
+			//Set the Balance..
+			var bal     = Minima.balance.balance[0].confirmed;
+			var balun   = Minima.balance.balance[0].unconfirmed;
+			var mempool = Minima.balance.balance[0].mempool;
+			
+			//Is there unconfirmed money coming..
+			if(balun !== "0" || mempool !== "0"){
+				document.getElementById("balance").innerHTML = "<b>BALANCE : "+bal+" / "+balun+" / "+mempool+"</b>";	
+			}else{
+				document.getElementById("balance").innerHTML = "<b>BALANCE : "+bal+"</b>";
+			}
+		}
+		
 		//Wait for the page to load..
 		window.addEventListener("load", function(){
 
@@ -20,10 +42,17 @@
 				//Deal with each message type
 		 		if(evt.detail.event == "connected"){
 			 		//Minima.cmd("extrascript \""+timescript+"\"");
+		 			setTime();
+		 			setBalance();
+		 			
 			 	}else if(evt.detail.event == "newblock"){
-		 			
+		 			//Set the time..
+			 		setTime();
+			 		
 		 		}else if(evt.detail.event == "newbalance"){
-		 			
+		 			//Set the Balance..
+			 		setBalance();
+			 		
 		 		}
 		    });
 			
@@ -33,7 +62,105 @@
 		
 	</script>
 
-HELLO!
+<div class="maindiv">
+<br>
+<div style="font-size:64;"><b>COIN FLIP</b></div>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;( Don't Flip Out.. )
+
+<br><br>
+
+<table border=0 style="padding:10;width:100%;height:450;">
+<tr>
+	<td class="coinbox" style="height:20%;width:10%;">NEW GAME<br>
+	
+	<table>
+		<tr><td><input type="number" id="newamount"></td></tr>
+		<tr><td style="text-align:center;"><button class="userbutton">LET'S PLAY!</button></td></tr>
+	</table>
+	
+	  </td>
+	<td class="coinbox" rowspan=2> MY GAMES<br>
+	<br>
+	<div style="width:100%;height:85%;overflow-y:scroll;">
+		<table width=100% border=0>
+			<tr style="height:20;font-size:20;"> <th>AMOUNT</th> <th>STAGE</th> <th>RESULT</th> </tr>
+			
+			<tr class="bluebox"><td class="bluebox">10</td> <td class="bluebox">1/3</td> <td class="bluebox">waiting..</td> </tr>
+			<tr class="bluebox"><td class="bluebox">10</td> <td class="bluebox">1/3</td> <td class="bluebox">waiting..</td> </tr>
+			<tr class="bluebox"><td class="bluebox">10</td> <td class="bluebox">1/3</td> <td class="bluebox">waiting..</td> </tr>
+			<tr class="bluebox"><td class="bluebox">10</td> <td class="bluebox">1/3</td> <td class="bluebox">waiting..</td> </tr>
+			<tr class="bluebox"><td class="bluebox">10</td> <td class="bluebox">1/3</td> <td class="bluebox">waiting..</td> </tr>
+			<tr class="bluebox"><td class="bluebox">10</td> <td class="bluebox">1/3</td> <td class="bluebox">waiting..</td> </tr>
+			<tr class="bluebox"><td class="bluebox">10</td> <td class="bluebox">1/3</td> <td class="bluebox">waiting..</td> </tr>
+			<tr class="bluebox"><td class="bluebox">10</td> <td class="bluebox">1/3</td> <td class="bluebox">waiting..</td> </tr>
+			<tr class="bluebox"><td class="bluebox">10</td> <td class="bluebox">1/3</td> <td class="bluebox">waiting..</td> </tr>
+			<tr class="bluebox"><td class="bluebox">10</td> <td class="bluebox">1/3</td> <td class="bluebox">waiting..</td> </tr>
+			<tr class="bluebox"><td class="bluebox">10</td> <td class="bluebox">1/3</td> <td class="bluebox">waiting..</td> </tr>
+			<tr class="bluebox"><td class="bluebox">10</td> <td class="bluebox">1/3</td> <td class="bluebox">waiting..</td> </tr>
+			<tr class="bluebox"><td class="bluebox">10</td> <td class="bluebox">1/3</td> <td class="bluebox">waiting..</td> </tr>
+			<tr class="bluebox"><td class="bluebox">10</td> <td class="bluebox">1/3</td> <td class="bluebox">waiting..</td> </tr>
+			<tr class="bluebox"><td class="bluebox">10</td> <td class="bluebox">1/3</td> <td class="bluebox">waiting..</td> </tr>
+			<tr class="bluebox"><td class="bluebox">10</td> <td class="bluebox">1/3</td> <td class="bluebox">waiting..</td> </tr>
+			<tr class="bluebox"><td class="bluebox">10</td> <td class="bluebox">1/3</td> <td class="bluebox">waiting..</td> </tr>
+			<tr class="bluebox"><td class="bluebox">10</td> <td class="bluebox">1/3</td> <td class="bluebox">waiting..</td> </tr>
+			<tr class="bluebox"><td class="bluebox">10</td> <td class="bluebox">1/3</td> <td class="bluebox">waiting..</td> </tr>
+			<tr class="bluebox"><td class="bluebox">10</td> <td class="bluebox">1/3</td> <td class="bluebox">waiting..</td> </tr>
+			<tr class="bluebox"><td class="bluebox">10</td> <td class="bluebox">1/3</td> <td class="bluebox">waiting..</td> </tr>
+			<tr class="bluebox"><td class="bluebox">10</td> <td class="bluebox">1/3</td> <td class="bluebox">waiting..</td> </tr>
+			<tr class="bluebox"><td class="bluebox">10</td> <td class="bluebox">1/3</td> <td class="bluebox">waiting..</td> </tr>
+			<tr class="bluebox"><td class="bluebox">10</td> <td class="bluebox">1/3</td> <td class="bluebox">waiting..</td> </tr>
+			
+		</table>
+	</div>
+	</td>
+</tr>
+
+<tr style="height:100%">
+	<td class="coinbox">AVAILABLE<br>
+	
+	<div style="width:100%;height:90%;overflow-y:scroll;">
+		
+		<table border=0 style="width:100%;">
+			<tr><td class="availablebox" onclick="alert('hello');">10</td></tr>
+			<tr><td class="availablebox">2.345</td></tr>
+			<tr><td class="availablebox">0.345</td></tr>
+			<tr><td class="availablebox">2.345</td></tr>
+			<tr><td class="availablebox">0.345</td></tr>
+			<tr><td class="availablebox">2.345</td></tr>
+			<tr><td class="availablebox">0.345</td></tr>
+			<tr><td class="availablebox">9.998</td></tr>
+		</table>
+		
+	</div>
+	
+	</td>
+</tr>
+
+<tr>
+<td colspan=2>&nbsp;<br></td>
+</tr>
+
+<tr>
+	<td style="text-align:left;"><div id="blocktime"></div></td>
+	<td style="text-align:right;"><div id="balance"></div></td>
+</tr>
+
+
+</table>
+
+
+</div>
+	
+	
+	
+
+
+
+
 	
 </body>
 

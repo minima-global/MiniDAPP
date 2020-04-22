@@ -1,0 +1,73 @@
+.mainbody{
+	background-size:100%;
+	background-image: url(../images/gambler.jpg);
+	background-size:100% 100%;
+}
+
+.maindiv {
+  margin: auto;
+  position: absolute;
+  top: 0; left: 0; bottom: 0; right: 0;
+  
+  width:800;
+  height:600;
+  background-color:#ddd;
+  border-radius: 20px;
+  opacity:0.9;
+  font-size:16px;
+  text-align:center;
+}
+
+.coinbox{
+  background-color: #dfd;
+  border-radius: 10px;
+  font-size:20px;
+  font-weight:bold;
+  font-family:monospace;
+  text-align:left;
+  vertical-align:top;
+  outline: none;
+  padding:10;
+}
+
+.whitebox{
+  background-color: #eee;
+  border-radius: 10px;
+  font-size:20px;
+  font-weight:bold;
+  font-family:monospace;
+  text-align:left;
+  vertical-align:top;
+  outline: none;
+  padding:10;
+}
+
+.bluebox{
+  background-color: #ddf;
+  border-radius: 10px;
+  font-family:monospace;
+  text-align:center;
+  vertical-align:middle;
+  height:30;
+}
+
+.availablebox{
+  background-color: #ffc;
+  border-radius: 10px;
+  font-size:16px;
+  height:40;
+  font-weight:bold;
+  font-family:monospace;
+  text-align:center;
+  vertical-align:middle;
+  cursor:pointer;
+}
+
+.userbutton{
+  background-color: #ddf;
+  border-radius: 10px;
+  font-size:20px;
+  font-weight:bold;
+  font-family:monospace;
+  outline: none;
+}
