@@ -18,6 +18,7 @@
 <script type="text/javascript">
 	//Wait for the page to load..
 	window.addEventListener("load", function(){
+		
 		//Listen for Minima Events
 		window.addEventListener('MinimaEvent', function(evt) {
 			//Deal with each message type
@@ -94,7 +95,6 @@
 					<table width=100% height=100%> 
 					<tr><th>MY TRADES</th></tr>
 					<tr><td height=100%>
-							
 							<div class="scrollablediv" id="minima_mytrades">
 														
 							</div>	
@@ -133,6 +133,14 @@
 						</tr>
 					</table>
 					
+				</td>
+			</tr>
+			
+			<tr>
+				<td height=50 class="infoboxblue">
+					<div class="slidecontainer">
+					  <input type="range" min="0" max="100" value="0" class="slider" id="dextotalrange" onmouseup="sliderTotal();"  ontouchend="sliderTotal();">
+					</div>
 				</td>
 			</tr>
 			

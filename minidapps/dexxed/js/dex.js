@@ -12,6 +12,10 @@ var dexaddress   = "0xB68787A65D917793643F1F2E7D9E3DFA020767AA85CE38640135297A0A
 var MAX_ORDER_AGE = 500;
 var MIN_ORDER_AGE = 3;
 
+var SLIDER_VALUE = new Decimal(0);
+var MIN_TOTAL    = new Decimal(0);
+var MAX_TOTAL    = new Decimal(0);
+
 //The INIT function called once connected
 function dex_init(){
 	//Tell Minima about this contract.. This allows you to spend it when the time comes
@@ -193,6 +197,10 @@ function UpdateOrderBook(){
 		//Current block height
 		var currblk = new Decimal(Minima.block);
 		
+		//Reset These..
+		MIN_TOTAL    = new Decimal(0);
+		MAX_TOTAL    = new Decimal(0);
+		
 		//Sell Orders
 		for(i=0;i<tokenorders_sell.length;i++){
 			//Trade details..
@@ -200,27 +208,33 @@ function UpdateOrderBook(){
 			var price   = getOrderPrice(tokenorders_sell[i]);
 			var total   = amount.mul(price);
 			
-			var coinid     = tokenorders_sell[i].coin.coinid;
-			var coinamount = tokenorders_sell[i].coin.amount;
-			var cointoken  = tokenorders_sell[i].coin.tokenid;
+			if(total.lt(MIN_TOTAL)){MIN_TOTAL=total;}
+			if(total.gt(MAX_TOTAL)){MAX_TOTAL=total;}
 			
-			var reqaddress = getCoinPrevState(tokenorders_sell[i],1);
-			var reqtokenid = getCoinPrevState(tokenorders_sell[i],2);
-			var reqamount  = getCoinPrevState(tokenorders_sell[i],3);
-			
-			//Are we deep enough..
-			var inblk =  new Decimal(tokenorders_sell[i].inblock);
-			var diff  =  currblk.sub(inblk);
-			if(diff.gte(MAX_ORDER_AGE)){
-				//Too OLD! = no one but you can see it..
-				cashtable+="<tr class='infoboxpurple'><td width=33%>"+amount+"</td> <td width=34%>"+price+"</td> <td width=33%>"+total+"</td> </tr>";
-			}else if(diff.gte(MIN_ORDER_AGE)){
-				//Create the order function
-				var tkorder = "takeOrder('BUY', '"+coinid+"', '"+coinamount+"', '"+cointoken+"', '"+reqaddress+"', '"+reqamount+"', '"+reqtokenid+"', '"+price+"', '"+amount+"', '"+total+"' );";
-				cashtable+="<tr style='cursor: pointer;' class='infoboxred' onclick=\""+tkorder+"\">"
-						  +"<td width=33%>"+amount+"</td> <td width=34%>"+price+"</td> <td width=33%>"+total+"</td> </tr>";
-			}else{
-				cashtable+="<tr class='infoboxgrey'><td width=33%>"+amount+"</td> <td width=34%>"+price+"</td> <td width=33%>"+total+"</td> </tr>";
+			//Check within range..
+			if(total.gte(SLIDER_VALUE)){
+				var coinid     = tokenorders_sell[i].coin.coinid;
+				var coinamount = tokenorders_sell[i].coin.amount;
+				var cointoken  = tokenorders_sell[i].coin.tokenid;
+				
+				var reqaddress = getCoinPrevState(tokenorders_sell[i],1);
+				var reqtokenid = getCoinPrevState(tokenorders_sell[i],2);
+				var reqamount  = getCoinPrevState(tokenorders_sell[i],3);
+				
+				//Are we deep enough..
+				var inblk =  new Decimal(tokenorders_sell[i].inblock);
+				var diff  =  currblk.sub(inblk);
+				if(diff.gte(MAX_ORDER_AGE)){
+					//Too OLD! = no one but you can see it..
+					cashtable+="<tr class='infoboxpurple'><td width=33%>"+amount+"</td> <td width=34%>"+price+"</td> <td width=33%>"+total+"</td> </tr>";
+				}else if(diff.gte(MIN_ORDER_AGE)){
+					//Create the order function
+					var tkorder = "takeOrder('BUY', '"+coinid+"', '"+coinamount+"', '"+cointoken+"', '"+reqaddress+"', '"+reqamount+"', '"+reqtokenid+"', '"+price+"', '"+amount+"', '"+total+"' );";
+					cashtable+="<tr style='cursor: pointer;' class='infoboxred' onclick=\""+tkorder+"\">"
+							  +"<td width=33%>"+amount+"</td> <td width=34%>"+price+"</td> <td width=33%>"+total+"</td> </tr>";
+				}else{
+					cashtable+="<tr class='infoboxgrey'><td width=33%>"+amount+"</td> <td width=34%>"+price+"</td> <td width=33%>"+total+"</td> </tr>";
+				}
 			}
 		}
 		
@@ -234,27 +248,33 @@ function UpdateOrderBook(){
 			var price   = getOrderPrice(tokenorders_buy[i]);
 			var total   = amount.mul(price);
 			
-			var coinid     = tokenorders_buy[i].coin.coinid;
-			var coinamount = tokenorders_buy[i].coin.amount;
-			var cointoken  = tokenorders_buy[i].coin.tokenid;
+			if(total.lt(MIN_TOTAL)){MIN_TOTAL=total;}
+			if(total.gt(MAX_TOTAL)){MAX_TOTAL=total;}
 			
-			var reqaddress = getCoinPrevState(tokenorders_buy[i],1);
-			var reqtokenid = getCoinPrevState(tokenorders_buy[i],2);
-			var reqamount  = getCoinPrevState(tokenorders_buy[i],3);
-			
-			//Are we deep enough..
-			var inblk =  new Decimal(tokenorders_buy[i].inblock);
-			var diff  =  currblk.sub(inblk);
-			if(diff.gte(MAX_ORDER_AGE)){
-				//Too OLD! = no one but you can see it..
-				cashtable+="<tr class='infoboxpurple'> <td width=33%>"+amount+"</td> <td width=34%>"+price+"</td> <td width=33%>"+total+"</td> </tr>";
-			}else if(diff.gte(MIN_ORDER_AGE)){
-				//Create the order function
-				var tkorder = "takeOrder('SELL', '"+coinid+"', '"+coinamount+"', '"+cointoken+"', '"+reqaddress+"', '"+reqamount+"', '"+reqtokenid+"', '"+price+"', '"+amount+"', '"+total+"' );";
-				cashtable+="<tr style='cursor: pointer;' class='infoboxgreen' onclick=\""+tkorder+"\">"
-						  +"<td width=33%>"+amount+"</td> <td width=34%>"+price+"</td> <td width=33%>"+total+"</td> </tr>";
-			}else{
-				cashtable+="<tr class='infoboxgrey'> <td width=33%>"+amount+"</td> <td width=34%>"+price+"</td> <td width=33%>"+total+"</td> </tr>";
+			//Check within range..
+			if(total.gte(SLIDER_VALUE)){
+				var coinid     = tokenorders_buy[i].coin.coinid;
+				var coinamount = tokenorders_buy[i].coin.amount;
+				var cointoken  = tokenorders_buy[i].coin.tokenid;
+				
+				var reqaddress = getCoinPrevState(tokenorders_buy[i],1);
+				var reqtokenid = getCoinPrevState(tokenorders_buy[i],2);
+				var reqamount  = getCoinPrevState(tokenorders_buy[i],3);
+				
+				//Are we deep enough..
+				var inblk =  new Decimal(tokenorders_buy[i].inblock);
+				var diff  =  currblk.sub(inblk);
+				if(diff.gte(MAX_ORDER_AGE)){
+					//Too OLD! = no one but you can see it..
+					cashtable+="<tr class='infoboxpurple'> <td width=33%>"+amount+"</td> <td width=34%>"+price+"</td> <td width=33%>"+total+"</td> </tr>";
+				}else if(diff.gte(MIN_ORDER_AGE)){
+					//Create the order function
+					var tkorder = "takeOrder('SELL', '"+coinid+"', '"+coinamount+"', '"+cointoken+"', '"+reqaddress+"', '"+reqamount+"', '"+reqtokenid+"', '"+price+"', '"+amount+"', '"+total+"' );";
+					cashtable+="<tr style='cursor: pointer;' class='infoboxgreen' onclick=\""+tkorder+"\">"
+							  +"<td width=33%>"+amount+"</td> <td width=34%>"+price+"</td> <td width=33%>"+total+"</td> </tr>";
+				}else{
+					cashtable+="<tr class='infoboxgrey'> <td width=33%>"+amount+"</td> <td width=34%>"+price+"</td> <td width=33%>"+total+"</td> </tr>";
+				}
 			}
 		}
 		
@@ -264,7 +284,6 @@ function UpdateOrderBook(){
 		//Set it..
 		document.getElementById("dexxed_orderbook").innerHTML = cashtable;
 	});
-	
 }
 
 function takeOrder(type, coinid, coinamount, cointokenid, reqaddress, reqamount, reqtokenid,  price, amount, total){
@@ -665,4 +684,22 @@ function compareTxPOW(a, b) {
         return 1;
     }
     return 0;
+}
+
+function sliderTotal(){
+	//Get the slider.. use a percentage
+	slider = document.getElementById("dextotalrange");
+	
+	//Bit Of Maths..
+	var perc    = new Decimal(slider.value).div(100);
+	var totdiff = MAX_TOTAL.sub(MIN_TOTAL);
+	
+	//Now set it
+	SLIDER_VALUE = MIN_TOTAL.add(totdiff.mul(perc));
+	
+	//Tell..
+	alert("Minimum ORDERBOOK TOTAL set to "+SLIDER_VALUE);
+	
+	//reset..
+	UpdateOrderBook();
 }
