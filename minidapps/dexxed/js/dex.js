@@ -35,22 +35,21 @@ function dex_init(){
 		if(len<2){
 			//No Tokens.. since Minima is first
 			document.getElementById("minima_tokenlist").innerHTML = "NO TOKENS FOUND.. &nbsp;&nbsp;<button onclick='window.location.href=\"\";' class=cancelbutton>REFRESH</button>";
-			return;
+		}else{
+			//Create the Select Box
+			var toktext = "<b>TOKEN : </b> <select onchange='tokenSelectChange();' id='select_tokenlist'>"
+			for(var loop=1;loop<len;loop++){
+				var json = allTokens.tokens[loop];
+					toktext += "<option value='"+json.tokenid+"'>"+json.token+" ( "+json.total+" ) "+json.tokenid.substr(0,40)+"..</option>";
+			}
+			toktext += "</select> &nbsp;&nbsp;<button onclick='window.location.href=\"\";' class=cancelbutton>REFRESH</button>";
+			
+			//And set it..
+			document.getElementById("minima_tokenlist").innerHTML = toktext;
+			
+			//Set the Token..
+			tokenSelectChange();
 		}
-		
-		//Create the Select Box
-		var toktext = "<b>TOKEN : </b> <select onchange='tokenSelectChange();' id='select_tokenlist'>"
-		for(var loop=1;loop<len;loop++){
-			var json = allTokens.tokens[loop];
-				toktext += "<option value='"+json.tokenid+"'>"+json.token+" ( "+json.total+" ) "+json.tokenid.substr(0,40)+"..</option>";
-		}
-		toktext += "</select> &nbsp;&nbsp;<button onclick='window.location.href=\"\";' class=cancelbutton>REFRESH</button>";
-		
-		//And set it..
-		document.getElementById("minima_tokenlist").innerHTML = toktext;
-		
-		//Set the Token..
-		tokenSelectChange();
 		
 		//Run it once..
 		dexPollFunction();
