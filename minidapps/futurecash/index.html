@@ -125,8 +125,8 @@
 					var amountcoin = coinproof.coin.amount;
 					
 					var collectstring = "";
-					if(timecoin < Minima.block){
-						collectstring="<button onclick='collectCoin(\""+coinproof.coin.coinid+"\",\""+keycoin+"\",\""+amountcoin+"\");' class=collect>COLLECT</button>";
+					if(timecoin <= Minima.block){
+						collectstring="<button id=\""+coinproof.coin.coinid+"\" onclick='collectCoin(\""+coinproof.coin.coinid+"\",\""+keycoin+"\",\""+amountcoin+"\");' class=collect>COLLECT</button>";
 					}else{
 						var diff = timecoin - Minima.block;
 						collectstring = "Ready in "+diff+"..";
@@ -153,6 +153,9 @@
 		}
 		
 		function collectCoin(coinid, key, cashamount){
+			//Disable the button..
+			document.getElementById(coinid).disabled = 'true';
+			
 			//Get a new address and send these funds to that..
 			Minima.cmd("newaddress", function(resp){
 				var json = JSON.parse(resp);
