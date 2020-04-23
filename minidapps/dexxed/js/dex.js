@@ -596,8 +596,10 @@ function buysellaction(buyorsell){
 }
 
 function UpdateAllTrades(){
-	Minima.cmd("txpowsearch "+dexaddress, function(resp){
+	Minima.cmd("txpowsearch input:"+dexaddress, function(resp){
 		searchjson = JSON.parse(resp);
+		
+		console.log("TRADES:"+resp);
 		
 		//Sort the list
 		var txpowlist = searchjson.response.txpowlist;
