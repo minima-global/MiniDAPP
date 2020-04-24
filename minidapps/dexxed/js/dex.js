@@ -316,8 +316,6 @@ function takeOrder(type, coinid, coinamount, cointokenid, reqaddress, reqamount,
 				"txncreate "+txnid+";"+
 				//Auto set up the payment
 				"txnauto "+txnid+" "+reqamount+" "+reqaddress+" "+reqtokenid+";"+
-				//Now ADD the coin to your COINDB - needed fpr proofs..
-				"keepcoin "+coinid+";"+
 				//NOW add that coin.. MUST be the first - as oposite is payment
 				"txninput "+txnid+" "+coinid+" 0;"+
 				//Send it to yourself..
@@ -327,14 +325,17 @@ function takeOrder(type, coinid, coinamount, cointokenid, reqaddress, reqamount,
 				//Post
 				"txnpost "+txnid+";"+
 				//Delete..
-				"txndelete "+txnid+";"+
-				//Remove the COINID from our CoinDB.. 
-				//otherwise appears in MY ORDERBOOK while txn is in mempool
-				"unkeepcoin "+coinid+";";
-				
+				"txndelete "+txnid+";";
+	
 			//Create this first stage
 			Minima.cmd(txncreator, function(resp){
-				console.log(resp);
+				respjson = JSON.parse(resp);
+				if(!checkAllResponses(respjson)){
+					alert("Something went wrong.. ?\n\nCheck console log..");
+					console.log(resp);
+					return;
+				}
+				
 				//SHOULD .. Check every response is TRUE
 				alert("ORDER SENT!");
 			});
@@ -449,18 +450,28 @@ function getOrderAmount(coinproof){
 
 function dexPollFunction(){
 	UpdateBlockTime();
-	
 	UpdateMyOrders();
-	
 	UpdateOrderBook();
-	
 	UpdateAllTrades();
 }
 
 function tokenSelectChange(){
 	var tokenSel  = document.getElementById("select_tokenlist").selectedIndex;
 	currentToken  = allTokens.tokens[tokenSel+1];
+	
+	//Update the View..
 	UpdateOrderBook();
+	UpdateAllTrades();
+}
+
+function checkAllResponses(responses){
+	len = responses.length;
+	for(i=0;i<len;i++){
+		if(responses[i].status != true){
+			return false;
+		}
+	}
+	return true;
 }
 
 function cancelOrder(coinid, owner, address, amount, tokenid){
@@ -483,12 +494,11 @@ function cancelOrder(coinid, owner, address, amount, tokenid){
 	//And Run it..
 	Minima.cmd( txncreator , function(resp){
 		respjson = JSON.parse(resp);
-		if(respjson[4].status != true){
-			alert("Something went wrong.. ?\n\n"+respjson[4].error+"\n\nCheck console log.. ");
+		if(!checkAllResponses(respjson)){
+			alert("Something went wrong.. ?\n\nCheck console log.. ");
 			console.log(resp);
 		}else{
 			alert("ORDER CANCELLED!");
-			
 			//Disable the button..
 			document.getElementById(coinid).disabled = 'true';
 		}
@@ -552,8 +562,7 @@ function buysellaction(buyorsell){
 	//We need a new key and a new address
 	Minima.cmd( "keys new;newaddress;" , function(resp){
 		keysjson = JSON.parse(resp);
-		
-		if(keysjson[0].status!=true || keysjson[1].status!=true){
+		if(!checkAllResponses(keysjson)){
 			console.log(resp);
 			alert("Something went wrong.. check logs..");
 			return;
@@ -577,13 +586,12 @@ function buysellaction(buyorsell){
 			"txnpost "+txnid+";"+
 			"txndelete "+txnid+";";
 		
-		//console.log(txncreator);
-		
 		//And Run it..
 		Minima.cmd( txncreator , function(resp){
 			respjson = JSON.parse(resp);
-			if(respjson[5].status != true){
-				alert("Something went wrong.. Insufficient funds ?");
+			if(!checkAllResponses(respjson)){
+				alert("Something went wrong.. ?\n\nCheck log..\n\nMaybe someone else took this order.");
+				console.log(resp);
 			}else{
 				document.getElementById("buyamt").value = "";
 				document.getElementById("buyprice").value = "";
@@ -598,8 +606,6 @@ function buysellaction(buyorsell){
 function UpdateAllTrades(){
 	Minima.cmd("txpowsearch input:"+dexaddress, function(resp){
 		searchjson = JSON.parse(resp);
-		
-		console.log("TRADES:"+resp);
 		
 		//Sort the list
 		var txpowlist = searchjson.response.txpowlist;
@@ -638,15 +644,16 @@ function UpdateAllTrades(){
 				var selltxt = "<tr class='infoboxred'> <td>SELL</td> <td>"+tokenname+"</td> <td>"+amount+"</td> <td>"+price+"</td> <td>"+total+"</td> <td>"+time+"</td>";
 				var buytxt  = "<tr class='infoboxgreen'> <td>BUY</td> <td>"+tokenname+"</td> <td>"+amount+"</td> <td>"+price+"</td> <td>"+total+"</td> <td>"+time+"</td>";
 				
-				if(buysell){
-					cashtable+=selltxt;	
-				}else{
-					cashtable+=buytxt;
+				if(tokenid == currentToken.tokenid){
+					if(buysell){
+						cashtable+=selltxt;	
+					}else{
+						cashtable+=buytxt;
+					}
 				}
 				
 				//Is this a BUY or a SELL for you.. can tell from the values..
 				if(txpitem.relevant){
-//					console.log(JSON.stringify(txpitem.values));
 					var value = new Decimal(txpitem.values[0].value);
 					if(txpitem.values[0].token=="0x00"){
 						if(value.lt(0)){
