@@ -41,7 +41,7 @@
 			
 		    //Run it on Minima
 		    if(lastLine !== ""){
-		    	Minima.cmd(lastLine,function(resp){
+		    	Minima.cmd("prettyjson/"+lastLine,function(resp){
 			    	//Replace \\n with \n..
 			    	var linebreaker = resp.replace(/\\n/g,"\n");
 			    	addText(linebreaker+"\n");
