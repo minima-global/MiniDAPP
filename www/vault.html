@@ -192,8 +192,8 @@
 		txncreator =    
 			"txncreate "+txnid+";"+
 			"txninput "+txnid+" "+vaultcoinid+";"+
-			"txnoutput "+txnid+" "+amt+" "+safehouseaddress+";"+
-			"txnoutput "+txnid+" "+tchg+" "+vaultaddress+";"+
+			"txnoutput "+txnid+" "+amt+" "+safehouseaddress+" 0x00;"+
+			"txnoutput "+txnid+" "+tchg+" "+vaultaddress+" 0x00;"+
 			"txnstate "+txnid+" 20 "+amt+";"+
 			"txnstate "+txnid+" 21 "+addr+";"+
 			"txnsign "+txnid+" "+hotkey+";"+
@@ -215,7 +215,7 @@
 		txncreator =    
 			"txncreate "+txnid+";"+
 			"txninput "+txnid+" "+coinid+";"+
-			"txnoutput "+txnid+" "+amount+" "+address+";"+
+			"txnoutput "+txnid+" "+amount+" "+address+" 0x00;"+
 			"txnsign "+txnid+" "+hotkey+";"+
 			"txnpost "+txnid+";"+
 			"txndelete "+txnid+";";
@@ -233,7 +233,7 @@
 		txncreator =    
 			"txncreate "+txnid+";"+
 			"txninput "+txnid+" "+coinid+";"+
-			"txnoutput "+txnid+" "+amount+" "+rescaddr+";"+
+			"txnoutput "+txnid+" "+amount+" "+rescaddr+" 0x00;"+
 			"txnsign "+txnid+" "+coldkey+";"+
 			"txnpost "+txnid+";"+
 			"txndelete "+txnid+";";
@@ -251,7 +251,7 @@
 		txncreator =    
 			"txncreate "+txnid+";"+
 			"txninput "+txnid+" "+vaultcoinid+";"+
-			"txnoutput "+txnid+" "+vaultamount+" "+rescaddr+";"+
+			"txnoutput "+txnid+" "+vaultamount+" "+rescaddr+" 0x00;"+
 			"txnsign "+txnid+" "+coldkey+";"+
 			"txnpost "+txnid+";"+
 			"txndelete "+txnid+";";

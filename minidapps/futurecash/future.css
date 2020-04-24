@@ -1,7 +1,6 @@
 .mainbody{
-	background-size:100%;
 	background-image: url(backdrop.jpg);
-	background-size:100% 100%;
+	background-size:cover;
 }
 
 .maindiv {
