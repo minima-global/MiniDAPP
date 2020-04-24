@@ -6,6 +6,7 @@
 	<script type="text/javascript" src="http://127.0.0.1:21000/minima.js"></script>
 
 	<script type="text/javascript" src="./js/scriptide.js"></script>
+	<script type="text/javascript" src="./js/taboverride.js"></script>
 	
 	<!--  STYLE -->
 	<link rel="stylesheet" type="text/css" href="./css/scriptide.css">
@@ -31,6 +32,13 @@
 		
 		//Load cached if available..
 		loadScript();
+		
+		// get a reference to the textarea element
+		var textarea = document.getElementById('scriptarea');
+
+		// enable Tab Override for the textarea
+		tabOverride.set(textarea);
+		tabOverride.tabSize(4);
 	});
 	
 </script>
@@ -45,8 +53,8 @@
 <table border=0>
 
 <tr>
-	<td colspan=2><br><b>SCRIPT</b> - Lowercase, newlines, tabs, whitespace and comments using /* .. */ are supported. Will be fixed-removed automagically.<br>
-	<textarea style='resize: none;width: 950px;height: 360px;' id='scriptarea' spellcheck="false" ></textarea></td>
+	<td colspan=2><br><b>SCRIPT</b> - Lowercase, newlines, tabs and comments using /* .. */ are supported. Will be fixed in CLEAN SCRIPT.<br>
+	<textarea style='resize: vertical;width: 950px;height: 360px;' id='scriptarea' spellcheck="false" ></textarea></td>
 </tr>
 
 <tr>
@@ -144,11 +152,11 @@
 </tr>
 
 <tr>
-	<td colspan=2><br>RUN RESULT<br><div id='parse' style="height:200px" class="greybox"></div></td>
+	<td colspan=2><br>RUN RESULT<br><div id='parse' style="resize:vertical;height:200px" class="greybox"></div></td>
 </tr>
 
 <tr>
-	<td colspan=2><br>CLEAN SCRIPT<br><div id='clean' style="height:80px" class="greybox"></div></td>
+	<td colspan=2><br>CLEAN SCRIPT<br><div id='clean' style="resize:vertical;height:80px" class="greybox"></div></td>
 </tr>
 
 <tr>
