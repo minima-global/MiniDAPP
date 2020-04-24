@@ -160,47 +160,6 @@ function coinflipPollFunction(){
 	setTime();
 	
 	updateMyGames();
-	
-	updateAvailable();
-}
-
-function updateAvailable(){
-//	//Search for available games..
-//	Minima.cmd("search "+coinflipaddress, function(resp){
-//		var json = JSON.parse(resp);
-//		
-//		var avail = '<table style="width:100%;">';
-//		len = json.response.coins.length;
-//		for(i=0;i<len;i++){
-//			coin = json.response.coins[i];
-//			
-//			//Is this at ROUND 0
-//			round  = getStateVariable(coin.data.prevstate,0);
-//			
-//			//P1 details
-//			p1address = getStateVariable(coin.data.prevstate,1);
-//			p1keys    = getStateVariable(coin.data.prevstate,2);
-//			p1hash    = getStateVariable(coin.data.prevstate,3);
-//			
-//			amount = new Decimal(coin.data.coin.amount);
-//			coinid = coin.data.coin.coinid;
-//			depth  = Minima.block - coin.data.inblock;
-//			
-//			if(depth>3){
-//				if(!MYGAME_LIST.includes(coinid)){
-//					if(round == 0){
-//						//Its available!
-//						avail+='<tr><td class="availablebox" '
-//						+'onclick="acceptGame(\''+coinid+'\', \''+amount+'\' , \''+p1address+'\', \''+p1keys+'\', \''+p1hash+'\');">'+amount+'</td></tr>';
-//					}	
-//				}
-//			}
-//		}
-//		avail+="</table>"
-//		
-//		document.getElementById("availablegames").innerHTML = avail;	
-//	});
-	
 }
 
 function updateMyGames(){
@@ -392,9 +351,7 @@ function updateMyGames(){
 			}
 		}
 		avail+="</table>"
-		
 		document.getElementById("availablegames").innerHTML = avail;	
-		
 	});
 }
 
