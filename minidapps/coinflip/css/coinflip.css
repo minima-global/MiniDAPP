@@ -70,3 +70,12 @@
   font-family:monospace;
   outline: none;
 }
+
+.smalluserbutton{
+  background-color: #fdd;
+  border-radius: 5px;
+  font-size:16px;
+  font-weight:bold;
+  font-family:monospace;
+  outline: none;
+}

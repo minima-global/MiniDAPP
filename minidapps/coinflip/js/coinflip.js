@@ -9,6 +9,7 @@ var MYGAME_LIST      = [];
 var MYJOIN_LIST      = [];
 var MYGAME_KEYS      = [];
 var MYGAME_COINID    = [];
+var MYGAME_CANCELLED = [];
 
 function coinFlipInit(){
 	//Tell Minima about the smart contract so it knows how to spend it..
@@ -202,12 +203,17 @@ function updateMyGames(){
 			MYGAME_LIST.push(coinid); 
 			
 			if(round == 0  && !spent && rightaddress){
+				var p1keysr1 = getStateVariable(coin.data.prevstate,2);
+				
 				if(depth<=3){
 					mygames +='<tr class="bluebox"><td class="bluebox">'+amount+'</td> '
 					+'<td class="bluebox">0 / 3</td> <td class="bluebox">Waiting.. '+depth+' / 3 .. </td> </tr>';	
 				}else{
-					mygames +='<tr class="bluebox"><td class="bluebox">'+amount+'</td> '
-					+'<td class="bluebox">1 / 3</td> <td class="bluebox">Waiting 4 Player..</td> </tr>';
+					if(!MYGAME_CANCELLED.includes(coinid)){
+						mygames +='<tr class="bluebox"><td class="bluebox">'+amount+'</td> '
+						+'<td class="bluebox">Waiting 4 Player..</td> '
+						+'<td class="bluebox"><button class="smalluserbutton" id=\''+coinid+'\' onclick="collectItAll(\''+coinid+'\', 0, \''+amount+'\', \''+p1keysr1+'\');">Cancel</button></td> </tr>';	
+					}
 				}				
 			}else if(round == 1 && !spent && rightaddress){
 				mygames+='<tr class="bluebox"><td class="bluebox">'+amount+'</td><td class="bluebox">2 / 3</td>';
@@ -426,12 +432,9 @@ function acceptGame(acceptcoinid, acceptgameamount, acceptp1address, acceptp1key
 function collectItAll(coinid, round, amount, collectkeys){
 	//Player was too slow.. take ALL the funds..
 	Minima.cmd("check "+collectkeys, function(resp){
-		console.log(resp);
-		
 		var json = JSON.parse(resp);
 		//Are you the lucky player ?
 		if(json.response.relevant == true){
-			
 			if(!MYGAME_COINID.includes(coinid)){
 				//Add it.. will be removed if there is an issue
 				MYGAME_COINID.push(coinid);
@@ -448,11 +451,14 @@ function collectItAll(coinid, round, amount, collectkeys){
 				
 				//Construct the Final transaction..
 				var txnid5 = Math.floor(Math.random()*1000000000);
-					
+				
+				//The round..
+				var rr = new Decimal(round).add(1);
+				
 				//Construct Transaction..
 				var txncreator5 = 
 					"txncreate "+txnid5+";"+
-					"txnstate "+txnid5+" 0 "+(round+1)+";"+
+					"txnstate "+txnid5+" 0 "+rr+";"+
 					"txninput "+txnid5+" "+coinid+";"+
 					"txnoutput "+txnid5+" "+amount+" "+collectoraddr+" 0x00;"+
 					"txnsign "+txnid5+" "+collectkeys+";"+
@@ -462,7 +468,15 @@ function collectItAll(coinid, round, amount, collectkeys){
 				Minima.cmd(txncreator5, function(resp){
 					var json = JSON.parse(resp);
 					if(checkAllResponses(json)){
-						alert("ALL Funds Collected from slow player!\n\nYou win it all -> "+amount+" !!");
+						if(round==0){
+							//Remove from action..
+							document.getElementById(coinid).disabled = 'true';
+							MYGAME_CANCELLED.push(coinid);
+							
+							alert("ALL Funds Collected. Game Cancelled..");	
+						}else{
+							alert("ALL Funds Collected from slow player!\n\nYou win it all -> "+amount+" !!");	
+						}
 					}else{
 						removeCoinID(coinid);
 					}
