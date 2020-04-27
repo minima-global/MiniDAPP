@@ -6,6 +6,7 @@ var coinflipcontract = "LET round = STATE ( 0 ) LET prevround = PREVSTATE ( 0 ) 
 var coinflipaddress  = "0x13F484D30BC6776A1050C90FF9B87CDB8EA8FC0333E206B4D2E71D012505BA43";
 
 var MYGAME_LIST      = [];
+var MYJOIN_LIST      = [];
 var MYGAME_KEYS      = [];
 var MYGAME_COINID    = [];
 
@@ -39,26 +40,21 @@ function setBalance(){
 
 function letsplay(){
 	//Get the amount..
-	var amount = document.getElementById("newamount").value.trim();
+	var selectbox = document.getElementById("newamount");
+	var selamount = selectbox.options[selectbox.selectedIndex].value;
+	//var amount = document.getElementById("newamount").value.trim();
 	
-	if(amount == "" || amount == "0"){
+	if(selamount == "" || selamount == "0"){
 		alert("NO amount set..!");
 		return;
 	}
 	
-	var decamt = new Decimal(amount);
-	if(decamt.lt(0)){
-		//Clear the old..
-		document.getElementById("newamount").value = 0;
-		alert("Cannot play with NEGATIVE amount..");
-		return;
-	}
+	var decamt = new Decimal(selamount);
 	
 	//Final Confirm..
-	confirm("Are you sure you want to play for "+amount+" Minima ?");
-	
-	//Clear the old..
-	document.getElementById("newamount").value = 0;
+	if(!confirm("Are you sure you want to play for "+decamt+" Minima ?")){
+		return;
+	}
 	
 	//Lets Play..!
 	//You need a random number..
@@ -81,53 +77,64 @@ function letsplay(){
 			var json = JSON.parse(resp);
 			
 			//get the value from variables in JSON
-			var hash = json.response.variables.hash;
+			var hash1 = json.response.variables.hash;
 			
 			//MUST STORE THIS NOW.. as we'll need it later
-			storeHash(hash,rand);
+			storeHash(hash1,rand);
 			
 			//Now we can construct the transaction..
-			var txnid = Math.floor(Math.random()*1000000000);
+			var txnid1 = Math.floor(Math.random()*1000000000);
 			
 			//Construct Transaction..
-			var txncreator = 
-				"txncreate "+txnid+";"+
+			var txncreator1 = 
+				"txncreate "+txnid1+";"+
 				//STAGE 0
-				"txnstate "+txnid+" 0 0;"+
+				"txnstate "+txnid1+" 0 0;"+
 				//My details
-				"txnstate "+txnid+" 1 "+myaddress+";"+
-				"txnstate "+txnid+" 2 "+mykey+";"+
-				"txnstate "+txnid+" 3 "+hash+";"+
+				"txnstate "+txnid1+" 1 "+myaddress+";"+
+				"txnstate "+txnid1+" 2 "+mykey+";"+
+				"txnstate "+txnid1+" 3 "+hash1+";"+
 				
 				//Now set up the payment..
-				"txnauto "+txnid+" "+decamt+" "+coinflipaddress+";"+
+				"txnauto "+txnid1+" "+decamt+" "+coinflipaddress+";"+
 				
 				//And POST / DELETE
-				"txnpost "+txnid+";"+
-				"txndelete "+txnid+";";
+				"txnpost "+txnid1+";"+
+				"txndelete "+txnid1+";";
 			
-			Minima.cmd( txncreator , function(resp){
+			Minima.cmd( txncreator1 , function(resp){
 				var json = JSON.parse(resp);
-				
-				if(!checkAllResponses(json)){
-					console.log(resp);
-					alert("Something went wrong!  Check console..");
-					return;
+				if(checkAllResponses(json)){
+					alert("Game Request Posted..!");
 				}
-				
-				alert("Game Request Posted..!\n\nAwaiting Player..");
 		    });
 		});	
 	});
+}
+
+function removeCoinID(coinID){
+	index = MYGAME_COINID.indexOf(coinID);
+	if (index > -1) {
+		MYGAME_COINID.splice(index, 1);
+	}else{
+		alert("COIN NOT FOUND TO REMOVE!");
+	}
 }
 
 function checkAllResponses(responses){
 	len = responses.length;
 	for(i=0;i<len;i++){
 		if(responses[i].status != true){
+			//Output to console..
+			console.log("ERROR : \n"+JSON.stringify(responses[i]));
+			
+			//Alert!
+			alert("Something went wrong!  Check console..\n\n"+responses[i].message);
+			
 			return false;
 		}
 	}
+	
 	return true;
 }
 
@@ -172,145 +179,123 @@ function updateMyGames(){
 			+'<th width=30%>AMOUNT</th> <th width=30%>ROUND</th> <th width=30%>STAGE</th> </tr>';
 		
 		//Clear the list..
-		MYGAME_LIST = [];
+		MYGAME_LIST = [];	
 		
-		coinlist = alljson[1].response.coins;
-		len = coinlist.length;
+		var coinlist = alljson[1].response.coins;
+		var len = coinlist.length;
 		
 		//Sort by time..
 		coinlist.sort(compareCoin);
 		for(i=0;i<len;i++){
 			coin = coinlist[i];
 		
-			round   = getStateVariable(coin.data.prevstate,0);
-			amount  = new Decimal(coin.data.coin.amount);
-			coinid  = coin.data.coin.coinid;
-			depth   = Minima.block - coin.data.inblock;
-			spent   = coin.data.spent;
+			var round   = getStateVariable(coin.data.prevstate,0);
+			var amount  = new Decimal(coin.data.coin.amount);
+			var coinid  = coin.data.coin.coinid;
+			var depth   = Minima.block - coin.data.inblock;
+			var spent   = coin.data.spent;
 			
 			//Is theis the Coin Flip Address
-			rightaddress = ( coin.data.coin.address == coinflipaddress );
+			var rightaddress = ( coin.data.coin.address == coinflipaddress );
 			
+			//Add to my list 
 			MYGAME_LIST.push(coinid); 
 			
 			if(round == 0  && !spent && rightaddress){
-				mygames+='<tr class="bluebox"><td class="bluebox">'+amount+'</td> '
-				+'<td class="bluebox">'+round+'/3</td>';
-				
 				if(depth<=3){
-					mygames +=' <td class="bluebox">Waiting.. '+depth+' / 3 .. </td> </tr>';	
+					mygames +='<tr class="bluebox"><td class="bluebox">'+amount+'</td> '
+					+'<td class="bluebox">0 / 3</td> <td class="bluebox">Waiting.. '+depth+' / 3 .. </td> </tr>';	
 				}else{
-					mygames +=' <td class="bluebox">Waiting 4 Player.. </td> </tr>';
+					mygames +='<tr class="bluebox"><td class="bluebox">'+amount+'</td> '
+					+'<td class="bluebox">1 / 3</td> <td class="bluebox">Waiting 4 Player..</td> </tr>';
 				}				
 			}else if(round == 1 && !spent && rightaddress){
-				mygames+='<tr class="bluebox"><td class="bluebox">'+amount+'</td> '
-				+'<td class="bluebox">'+round+' / 3</td>';
+				mygames+='<tr class="bluebox"><td class="bluebox">'+amount+'</td><td class="bluebox">2 / 3</td>';
 				
 				//STATE details that need to be kept..
-				p1addr   = getStateVariable(coin.data.prevstate,1);
-				p1keys   = getStateVariable(coin.data.prevstate,2);
-				p1hash   = getStateVariable(coin.data.prevstate,3);
-				p2keys   = getStateVariable(coin.data.prevstate,4);
-				p2hash   = getStateVariable(coin.data.prevstate,5);
+				var p1addrr1   = getStateVariable(coin.data.prevstate,1);
+				var p1keysr1   = getStateVariable(coin.data.prevstate,2);
+				var p1hashr1   = getStateVariable(coin.data.prevstate,3);
+				var p2keysr1   = getStateVariable(coin.data.prevstate,4);
+				var p2hashr1   = getStateVariable(coin.data.prevstate,5);
 				
 				//Are we deep enuogh to play on..
-				if(depth>3){
-					mygames +=' <td class="bluebox">PLAYER 1 REVEAL ( '+depth+' )</td> </tr>';
+				if(depth>5){
+					mygames +=' <td class="bluebox">PLAYER 1 REVEAL</td> </tr>';
 					
-					//PLAY ON.. PLAYER 1 reveals his Random number..
-					Minima.cmd("check "+p1keys, function(resp){
-						var json = JSON.parse(resp);
-					
-						//Are you player 1 ?
-						if(json.response.relevant == true){
-							if(!MYGAME_COINID.includes(coinid)){
-								//Continue! - need to make sure not to KEEP calling this.. (it fails as a double spend but cleaber like this.. REFRESH if in trouble)
-								roundOne(coinid, amount, p1addr, p1keys, p1hash, p2keys, p2hash);
-							}	
-						}
-					});
+					//MUST be in a function as otherwise the ASYNC function screws up..
+					roundOneChecker(coinid, amount, p1addrr1, p1keysr1, p1hashr1, p2keysr1, p2hashr1);
 					
 					//Safety mechanism is P1 tries not to complete
 					if(depth>64){
 						//PLAYER 2 CAN JUST COLLECT EVERYTHING!
-						//..
+						collectItAll(coinid, 1, amount, p2keysr1);
 					}
 					
 				}else{
-					mygames +=' <td class="bluebox">'+depth+' / 3 .. </td> </tr>';	
+					mygames +=' <td class="bluebox">'+depth+' / 5 .. </td> </tr>';	
 				}
 				
 			}else if(round == 2 && !spent && rightaddress){
-				mygames+='<tr class="bluebox"><td class="bluebox">'+amount+'</td> '
-				+'<td class="bluebox">'+round+' / 3</td>';
+				mygames+='<tr class="bluebox"><td class="bluebox">'+amount+'</td><td class="bluebox">3 / 3</td>';
 				
-				p1addr   = getStateVariable(coin.data.prevstate,1);
-				p1keys   = getStateVariable(coin.data.prevstate,2);
-				p1hash   = getStateVariable(coin.data.prevstate,3);
-				
-				p2keys   = getStateVariable(coin.data.prevstate,4);
-				p2hash   = getStateVariable(coin.data.prevstate,5);
-				
-				p1preimage = getStateVariable(coin.data.prevstate,6);
+				var p1addrr2   = getStateVariable(coin.data.prevstate,1);
+				var p1keysr2   = getStateVariable(coin.data.prevstate,2);
+				var p1hashr2   = getStateVariable(coin.data.prevstate,3);
+				var p2keysr2   = getStateVariable(coin.data.prevstate,4);
+				var p2hashr2   = getStateVariable(coin.data.prevstate,5);
+				var p1preimage = getStateVariable(coin.data.prevstate,6);
 				
 				//Are we deep enuogh to play on..
-				if(depth>3){
-					mygames +=' <td class="bluebox">PLAYER 2 REVEAL ( '+depth+' )</td> </tr>';
+				if(depth>5){
+					mygames +=' <td class="bluebox">PLAYER 2 REVEAL</td> </tr>';
 					
-					//PLAY ON.. PLAYER 1 reveals his Random number..
-					Minima.cmd("check "+p2keys, function(resp){
-						var json = JSON.parse(resp);
-					
-						//Are you player 1 ?
-						if(json.response.relevant == true){
-							if(!MYGAME_COINID.includes(coinid)){
-								//Continue!
-								roundTwo(coinid, amount, p1addr, p1keys, p1hash, p2keys, p2hash, p1preimage);
-							}
-						}
-					});
+					roundTwoChecker(coinid, amount, p1addrr2, p1keysr2, p1hashr2, p2keysr2, p2hashr2, p1preimage);
 					
 					//Safety mechanism if P2 tries not to complete
 					if(depth>64){
 						//PLAYER 1 CAN JUST COLLECT EVERYTHING!
-						//..
+						collectItAll(coinid, 2, amount, p1keysr2);
 					}	
+					
 				}else{
-					mygames +=' <td class="bluebox">'+depth+' / 3 .. </td> </tr>';	
+					mygames +=' <td class="bluebox">'+depth+' / 5 .. </td> </tr>';	
 				}
 				
 			}else if(round == 3){
 				if(coin.data.prevstate.length>9){
 					//Check if the key is yours..
-					p1keys    = getStateVariable(coin.data.prevstate,2);
-					p2keys    = getStateVariable(coin.data.prevstate,4);
-					winner    = getStateVariable(coin.data.prevstate,8);
-					winamount = getStateVariable(coin.data.prevstate,9);
+					var p1keysr3    = getStateVariable(coin.data.prevstate,2);
+					var p2keysr3    = getStateVariable(coin.data.prevstate,4);
+					var winnerr3    = getStateVariable(coin.data.prevstate,8);
+					var winamountr3 = getStateVariable(coin.data.prevstate,9);
 					
 					//Only want to show ONE of these but there are always 2 - a winner and a loser..
-					result = "";
-					ok     = (amount == winamount);
-					if(MYGAME_KEYS.includes(p1keys)){
-						if(winner == 1){
+					var result    = "";
+					var ok        = (amount == winamountr3);
+					var relamount = amount.sub(new Decimal(amount).div(2).div(0.95));;
+					
+					if(MYGAME_KEYS.includes(p1keysr3)){
+						if(winnerr3 == 1){
 							result = "WIN";
 						}else{
 							result = "LOSE";
 						}
 						
 						if(ok){
-							mygames+='<tr class="bluebox"><td class="bluebox">'+amount+'</td> '
+							mygames+='<tr class="bluebox"><td class="bluebox">'+relamount+'</td> '
 							+'<td class="bluebox">GAME OVER</td><td class="bluebox">'+result+'</td> </tr>';		
 						}
 						
-					}else if(MYGAME_KEYS.includes(p2keys)){
-						if(winner == 1){
+					}else if(MYGAME_KEYS.includes(p2keysr3)){
+						if(winnerr3 == 1){
 							result = "LOSE";
 						}else{
 							result = "WIN";
 						}
 						
 						if(ok){
-							mygames+='<tr class="bluebox"><td class="bluebox">'+amount+'</td> '
+							mygames+='<tr class="bluebox"><td class="bluebox">'+relamount+'</td> '
 							+'<td class="bluebox">GAME OVER</td><td class="bluebox">'+result+'</td> </tr>';		
 						}		
 					} 
@@ -326,26 +311,26 @@ function updateMyGames(){
 		var avail = '<table style="width:100%;">';
 		len = json.response.coins.length;
 		for(i=0;i<len;i++){
-			coin = json.response.coins[i];
+			var coin = json.response.coins[i];
 			
 			//Is this at ROUND 0
-			round  = getStateVariable(coin.data.prevstate,0);
+			var round  = getStateVariable(coin.data.prevstate,0);
 			
 			//P1 details
-			p1address = getStateVariable(coin.data.prevstate,1);
-			p1keys    = getStateVariable(coin.data.prevstate,2);
-			p1hash    = getStateVariable(coin.data.prevstate,3);
+			var p1addressag = getStateVariable(coin.data.prevstate,1);
+			var p1keysag    = getStateVariable(coin.data.prevstate,2);
+			var p1hashag    = getStateVariable(coin.data.prevstate,3);
 			
-			amount = new Decimal(coin.data.coin.amount);
-			coinid = coin.data.coin.coinid;
-			depth  = Minima.block - coin.data.inblock;
+			var amount = new Decimal(coin.data.coin.amount);
+			var coinid = coin.data.coin.coinid;
+			var depth  = Minima.block - coin.data.inblock;
 			
 			if(depth>3){
-				if(!MYGAME_LIST.includes(coinid)){
+				if(!MYGAME_LIST.includes(coinid) && !MYJOIN_LIST.includes(coinid)){
 					if(round == 0){
 						//Its available!
 						avail+='<tr><td class="availablebox" '
-						+'onclick="acceptGame(\''+coinid+'\', \''+amount+'\' , \''+p1address+'\', \''+p1keys+'\', \''+p1hash+'\');">'+amount+'</td></tr>';
+						+'onclick="acceptGame(\''+coinid+'\', \''+amount+'\' , \''+p1addressag+'\', \''+p1keysag+'\', \''+p1hashag+'\');">'+amount+'</td></tr>';
 					}	
 				}
 			}
@@ -355,17 +340,17 @@ function updateMyGames(){
 	});
 }
 
-function acceptGame(coinid, gameamount, p1address, p1keys, p1hash){
-	if(!confirm("Confirm accept game for "+gameamount+" Minima ?")){
+function acceptGame(acceptcoinid, acceptgameamount, acceptp1address, acceptp1keys, acceptp1hash){
+	if(!confirm("Confirm accept game for "+acceptgameamount+" Minima ?")){
 		return;
 	}
-
+	
 	//First get all the details..
 	Minima.cmd("random;keys new", function(resp){
 		var json = JSON.parse(resp);
 		
 		//Now you have that coin + details..
-		amtx2      = new Decimal(gameamount).mul(2);
+		var amtx2  = new Decimal(acceptgameamount).mul(2);
 		var rand   = json[0].response.random;
 		var p2keys = json[1].response.key.publickey;
 		
@@ -385,192 +370,270 @@ function acceptGame(coinid, gameamount, p1address, p1keys, p1hash){
 			storeHash(hash,rand);
 			
 			//Now we can construct the transaction..
-			var txnid = Math.floor(Math.random()*1000000000);
+			var txnid2 = Math.floor(Math.random()*1000000000);
 				
 			//Construct Transaction..
-			var txncreator = 
-				"txncreate "+txnid+";"+
+			var txncreator2 = 
+				"txncreate "+txnid2+";"+
 				
 				//STAGE 1
-				"txnstate "+txnid+" 0 1;"+
+				"txnstate "+txnid2+" 0 1;"+
 				
 				//Copy the previous details..
-				"txnstate "+txnid+" 1 "+p1address+";"+
-				"txnstate "+txnid+" 2 "+p1keys+";"+
-				"txnstate "+txnid+" 3 "+p1hash+";"+
+				"txnstate "+txnid2+" 1 "+acceptp1address+";"+
+				"txnstate "+txnid2+" 2 "+acceptp1keys+";"+
+				"txnstate "+txnid2+" 3 "+acceptp1hash+";"+
 				
 				//Add your details..
-				"txnstate "+txnid+" 4 "+p2keys+";"+
-				"txnstate "+txnid+" 5 "+hash+";"+
+				"txnstate "+txnid2+" 4 "+p2keys+";"+
+				"txnstate "+txnid2+" 5 "+hash+";"+
 				
 				//Now create.. but not for right amount..
-				"txnauto "+txnid+" "+gameamount+" "+coinflipaddress+" 0x00;"+
+				"txnauto "+txnid2+" "+acceptgameamount+" "+coinflipaddress+" 0x00;"+
 				//Now add the game output at pos 0
-				"txninput "+txnid+" "+coinid+" 0;"+
+				"txninput "+txnid2+" "+acceptcoinid+" 0;"+
 				//Now remove the old output
-				"txnremoutput "+txnid+" 0;"+
+				"txnremoutput "+txnid2+" 0;"+
 				//And ADD a double amount.. at pos 0
-				"txnoutput "+txnid+" "+amtx2+" "+coinflipaddress+" 0x00 0;"+
+				"txnoutput "+txnid2+" "+amtx2+" "+coinflipaddress+" 0x00 0;"+
 				
 				//NOW SIGN
-				"txnsignauto "+txnid+";"+
+				"txnsignauto "+txnid2+";"+
 				//NOW POST!	
-				"txnpost "+txnid+";"+
+				"txnpost "+txnid2+";"+
 				//And cleanup..
-				"txndelete "+txnid+";";
+				"txndelete "+txnid2+";";
 				
 				//PHEW.!! ;-p
-			Minima.cmd(txncreator, function(resp){
+			
+			Minima.cmd(txncreator2, function(resp){
 				var json = JSON.parse(resp);
-				if(!checkAllResponses(json)){
-					console.log(resp);
-					alert("Something went wrong!\n\nCheck logs..");	
-				}else{
-					alert("GAME ON!");	
+				if(checkAllResponses(json)){
+					alert("GAME ON!");
+					
+					//It's one of your games now..
+					MYJOIN_LIST.push(acceptcoinid);
+					
+					//Update..
+					updateMyGames();
 				}
 			});
 		});
 	});
 }
 
-function roundOne(coinid, gameamount, p1address, p1keys, p1hash, p2keys, p2hash ){
-	console.log("ROUND 1!");
+
+function collectItAll(coinid, round, amount, collectkeys){
+	//Player was too slow.. take ALL the funds..
+	Minima.cmd("check "+collectkeys, function(resp){
+		console.log(resp);
+		
+		var json = JSON.parse(resp);
+		//Are you the lucky player ?
+		if(json.response.relevant == true){
+			
+			if(!MYGAME_COINID.includes(coinid)){
+				//Add it.. will be removed if there is an issue
+				MYGAME_COINID.push(coinid);
+			}else{
+				//NO more..
+				return;
+			}
+				
+			//Create an address and take the money..
+			Minima.cmd("newaddress", function(resp){
+				var addrjson = JSON.parse(resp);
+			
+				var collectoraddr = addrjson.response.address.hexaddress;
+				
+				//Construct the Final transaction..
+				var txnid5 = Math.floor(Math.random()*1000000000);
+					
+				//Construct Transaction..
+				var txncreator5 = 
+					"txncreate "+txnid5+";"+
+					"txnstate "+txnid5+" 0 "+(round+1)+";"+
+					"txninput "+txnid5+" "+coinid+";"+
+					"txnoutput "+txnid5+" "+amount+" "+collectoraddr+" 0x00;"+
+					"txnsign "+txnid5+" "+collectkeys+";"+
+					"txnpost "+txnid5+";"+
+					"txndelete "+txnid5+";";
+				
+				Minima.cmd(txncreator5, function(resp){
+					var json = JSON.parse(resp);
+					if(checkAllResponses(json)){
+						alert("ALL Funds Collected from slow player!\n\nYou win it all -> "+amount+" !!");
+					}else{
+						removeCoinID(coinid);
+					}
+				});
+			
+			});
+		}
+		
+	});
+		
+}
+
+
+function roundOneChecker(zChecker_coinid, zChecker_gameamount, zChecker_p1address, 
+						zChecker_p1keys, zChecker_p1hash, zChecker_p2keys, zChecker_p2hash ){
+	
+	//Do the ASYNC function in a function.. so variables can't change..
+	Minima.cmd("check "+zChecker_p1keys, function(resp){
+		var json = JSON.parse(resp);
+		//Are you player 1 ?
+		if(json.response.relevant == true){
+			if(!MYGAME_COINID.includes(zChecker_coinid)){
+				//Add it.. will be removed if there is an issue
+				MYGAME_COINID.push(zChecker_coinid);
+				
+				roundOne(zChecker_coinid, zChecker_gameamount, zChecker_p1address, 
+						zChecker_p1keys, zChecker_p1hash, zChecker_p2keys, zChecker_p2hash );
+			}	
+		}
+	});
+}
+
+function roundOne(r1coinid, r1gameamount, r1p1address, p1keys, p1hash, p2keysprev, p2hash ){
 	
 	//Get the preimage..
 	var preimage = loadPreHash(p1hash);
 	
 	//Now we can construct the transaction..
-	var txnid = Math.floor(Math.random()*1000000000);
+	var txnid3 = Math.floor(Math.random()*1000000000);
 		
 	//Construct Transaction..
-	var txncreator = 
-		"txncreate "+txnid+";"+
+	var txncreator3 = 
+		"txncreate "+txnid3+";"+
 		
 		//STAGE 2
-		"txnstate "+txnid+" 0 2;"+
+		"txnstate "+txnid3+" 0 2;"+
 		
 		//Copy the previous details..
-		"txnstate "+txnid+" 1 "+p1address+";"+
-		"txnstate "+txnid+" 2 "+p1keys+";"+
-		"txnstate "+txnid+" 3 "+p1hash+";"+
-		"txnstate "+txnid+" 4 "+p2keys+";"+
-		"txnstate "+txnid+" 5 "+p2hash+";"+
-		"txnstate "+txnid+" 6 "+preimage+";"+
+		"txnstate "+txnid3+" 1 "+r1p1address+";"+
+		"txnstate "+txnid3+" 2 "+p1keys+";"+
+		"txnstate "+txnid3+" 3 "+p1hash+";"+
+		"txnstate "+txnid3+" 4 "+p2keysprev+";"+
+		"txnstate "+txnid3+" 5 "+p2hash+";"+
+		"txnstate "+txnid3+" 6 "+preimage+";"+
 		
 		//Now add the game as input
-		"txninput "+txnid+" "+coinid+";"+
+		"txninput "+txnid3+" "+r1coinid+";"+
 		//And the same amount/address as an output
-		"txnoutput "+txnid+" "+gameamount+" "+coinflipaddress+" 0x00;"+
+		"txnoutput "+txnid3+" "+r1gameamount+" "+coinflipaddress+" 0x00;"+
 		
 		//NOW POST!	
-		"txnpost "+txnid+";"+
+		"txnpost "+txnid3+";"+
 		//And cleanup..
-		"txndelete "+txnid+";";
-		
-	Minima.cmd(txncreator, function(resp){
-		var json = JSON.parse(resp);
-		if(!checkAllResponses(json)){
-			console.log(resp);
-			alert("Something went wrong! Check console.. :(");	
-		}else{
-			//Don't do this move again..
-			MYGAME_COINID.push(coinid);
-			console.log("ROUND 1 PLAYED OK");
-		}
-	});	
+		"txndelete "+txnid3+";";
 	
+	//Create the TXN.. 
+	CreateRoundTxn(txncreator3, r1coinid, 1);	
 }
 
-function roundTwo(coinid, gameamount, p1address, p1keys, p1hash, p2keys, p2hash, preimage ){
-	console.log("ROUND 2!");
+function CreateRoundTxn(ztxncreator, zcoinid, zRound){
+	Minima.cmd(ztxncreator, function(resp){
+		var json = JSON.parse(resp);
+		if(!checkAllResponses(json)){
+			//Reset - will need to try again..
+			removeCoinID(zcoinid);
+		}else{
+			//Don't do this move again..
+			console.log("ROUND "+zRound+" PLAYED OK");
+		}
+	});
+}
+
+function roundTwoChecker(zChecker2_coinid, zChecker2_gameamount, zChecker2_p1address, zChecker2_p1keys, zChecker2_p1hash, 
+						 zChecker2_p2keys, zChecker2_p2hash, zChecker2_preimage ){
+	Minima.cmd("check "+zChecker2_p2keys, function(resp){
+		var json = JSON.parse(resp);
 	
-	//Get the preimage..
-	var preimage2 = loadPreHash(p2hash);
-	
+		//Are you player 1 ?
+		if(json.response.relevant == true){
+			if(!MYGAME_COINID.includes(zChecker2_coinid)){
+				//Add it.. will be removed if there is an issue
+				MYGAME_COINID.push(zChecker2_coinid);
+				
+				//Continue!
+				roundTwo(zChecker2_coinid, zChecker2_gameamount, zChecker2_p1address, zChecker2_p1keys, zChecker2_p1hash, 
+									 zChecker2_p2keys, zChecker2_p2hash, zChecker2_preimage);
+			}
+		}
+	});
+}
+
+function roundTwo(r2coinid, r2gameamount, r2p1address, p1keys, p1hash, p2keysprev2, p2hash, preimage ){
 	//WHO HAS WON the game..
-	var script = "runscript \"LET paywinner = "+gameamount+" * 0.95 LET payloser =  "+gameamount+" - paywinner "
-	+"LET preimageone = "+preimage+" LET preimagetwo = "+preimage2+" "
+	var script = "runscript \"LET paywinner = "+r2gameamount+" * 0.95 LET payloser =  "+r2gameamount+" - paywinner "
+	+"LET preimageone = "+preimage+" LET preimagetwo = "+loadPreHash(p2hash)+" "
 	+"LET rand = SHA3 ( 512 HEXCAT ( preimageone preimagetwo ) ) "
 	+"LET val = NUMBER ( SUBSET ( 0 1 rand ) ) IF ( val LT 128 ) THEN LET winner = 1 ELSE LET winner = 2 ENDIF\"";
 	
-	console.log("SCRIPT : "+script);
-	
 	//Run it and see who WON!
 	Minima.cmd(script+";newaddress", function(resp){
-		console.log(resp);
 		var json = JSON.parse(resp);
 		
 		//who wins!
 		var winner    = json[0].response.variables.winner;
 		var paywinner = json[0].response.variables.paywinner;
 		var payloser  = json[0].response.variables.payloser;
+		var preimg2   = json[0].response.variables.preimagetwo;
 		
 		var p2address = json[1].response.address.hexaddress;
 		
-		console.log("WINNER IS : "+winner);
-		console.log("PAYWINNER : "+paywinner);
-		console.log("PAYLOSER  : "+payloser);
-		
 		//Construct the Final transaction..
-		var txnid = Math.floor(Math.random()*1000000000);
+		var txnid4 = Math.floor(Math.random()*1000000000);
 			
 		//Construct Transaction..
-		var txncreator = 
-			"txncreate "+txnid+";"+
+		var txncreator4 = 
+			"txncreate "+txnid4+";"+
 			
 			//STAGE 2
-			"txnstate "+txnid+" 0 3;"+
+			"txnstate "+txnid4+" 0 3;"+
 			
 			//Copy the previous details..
-			"txnstate "+txnid+" 1 "+p1address+";"+
-			"txnstate "+txnid+" 2 "+p1keys+";"+
-			"txnstate "+txnid+" 3 "+p1hash+";"+
-			"txnstate "+txnid+" 4 "+p2keys+";"+
-			"txnstate "+txnid+" 5 "+p2hash+";"+
-			"txnstate "+txnid+" 6 "+preimage+";"+
+			"txnstate "+txnid4+" 1 "+r2p1address+";"+
+			"txnstate "+txnid4+" 2 "+p1keys+";"+
+			"txnstate "+txnid4+" 3 "+p1hash+";"+
+			"txnstate "+txnid4+" 4 "+p2keysprev2+";"+
+			"txnstate "+txnid4+" 5 "+p2hash+";"+
+			"txnstate "+txnid4+" 6 "+preimage+";"+
 			
 			//Add your preimage..
-			"txnstate "+txnid+" 7 "+preimage2+";"+
+			"txnstate "+txnid4+" 7 "+preimg2+";"+
 			
 			//Add the WINNER.. (this is checked but putting it here helps for later when checking
-			"txnstate "+txnid+" 8 "+winner+";"+
+			"txnstate "+txnid4+" 8 "+winner+";"+
 			
 			//Add the WIN AMOUNT.. (this is checked but putting it here helps for later when checking
-			"txnstate "+txnid+" 9 "+paywinner+";"+
+			"txnstate "+txnid4+" 9 "+paywinner+";"+
 			
 			//Now add the game as input
-			"txninput "+txnid+" "+coinid+";";
+			"txninput "+txnid4+" "+r2coinid+";";
 			
 		//ORDER of txnoutputs MATTER!
 		if( winner == "1" ){
 			//Player 1 WINS!
-			txncreator += "txnoutput "+txnid+" "+paywinner+" "+p1address+" 0x00;"+
-						  "txnoutput "+txnid+" "+payloser+" "+p2address+" 0x00;";
+			txncreator4 += "txnoutput "+txnid4+" "+paywinner+" "+r2p1address+" 0x00;"+
+						  "txnoutput "+txnid4+" "+payloser+" "+p2address+" 0x00;";
 		}else{
 			//Player 2 Wins!
-			txncreator += "txnoutput "+txnid+" "+payloser+" "+p1address+" 0x00;"+
-						  "txnoutput "+txnid+" "+paywinner+" "+p2address+" 0x00;";  
+			txncreator4 += "txnoutput "+txnid4+" "+payloser+" "+r2p1address+" 0x00;"+
+						  "txnoutput "+txnid4+" "+paywinner+" "+p2address+" 0x00;";  
 		}
 		
 		//And finally.. SIGN IT!
-		txncreator += "txnsign "+txnid+" "+p2keys+";";
+		txncreator4 += "txnsign "+txnid4+" "+p2keysprev2+";";
 		
 		//NOW POST!	
-		txncreator +=   "txnpost "+txnid+";"+
+		txncreator4 +=   "txnpost "+txnid4+";"+
 						//And cleanup..
-						"txndelete "+txnid+";";
+						"txndelete "+txnid4+";";
 		
-		Minima.cmd(txncreator, function(resp){
-			var json = JSON.parse(resp);
-			if(!checkAllResponses(json)){
-				console.log(resp);
-				alert("Something went wrong! Check console.. :(");	
-			}else{
-				//Don't do this move again..
-				MYGAME_COINID.push(coinid);
-				console.log("ROUND 2 PLAYED OK");
-			}
-		});	
+		//Create the TXN.. 
+		CreateRoundTxn(txncreator4, r2coinid, 2);	
 	});
 }
 
