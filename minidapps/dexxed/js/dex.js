@@ -461,7 +461,7 @@ function tokenSelectChange(){
 	
 	//Update the View..
 	UpdateOrderBook();
-	UpdateAllTrades();
+//	UpdateAllTrades();
 }
 
 function checkAllResponses(responses){
@@ -644,13 +644,13 @@ function UpdateAllTrades(){
 				var selltxt = "<tr class='infoboxred'> <td>SELL</td> <td>"+tokenname+"</td> <td>"+amount+"</td> <td>"+price+"</td> <td>"+total+"</td> <td>"+time+"</td>";
 				var buytxt  = "<tr class='infoboxgreen'> <td>BUY</td> <td>"+tokenname+"</td> <td>"+amount+"</td> <td>"+price+"</td> <td>"+total+"</td> <td>"+time+"</td>";
 				
-				if(tokenid == currentToken.tokenid){
+//				if(tokenid == currentToken.tokenid){
 					if(buysell){
 						cashtable+=selltxt;	
 					}else{
 						cashtable+=buytxt;
 					}
-				}
+//				}
 				
 				//Is this a BUY or a SELL for you.. can tell from the values..
 				if(txpitem.relevant){
