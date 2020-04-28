@@ -1,0 +1,79 @@
+<html>
+
+<head>
+	
+	<!--   The MINIMA MiFi Javascript Library -->
+	<script type="text/javascript" src="http://127.0.0.1:21000/minima.js"></script>
+		
+</head>
+
+<body>
+
+<script type="text/javascript">
+
+	//Update the info..
+	function updateInfo(info){
+		document.getElementById("infodiv").innerHTML = 
+			"Host : "+Minima.host+"<br><br>"+
+			"Block : "+Minima.block+"<br><br>"+
+			"TxPoWID : <a href='#' onclick='updateTxPow(Minima.txpowid); return false;'>"+Minima.txpowid+"</a><br><br>";	
+	}
+
+	//When you click on a txpowid.. get it and print info..
+	function updateTxPow(txpowid){
+		Minima.cmd("txpowinfo "+txpowid,function(resp){
+			document.getElementById("txpowinfo").value = resp;
+		});
+	}
+	
+	//Wait for the page to load..
+	window.addEventListener("load", function(){
+	    
+		//Listen for Minima Events
+		window.addEventListener('MinimaEvent', function(evt) {
+			
+			//Deal with each message type
+	 		if(evt.detail.event == "connected"){
+	 			
+	 			//Print some data
+	 			updateInfo();
+	 			
+	 			//And set the initial 
+	 			updateTxPow(Minima.txpowid);
+	 			
+	 		}else if(evt.detail.event == "newblock"){
+	 			
+	 			//Print some data
+	 			updateInfo();
+	 		
+	 		}else if(evt.detail.event == "newbalance"){
+		 		
+	 		}
+			
+	    });
+		
+		//Initialise MiFi
+		Minima.init();
+	});
+	
+</script>
+
+<center>
+<br>
+<h3>Super Simple MiFi Block Explorer</h3>
+<br>
+<br>
+
+<div id="infodiv">no info yet..</div> 
+<br>
+<br>
+TxPow Info :
+<br>
+<textarea spellcheck="false" rows="35" cols="100" style="border:none;" id="txpowinfo"></textarea>
+
+<br><br><a href='index.html'>HOME</a>
+</center>
+
+</body>
+
+</html>
