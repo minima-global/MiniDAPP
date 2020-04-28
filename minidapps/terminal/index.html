@@ -9,6 +9,9 @@
 
 <script type="text/javascript">
 
+	var HISTORY = [];
+    var histcounter=0; 
+
 	//Add text to the TextArea
 	function addText(text){
 		//Get the TextArea
@@ -22,16 +25,45 @@
 		txt.scrollTop = txt.scrollHeight;
 	}
 	
+	function deleteLastLine(){
+		var txt      = document.getElementById("terminal");
+		var content  = txt.value;
+	    var prelastLine = content.substr(0, content.lastIndexOf("\n")+1);
+	    txt.value = prelastLine;
+	}
+	
 	//Disable all arrow keys..  
 	window.addEventListener("keydown", function(e) { 
         //LEFT RIGHT
 		if([37, 39].indexOf(e.keyCode) > -1){ 
-	        
-			
+	      
 		//UP DOWN	
 		}else if([38, 40].indexOf(e.keyCode) > -1){ 
-            e.preventDefault(); 
+            //Last line
+        	deleteLastLine();
+        	
+			//use the History.. UP
+            if(e.keyCode == 38){
+	            histcounter--;
+	            if(histcounter<0){
+	            	histcounter = 0;
+	            }
+	            
+            	//UP
+            	addText(HISTORY[histcounter]);
+            }else{
+            	histcounter++;
+	            if(histcounter>=HISTORY.length-1){
+	            	histcounter = HISTORY.length-1;
+	            }
+	            
+            	//UP
+            	addText(HISTORY[histcounter]);
+            }
 
+			//And prevent normal behaviour
+			e.preventDefault(); 
+            
         //ENTER    
 		}else if([13].indexOf(e.keyCode) > -1){ 
             //Grab the Last Line..
@@ -41,6 +73,12 @@
 			
 		    //Run it on Minima
 		    if(lastLine !== ""){
+		    	//Add to the History
+		    	if(lastLine != HISTORY[HISTORY.length-1]){
+		    		HISTORY.push(lastLine);	
+		    	}
+		    	histcounter = HISTORY.length;
+		    	
 		    	Minima.cmd("prettyjson/"+lastLine,function(resp){
 			    	//Replace \\n with \n..
 			    	var linebreaker = resp.replace(/\\n/g,"\n");
@@ -81,10 +119,10 @@
 		Minima.init();
 		
 		//Hide the exit button
-		document.getElementById('exitbutton').style.display="none";
+		//document.getElementById('exitbutton').style.display="none";
 	});
 	
-	function fullscreen(){
+	/*function fullscreen(){
 		document.getElementById('exitbutton').style.display="block";
 		document.getElementById('terminaltop').style.display="none";
 		document.getElementById('terminal').style.width="100%";
@@ -96,7 +134,7 @@
 		document.getElementById('terminaltop').style.display="block";
 		document.getElementById('terminal').style.width="800";
 		document.getElementById('terminal').style.height="500";
-	}
+	}*/
 	
 </script>
 <center>
