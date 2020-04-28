@@ -1,4 +1,4 @@
-.scrollablediv {overflow-y:scroll;height:100%;}
+.scrollablediv {overflow-y:auto;height:100%;}
 
 .infobox {text-align:center;vertical-align:top;background-color: #ffd;border-radius: 10px;opacity:0.9;}
 
