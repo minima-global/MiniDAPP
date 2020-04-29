@@ -2,7 +2,7 @@
 
 <head>
 	<!--   The MINIMA MiFi Javascript Library -->
-	<script type="text/javascript" src="http://127.0.0.1:21000/minima.js"></script>
+	<script type="text/javascript" src="minima.js"></script>
 </head>
 
 <body>
@@ -79,9 +79,14 @@
 		    	}
 		    	histcounter = HISTORY.length;
 		    	
-		    	Minima.cmd("prettyjson/"+lastLine,function(resp){
-			    	//Replace \\n with \n..
-			    	var linebreaker = resp.replace(/\\n/g,"\n");
+		    	Minima.cmd(lastLine,function(resp){
+			    	//Get the JSON..
+			    	var respstring = JSON.stringify(resp, null, 2);
+		    		
+			    	//Convert line breakers..
+			    	var linebreaker = respstring.replace(/\\n/g,"\n");
+			    	
+			    	//And add..
 			    	addText(linebreaker+"\n");
 			    });	
 		    }else{
@@ -117,37 +122,13 @@
 		
 		//Initialise MiFi
 		Minima.init();
-		
-		//Hide the exit button
-		//document.getElementById('exitbutton').style.display="none";
 	});
 	
-	/*function fullscreen(){
-		document.getElementById('exitbutton').style.display="block";
-		document.getElementById('terminaltop').style.display="none";
-		document.getElementById('terminal').style.width="100%";
-		document.getElementById('terminal').style.height="99%";
-	}
-	
-	function exitfullscreen(){
-		document.getElementById('exitbutton').style.display="none";
-		document.getElementById('terminaltop').style.display="block";
-		document.getElementById('terminal').style.width="800";
-		document.getElementById('terminal').style.height="500";
-	}*/
-	
 </script>
-<center>
-<!--   <div id='terminaltop'>
-<br><h3>Terminal</h3>
-You can resize by dragging the corner.. or.. <button onclick='fullscreen();'>FULL SCREEN</button> <br>
-<br>
-</div>-->
-<textarea spellcheck="false" style="width:100%;height:99%;background-color:#000000;color:#FFFFFF;" id="terminal"></textarea>
 
-<!-- 
-<div id="exitbutton" style="position:absolute;right:40;top:20;"><button onclick='exitfullscreen();'>EXIT</button></div>
--->
+<center>
+
+<textarea spellcheck="false" style="width:100%;height:99%;background-color:#000000;color:#FFFFFF;" id="terminal"></textarea>
 
 </center>
 
