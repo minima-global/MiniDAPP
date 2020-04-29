@@ -83,7 +83,7 @@
 			
 				//Post it..
 				Minima.cmd( txncreator , function(resp){
-					if(Minima.util.checkAllResponses){
+					if(Minima.util.checkAllResponses(resp)){
 						alert("FUNDS SENT!");	
 					}else{
 						alert("Something went wrong.. check logs..");
@@ -95,7 +95,7 @@
 		function cashFunction(){
 			Minima.cmd("coins "+timeaddress , function(json){
 				var cashtable="<table width=100% border=0>"+
-				"<tr><th width=33%>AMOUNT</th> <th width=34%>TIME</th> <th width=33%>COLLECT</th></tr>";
+				"<tr><th width=33% class=futureheader>AMOUNT</th> <th class=futureheader width=34%>TIME</th> <th class=futureheader width=33%>COLLECT</th></tr>";
 				
 				//get any of these coins that have the time address
 				var coinlen = json.response.coins.length;
@@ -157,7 +157,11 @@
 				
 				//Post it..
 				Minima.cmd( txncreator , function(resp){
-				    alert("FUNDS COLLECTED! CHECK BALANCE!");
+					if(Minima.util.checkAllResponses(resp)){
+						alert("FUNDS COLLECTED!\n\nCHECK BALANCE!");
+					}else{
+						alert("Something went wrong..\n\nCheck logs..");
+					}
 			    });	
 			});
 		}
@@ -227,9 +231,9 @@
 				
 				<br><br>
 				<br>
-				<div id="myaddress" style="font-size:14;font-weight:bold;"> Your Key.. </div>
+				<div id="myaddress" style="font-size:16;font-weight:bold;"> Your Key.. </div>
 				<br>
-				<button class="userbutton" onclick="newKey();">GENERATE KEY</button>
+				<button class="userbutton" onclick="newKey();">&nbsp;GENERATE KEY&nbsp;</button>
 				<br><br>
 				Only use the key ONCE!
 			</div>
@@ -253,7 +257,7 @@
 					</tr>
 					
 					<tr>
-						<td colspan=2 align=center><br> <button class="userbutton" onclick='sendFunds();return false;'>SEND FUNDS</button> </td>
+						<td colspan=2 align=center><br> <button class="userbutton" onclick='sendFunds();return false;'>&nbsp;SEND FUNDS&nbsp;</button> </td>
 					</tr>
 					
 				</table>

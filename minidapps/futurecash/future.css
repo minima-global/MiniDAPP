@@ -41,7 +41,7 @@
 .tablebody{
 	width:100%;
 	height:100%;
-	font-size:18px; 
+	font-size:20px; 
 	text-align:center;
 	vertical-align:top;
 }
@@ -61,7 +61,18 @@
 }
 
 .futurecash{
-  background-color: #dfd;
+  background-color: #eef;
+  border-radius: 10px;
+  font-size:20px;
+  height:40;
+  font-weight:bold;
+  font-family:monospace;
+  text-align:center;
+  outline: none;
+}
+
+.futureheader{
+  background-color: #ccf;
   border-radius: 10px;
   font-size:20px;
   height:40;

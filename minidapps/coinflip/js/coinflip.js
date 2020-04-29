@@ -97,6 +97,8 @@ function letsplay(){
 			Minima.cmd(txncreator1 , function(txnresp){
 				if(Minima.util.checkAllResponses(txnresp)){
 					alert("Game Request Posted..!");
+				}else{
+					alert("Somethng went wrong.. Funds ?\n\nCheck logs..");
 				}
 		    });
 		});	
@@ -348,6 +350,8 @@ function acceptGame(acceptcoinid, acceptgameamount, acceptp1address, acceptp1key
 					
 					//Update..
 					updateMyGames();
+				}else{
+					alert("Somethng went wrong.. Funds ?\n\nCheck logs..");
 				}
 			});
 		});
