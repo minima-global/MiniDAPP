@@ -28,9 +28,7 @@ function runScript(){
 	var globals    = "globals:"+getGlobals();
 	
 	if(script == ''){return;}
-	Minima.cmd("runscript \""+script+"\" \""+outputs+"\" \""+globals+"\" \""+state+"\" \""+prevstate+"\" \""+sigs+"\" \""+scripts+"\" ",function(resp){
-		console.log(resp);
-		var json = JSON.parse(resp);
+	Minima.cmd("runscript \""+script+"\" \""+outputs+"\" \""+globals+"\" \""+state+"\" \""+prevstate+"\" \""+sigs+"\" \""+scripts+"\" ",function(json){
 		var brkscr = json.response.parse.replace(/\n/g,"<br>");
 		
 		var res = "---------------------------------<br>";

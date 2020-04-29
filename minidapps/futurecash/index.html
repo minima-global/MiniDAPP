@@ -2,7 +2,7 @@
 
 <head>
 	<!--   The MINIMA MiFi Javascript Library -->
-	<script type="text/javascript" src="http://127.0.0.1:21000/minima.js"></script>
+	<script type="text/javascript" src="minima.js"></script>
 	
 	<!--  STYLE -->
 	<link rel="stylesheet" type="text/css" href="future.css">
@@ -23,22 +23,12 @@
 		}
 		
 		function setBalance(){
-			//Set the Balance..
-			var bal     = Minima.balance.balance[0].confirmed;
-			var balun   = Minima.balance.balance[0].unconfirmed;
-			var mempool = Minima.balance.balance[0].mempool;
-			
-			//Is there unconfirmed money coming..
-			if(balun !== "0" || mempool !== "0"){
-				document.getElementById("yourbalance").innerHTML = bal+" / "+balun+" / "+mempool;	
-			}else{
-				document.getElementById("yourbalance").innerHTML = ""+bal;
-			}
+			//Use Util function to get Balance..
+			document.getElementById("yourbalance").innerHTML = "BALANCE : "+Minima.util.getBalance("0x00");
 		}
 		
 		function newKey(){
-			Minima.cmd("keys new", function(resp){
-				var json = JSON.parse(resp);
+			Minima.cmd("keys new", function(json){
 				document.getElementById("myaddress").innerHTML = ""+json.response.key.publickey;
 			});
 		}
@@ -93,35 +83,27 @@
 			
 				//Post it..
 				Minima.cmd( txncreator , function(resp){
-					alert("FUNDS SENT!");
+					if(Minima.util.checkAllResponses){
+						alert("FUNDS SENT!");	
+					}else{
+						alert("Something went wrong.. check logs..");
+					}
 				});
 			}
 		}
 		
-		function getCoinPrevState(coinproof, prevstate){
-			var pslen = coinproof.prevstate.length;
-			for(psloop=0;psloop<pslen;psloop++){
-				if(coinproof.prevstate[psloop].port == prevstate){
-					return coinproof.prevstate[psloop].data;
-				}
-			}
-			return null;
-		}
-		
 		function cashFunction(){
-			Minima.cmd( "coins "+timeaddress , function(resp){
-				var json = JSON.parse(resp);
-				
+			Minima.cmd("coins "+timeaddress , function(json){
 				var cashtable="<table width=100% border=0>"+
-				"<tr><th>AMOUNT</th> <th>TIME</th> <th>COLLECT</th></tr>";
+				"<tr><th width=33%>AMOUNT</th> <th width=34%>TIME</th> <th width=33%>COLLECT</th></tr>";
 				
 				//get any of these coins that have the time address
 				var coinlen = json.response.coins.length;
 				for(i=0;i<coinlen;i++){
 					var coinproof = json.response.coins[i].data;
 					
-					var keycoin    = getCoinPrevState(coinproof,0);
-					var timecoin   = parseInt(getCoinPrevState(coinproof,1), 10);
+					var keycoin    = Minima.util.getStateVariable(coinproof.prevstate,0);
+					var timecoin   = parseInt(Minima.util.getStateVariable(coinproof.prevstate,1), 10);
 					var amountcoin = coinproof.coin.amount;
 					
 					var collectstring = "";
@@ -135,7 +117,7 @@
 					if(coinproof.coin.address == timeaddress){
 						cashtable += 
 						"<tr><td class=futurecash>"+coinproof.coin.amount+"</td>"+
-							"<td class=futurecash>"+getCoinPrevState(coinproof,1)+"</td>"+
+							"<td class=futurecash>"+Minima.util.getStateVariable(coinproof.prevstate,1)+"</td>"+
 							"<td class=futurecash>"+collectstring+"</td>"+
 						"</tr>";	
 					}
@@ -157,8 +139,7 @@
 			document.getElementById(coinid).disabled = 'true';
 			
 			//Get a new address and send these funds to that..
-			Minima.cmd("newaddress", function(resp){
-				var json = JSON.parse(resp);
+			Minima.cmd("newaddress", function(json){
 				var newaddress = json.response.address.miniaddress;
 				
 				//Now build the collect transaction and send..
@@ -217,6 +198,7 @@
 	
 	<div class="maindiv">
 		<div class=timediv id=blocktime>...</div>
+		<div class=baldiv id=yourbalance>...</div>
 	
 		<br>
 		<h1>FUTURE CASH</h1>
@@ -257,16 +239,13 @@
 				<br>
 				<center>
 				<table border=0 style="font-size:18;">
+					
 					<tr>
-						<td class=sendtd>Your Balance : </td> <td> <div id='yourbalance'>...</div> </td>
+						<td class=sendtd>Future Time : </td> <td> <input size=40 type='number' id='futuretime'></td>
 					</tr>
 					
 					<tr>
-						<td class=sendtd>Future Time : </td> <td> <input size=40 type='text' id='futuretime'></td>
-					</tr>
-					
-					<tr>
-						<td class=sendtd>Amount : </td> <td> <input size=40 type='text' id='amount'></td>
+						<td class=sendtd>Amount : </td> <td> <input size=40 type='number' id='amount'></td>
 					</tr>
 					
 					<tr>
