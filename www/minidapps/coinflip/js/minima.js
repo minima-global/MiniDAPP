@@ -165,10 +165,6 @@ var Minima = {
 					}
 				}
 				
-				//Not found..
-				console.log("Minima @ "+new Date().toLocaleString()
-						+"\nERROR StateVariable doesn't exist.. "+port);
-				
 				//Not found
 				return null;
 			},

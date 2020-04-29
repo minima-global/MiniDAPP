@@ -123,14 +123,21 @@ function updateMyGames(){
 		for(i=0;i<len;i++){
 			coin = coinlist[i];
 		
-			var round   = Minima.util.getStateVariable(coin.data.prevstate,0);
+			//Is this the Coin Flip Address
+			var rightaddress = ( coin.data.coin.address == coinflipaddress );
+			
+			//get the round - if it exists..
+			var round = Minima.util.getStateVariable(coin.data.prevstate,0);
+			
+			//Could be a NON coin flip..
+			if(round == null){
+				continue;
+			}
+			
 			var amount  = new Decimal(coin.data.coin.amount);
 			var coinid  = coin.data.coin.coinid;
 			var depth   = Minima.block - coin.data.inblock;
 			var spent   = coin.data.spent;
-			
-			//Is theis the Coin Flip Address
-			var rightaddress = ( coin.data.coin.address == coinflipaddress );
 			
 			//Add to my list 
 			MYGAME_LIST.push(coinid); 
