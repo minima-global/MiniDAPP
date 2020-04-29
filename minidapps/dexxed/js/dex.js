@@ -3,20 +3,21 @@
  */
 
 //Some Global variables..
-var allTokens    = {};
 var currentToken = {};
 var dexcontract  = "LET owner = PREVSTATE ( 0 ) IF SIGNEDBY ( owner ) THEN RETURN TRUE ENDIF LET address = PREVSTATE ( 1 ) LET token = PREVSTATE ( 2 ) LET amount = PREVSTATE ( 3 ) RETURN VERIFYOUT ( @INPUT address amount token )";
 var dexaddress   = "0xB68787A65D917793643F1F2E7D9E3DFA020767AA85CE38640135297A0A553C8C";
 
 //Cascade and Confirm depth..
-var MAX_ORDER_AGE = 500;
+var MAX_ORDER_AGE = 1000;
 var MIN_ORDER_AGE = 3;
 
 var SLIDER_VALUE = new Decimal(0);
 var MIN_TOTAL    = new Decimal(0);
 var MAX_TOTAL    = new Decimal(0);
 
-//The INIT function called once connected
+/**
+ * The INIT function called once connected
+ */
 function dex_init(){
 	//Tell Minima about this contract.. This allows you to spend it when the time comes
 	Minima.cmd("extrascript \""+dexcontract+"\"");
@@ -25,35 +26,39 @@ function dex_init(){
 	UpdateBlockTime();
 	UpdateBalance();
 	
-	//Check for which Tokens are available..
-	Minima.cmd("tokens", function(resp){
-		//Store..
-		allTokens = JSON.parse(resp).response;
-		
-		//How many are there
-		var len = allTokens.tokens.length;
-		if(len<2){
-			//No Tokens.. since Minima is first
-			document.getElementById("minima_tokenlist").innerHTML = "NO TOKENS FOUND.. &nbsp;&nbsp;<button onclick='window.location.href=\"\";' class=cancelbutton>REFRESH</button>";
-		}else{
-			//Create the Select Box
-			var toktext = "<b>TOKEN : </b> <select onchange='tokenSelectChange();' id='select_tokenlist'>"
-			for(var loop=1;loop<len;loop++){
-				var json = allTokens.tokens[loop];
-					toktext += "<option value='"+json.tokenid+"'>"+json.token+" ( "+json.total+" ) "+json.tokenid.substr(0,40)+"..</option>";
-			}
-			toktext += "</select> &nbsp;&nbsp;<button onclick='window.location.href=\"\";' class=cancelbutton>REFRESH</button>";
-			
-			//And set it..
-			document.getElementById("minima_tokenlist").innerHTML = toktext;
-			
-			//Set the Token..
-			tokenSelectChange();
+	//Sort tokens..
+	var len = Minima.tokens.tokens.length;
+	if(len<2){
+		//No Tokens.. since Minima is first
+		document.getElementById("minima_tokenlist").innerHTML = "NO TOKENS FOUND.. &nbsp;&nbsp;<button onclick='window.location.href=\"\";' class=cancelbutton>REFRESH</button>";
+	}else{
+		//Create the Select Box
+		var toktext = "<b>TOKEN : </b> <select onchange='tokenSelectChange();' id='select_tokenlist'>"
+		for(var loop=1;loop<len;loop++){
+			var json = Minima.tokens.tokens[loop];
+				toktext += "<option value='"+json.tokenid+"'>"+json.token+" ( "+json.total+" ) "+json.tokenid.substr(0,40)+"..</option>";
 		}
+		toktext += "</select> &nbsp;&nbsp;<button onclick='window.location.href=\"\";' class=cancelbutton>REFRESH</button>";
 		
-		//Run it once..
-		dexPollFunction();
-	});
+		//And set it..
+		document.getElementById("minima_tokenlist").innerHTML = toktext;
+		
+		//Set the Token..
+		tokenSelectChange();
+	}
+	
+	//Run it once..
+	dexPollFunction();
+}
+
+/**
+ * Called when there is a new block
+ */
+function dexPollFunction(){
+	UpdateBlockTime();
+	UpdateMyOrders();
+	UpdateOrderBook();
+	UpdateAllTrades();
 }
 
 //Update the Balance Window - you can alwyas get the JSON in Minima.balance..
@@ -83,9 +88,7 @@ function UpdateBlockTime(){
 
 function UpdateMyOrders(){
 	//Update YOUR Order Book
-	Minima.cmd( "coins "+dexaddress, function(resp){
-		coinsjson = JSON.parse(resp);
-		
+	Minima.cmd("coins "+dexaddress, function(coinsjson){
 		//Get the details..
 		var cashtable="<table width=100% border=0>"+
 		"<tr> <th>TYPE</th> <th>TOKEN</th> <th>AMOUNT</th> <th>PRICE</th> <th>TOTAL</th> <th>&nbsp;</th> </tr>";
@@ -96,13 +99,14 @@ function UpdateMyOrders(){
 		//Cycle through the results..
 		var coinlen = coinsjson.response.coins.length;
 		for(i=0;i<coinlen;i++){
-			var coinproof = coinsjson.response.coins[i].data;
+			var coinproof  = coinsjson.response.coins[i].data;
+			var cprevstate = coinproof.prevstate;
 			
 			//get the PREVSTATE details that define the trade
-			var owner      = getCoinPrevState(coinproof,0);
-			var address    = getCoinPrevState(coinproof,1);
-			var token      = getCoinPrevState(coinproof,2);
-			var amount     = new Decimal(getCoinPrevState(coinproof,3));
+			var owner      = Minima.util.getStateVariable(cprevstate,0);// getCoinPrevState(coinproof,0);
+			var address    = Minima.util.getStateVariable(cprevstate,1);//getCoinPrevState(coinproof,1);
+			var token      = Minima.util.getStateVariable(cprevstate,2);//getCoinPrevState(coinproof,2);
+			var amount     = new Decimal(Minima.util.getStateVariable(cprevstate,3));
 			
 			//The Order
 			var coin_id     = coinproof.coin.coinid;
@@ -117,19 +121,19 @@ function UpdateMyOrders(){
 			//BUY OR SELL
 			buysellclass = "infoboxred";
 			buysellword  = "SELL";
-			tradetoken   = getTokenName(coin_token);
+			tradetoken   = Minima.util.getTokenName(coin_token);
 			
 			if(coin_token == "0x00"){
 				//BUY
 				buysellclass = "infoboxgreen";
 				buysellword  = "BUY";
-				tradetoken   = getTokenName(token);
+				tradetoken   = Minima.util.getTokenName(token);
 				dec_amount   = amount;
 				dec_price    = coin_amount.div(dec_amount);
 				
 			}else{
 				//SELL
-				scale        = getTokenScale(coin_token);
+				scale        = Minima.util.getTokenScale(coin_token);
 				dec_amount   = coin_amount.mul(scale);
 				dec_price    = amount.div(dec_amount);
 			}
@@ -166,9 +170,7 @@ function UpdateMyOrders(){
 
 function UpdateOrderBook(){
 	//Search for all the coins of this address
-	Minima.cmd( "search "+dexaddress, function(resp){
-		coinsjson = JSON.parse(resp);
-		
+	Minima.cmd("search "+dexaddress, function(coinsjson){
 		//Cycle through the results..
 		var tokenorders_buy  = [];
 		var tokenorders_sell = [];
@@ -177,7 +179,7 @@ function UpdateOrderBook(){
 			var coindata = coinsjson.response.coins[i].data;
 			
 			var token      = coindata.coin.tokenid;
-			var swaptoken  = getCoinPrevState(coindata,2);
+			var swaptoken  = Minima.util.getStateVariable(coindata.prevstate,2);//getCoinPrevState(coindata,2);
 			
 			if(token == currentToken.tokenid){
 				tokenorders_sell.push(coindata);
@@ -216,9 +218,9 @@ function UpdateOrderBook(){
 				var coinamount = tokenorders_sell[i].coin.amount;
 				var cointoken  = tokenorders_sell[i].coin.tokenid;
 				
-				var reqaddress = getCoinPrevState(tokenorders_sell[i],1);
-				var reqtokenid = getCoinPrevState(tokenorders_sell[i],2);
-				var reqamount  = getCoinPrevState(tokenorders_sell[i],3);
+				var reqaddress = Minima.util.getStateVariable(tokenorders_sell[i].prevstate,1);//getCoinPrevState(tokenorders_sell[i],1);
+				var reqtokenid = Minima.util.getStateVariable(tokenorders_sell[i].prevstate,2);//getCoinPrevState(tokenorders_sell[i],2);
+				var reqamount  = Minima.util.getStateVariable(tokenorders_sell[i].prevstate,3);//getCoinPrevState(tokenorders_sell[i],3);
 				
 				//Are we deep enough..
 				var inblk =  new Decimal(tokenorders_sell[i].inblock);
@@ -256,9 +258,9 @@ function UpdateOrderBook(){
 				var coinamount = tokenorders_buy[i].coin.amount;
 				var cointoken  = tokenorders_buy[i].coin.tokenid;
 				
-				var reqaddress = getCoinPrevState(tokenorders_buy[i],1);
-				var reqtokenid = getCoinPrevState(tokenorders_buy[i],2);
-				var reqamount  = getCoinPrevState(tokenorders_buy[i],3);
+				var reqaddress = Minima.util.getStateVariable(tokenorders_buy[i].prevstate,1);//getCoinPrevState(tokenorders_buy[i],1);
+				var reqtokenid = Minima.util.getStateVariable(tokenorders_buy[i].prevstate,2);//getCoinPrevState(tokenorders_buy[i],2);
+				var reqamount  = Minima.util.getStateVariable(tokenorders_buy[i].prevstate,3);//getCoinPrevState(tokenorders_buy[i],3);
 				
 				//Are we deep enough..
 				var inblk =  new Decimal(tokenorders_buy[i].inblock);
@@ -288,10 +290,10 @@ function UpdateOrderBook(){
 function takeOrder(type, coinid, coinamount, cointokenid, reqaddress, reqamount, reqtokenid,  price, amount, total){
 	var order ="";
 	if(type == 'SELL'){
-		var tokenname = getTokenName(reqtokenid);
+		var tokenname = Minima.util.getTokenName(reqtokenid);
 		var order = type+" "+reqamount+" "+tokenname+" @ "+price+"\n\n"+"You RECEIVE "+total+" Minima";
 	}else{
-		var tokenname = getTokenName(cointokenid);
+		var tokenname = Minima.util.getTokenName(cointokenid);
 		var order = type+" "+amount+" "+tokenname+" @ "+price+"\n\n"+"You SPEND "+total+" Minima";
 	}
 	
@@ -300,8 +302,7 @@ function takeOrder(type, coinid, coinamount, cointokenid, reqaddress, reqamount,
 	}
 	
 	//Create an address and do it..
-	Minima.cmd("newaddress" , function(resp){
-		addrjson = JSON.parse(resp);
+	Minima.cmd("newaddress" , function(addrjson){
 		//Double check this.. otherwise may LOSE funds..
 		if(addrjson.status == true){
 			//Get the address
@@ -328,9 +329,8 @@ function takeOrder(type, coinid, coinamount, cointokenid, reqaddress, reqamount,
 				"txndelete "+txnid+";";
 	
 			//Create this first stage
-			Minima.cmd(txncreator, function(resp){
-				respjson = JSON.parse(resp);
-				if(!checkAllResponses(respjson)){
+			Minima.cmd(txncreator, function(respjson){
+				if(!Minima.util.checkAllResponses(respjson)){
 					alert("Something went wrong.. ?\n\nCheck console log..");
 					console.log(resp);
 					return;
@@ -359,49 +359,9 @@ function comparePrice(a, b) {
     return 0;
 }
 
-function getCoinPrevState(coinproof, prevstate){
-	var pslen = coinproof.prevstate.length;
-	for(psloop=0;psloop<pslen;psloop++){
-		if(coinproof.prevstate[psloop].port == prevstate){
-			return coinproof.prevstate[psloop].data;
-		}
-	}
-	return null;
-}
-
-function getTokenName(tokenid){
-	if(tokenid == "0x00"){
-		return "Minima";
-	}
-	
-	var toklen = allTokens.tokens.length;
-	for(tokloop=0;tokloop<toklen;tokloop++){
-		//check it
-		if(allTokens.tokens[tokloop].tokenid == tokenid){
-			return allTokens.tokens[tokloop].token;
-		}
-	}
-	
-	return "NOT FOUND!";
-}
-
-function getTokenScale(tokenid){
-	var toklen = allTokens.tokens.length;
-	for(tokloop=0;tokloop<toklen;tokloop++){
-		//check it
-		if(allTokens.tokens[tokloop].tokenid == tokenid){
-			temptokenscale       = new Decimal(allTokens.tokens[tokloop].scale); 
-			temptokenscalefactor = new Decimal(10).pow(temptokenscale); 
-			return temptokenscalefactor;
-		}
-	}
-	
-	return new Decimal(0);
-}
-
 function getOrderPrice(coinproof){
 	//get the PREVSTATE details that define the trade
-	var amount      = new Decimal(getCoinPrevState(coinproof,3));
+	var amount      = new Decimal(Minima.util.getStateVariable(coinproof.prevstate,3));
 	var coin_amount = new Decimal(coinproof.coin.amount);
 	var coin_token  = coinproof.coin.tokenid;
 	
@@ -415,7 +375,7 @@ function getOrderPrice(coinproof){
 		dec_price    = coin_amount.div(dec_amount);
 	}else{
 		//SELL
-		scale        = getTokenScale(coin_token);
+		scale        = Minima.util.getTokenScale(coin_token);
 		dec_amount   = coin_amount.mul(scale);
 		dec_price    = amount.div(dec_amount);
 	}
@@ -425,7 +385,7 @@ function getOrderPrice(coinproof){
 
 function getOrderAmount(coinproof){
 	//get the PREVSTATE details that define the trade
-	var amount      = new Decimal(getCoinPrevState(coinproof,3));
+	var amount      = new Decimal(Minima.util.getStateVariable(coinproof.prevstate,3));
 	var coin_amount = new Decimal(coinproof.coin.amount);
 	var coin_token  = coinproof.coin.tokenid;
 	
@@ -440,7 +400,7 @@ function getOrderAmount(coinproof){
 		
 	}else{
 		//SELL
-		scale        = getTokenScale(coin_token);
+		scale        = Minima.util.getTokenScale(coin_token);
 		dec_amount   = coin_amount.mul(scale);
 		dec_price    = amount.div(dec_amount);
 	}
@@ -448,30 +408,13 @@ function getOrderAmount(coinproof){
 	return dec_amount;
 }
 
-function dexPollFunction(){
-	UpdateBlockTime();
-	UpdateMyOrders();
-	UpdateOrderBook();
-	UpdateAllTrades();
-}
-
 function tokenSelectChange(){
 	var tokenSel  = document.getElementById("select_tokenlist").selectedIndex;
-	currentToken  = allTokens.tokens[tokenSel+1];
+	currentToken  = Minima.tokens.tokens[tokenSel+1];
 	
 	//Update the View..
 	UpdateOrderBook();
 //	UpdateAllTrades();
-}
-
-function checkAllResponses(responses){
-	len = responses.length;
-	for(i=0;i<len;i++){
-		if(responses[i].status != true){
-			return false;
-		}
-	}
-	return true;
 }
 
 function cancelOrder(coinid, owner, address, amount, tokenid){
@@ -492,9 +435,8 @@ function cancelOrder(coinid, owner, address, amount, tokenid){
 		"txndelete "+txnid+";";
 	
 	//And Run it..
-	Minima.cmd( txncreator , function(resp){
-		respjson = JSON.parse(resp);
-		if(!checkAllResponses(respjson)){
+	Minima.cmd(txncreator , function(respjson){
+		if(!Minima.util.checkAllResponses(respjson)){
 			alert("Something went wrong.. ?\n\nCheck console log.. ");
 			console.log(resp);
 		}else{
@@ -560,9 +502,8 @@ function buysellaction(buyorsell){
 	}
 	
 	//We need a new key and a new address
-	Minima.cmd( "keys new;newaddress;" , function(resp){
-		keysjson = JSON.parse(resp);
-		if(!checkAllResponses(keysjson)){
+	Minima.cmd("keys new;newaddress;" , function(keysjson){
+		if(!Minima.util.checkAllResponses(keysjson)){
 			console.log(resp);
 			alert("Something went wrong.. check logs..");
 			return;
@@ -587,9 +528,8 @@ function buysellaction(buyorsell){
 			"txndelete "+txnid+";";
 		
 		//And Run it..
-		Minima.cmd( txncreator , function(resp){
-			respjson = JSON.parse(resp);
-			if(!checkAllResponses(respjson)){
+		Minima.cmd(txncreator , function(respjson){
+			if(!Minima.util.checkAllResponses(respjson)){
 				alert("Something went wrong.. ?\n\nCheck log..\n\nMaybe someone else took this order.");
 				console.log(resp);
 			}else{
@@ -604,9 +544,7 @@ function buysellaction(buyorsell){
 }
 
 function UpdateAllTrades(){
-	Minima.cmd("txpowsearch input:"+dexaddress, function(resp){
-		searchjson = JSON.parse(resp);
-		
+	Minima.cmd("txpowsearch input:"+dexaddress, function(searchjson){
 		//Sort the list
 		var txpowlist = searchjson.response.txpowlist;
 		txpowlist.sort(compareTxPOW);
@@ -631,7 +569,7 @@ function UpdateAllTrades(){
 				var buysell = false;
 				if(coinid == "0x00"){
 					buysell = true;
-					tokenid = getCoinPrevState(proof,2);
+					tokenid = Minima.util.getStateVariable(proof.prevstate,2);
 				}
 				
 				var price  = getOrderPrice(proof);
@@ -639,7 +577,7 @@ function UpdateAllTrades(){
 				var total  = price.mul(amount);
 				var time   = txpitem.inblock;
 				
-				var tokenname  = getTokenName(tokenid);
+				var tokenname  = Minima.util.getTokenName(tokenid);
 				
 				var selltxt = "<tr class='infoboxred'> <td>SELL</td> <td>"+tokenname+"</td> <td>"+amount+"</td> <td>"+price+"</td> <td>"+total+"</td> <td>"+time+"</td>";
 				var buytxt  = "<tr class='infoboxgreen'> <td>BUY</td> <td>"+tokenname+"</td> <td>"+amount+"</td> <td>"+price+"</td> <td>"+total+"</td> <td>"+time+"</td>";

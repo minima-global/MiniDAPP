@@ -49,6 +49,7 @@ var Minima = {
 	host : "0.0.0.0",
 	status : {},
 	balance : {},
+	tokens : {},
 	uuid : Math.floor(Math.random()*1000000000),
 	logging : true,
 	
@@ -114,6 +115,88 @@ var Minima = {
 		
 		//And refresh the page..
 		location.reload();
+	},
+	
+	/**
+	 * UTILITY FUNCTIONS
+	 */
+	util : {
+			//Get the Balance string for a Tokenid..
+			getBalance : function(tokenid){
+				var ballen = Minima.balance.balance.length;
+				for(balloop=0;balloop<ballen;balloop++){
+					if(Minima.balance.balance[balloop].tokenid == tokenid){
+						var bal     = Minima.balance.balance[balloop].confirmed;
+						var balun   = Minima.balance.balance[balloop].unconfirmed;
+						var mempool = Minima.balance.balance[balloop].mempool;
+						
+						//Is there unconfirmed money coming..
+						if(balun !== "0" || mempool !== "0"){
+							return bal+" / "+balun+" / "+mempool;	
+						}else{
+							return ""+bal;
+						}	
+					}
+				}
+				
+				//Not found..
+				return "0";
+			},
+		
+			checkAllResponses : function(responses){
+				len = responses.length;
+				for(i=0;i<len;i++){
+					if(responses[i].status != true){
+						//Output to console..
+						Minimalog("ERROR in Multi-Command ["+i+"] "+JSON.stringify(responses[i],null,2));
+						return false;
+					}
+				}
+				
+				return true;
+			},
+			
+			getStateVariable : function(statelist, port){
+				var pslen = statelist.length;
+				for(psloop=0;psloop<pslen;psloop++){
+					if(statelist[psloop].port == port){
+						return statelist[psloop].data;
+					}
+				}
+				
+				//Not found
+				return null;
+			},
+			
+			
+			getTokenName : function(tokenid){
+				if(tokenid == "0x00"){
+					return "Minima";
+				}
+				
+				var toklen = Minima.tokens.tokens.length;
+				for(tokloop=0;tokloop<toklen;tokloop++){
+					//check it
+					if(Minima.tokens.tokens[tokloop].tokenid == tokenid){
+						return Minima.tokens.tokens[tokloop].token;
+					}
+				}
+				
+				return "";
+			},
+			
+			getTokenScale : function(tokenid){
+				var toklen = Minima.tokens.tokens.length;
+				for(tokloop=0;tokloop<toklen;tokloop++){
+					if(Minima.tokens.tokens[tokloop].tokenid == tokenid){
+						temptokenscale       = new Decimal(Minima.tokens.tokens[tokloop].scale); 
+						temptokenscalefactor = new Decimal(10).pow(temptokenscale); 
+						return temptokenscalefactor;
+					}
+				}
+				
+				return new Decimal(0);
+			}
 	}
 	
 };
@@ -134,13 +217,14 @@ function postMinimaMessage(event, info){
  */
 function initialStatus(){
 	//Encoded rpc call
-	var rpc = "http://"+Minima.host+"/"+encodeURIComponent("status;balance");
+	var rpc = "http://"+Minima.host+"/"+encodeURIComponent("status;balance;tokens");
 	
 	//Check the Status - use base function so no log..
 	httpGetAsync(rpc,function(json){
 	    //Status is first..
 		Minima.status  = json[0].response;
 		Minima.balance = json[1].response;
+		Minima.tokens  = json[2].response;
 		
 	    //Store this..
 	    Minima.txpowid = Minima.status.tip;
@@ -241,7 +325,7 @@ function closeWebSocket(){
 /**
  * Start polling to see if something has changed.. 
  */
-var global_balance = "";
+var minima_global_balance = "";
 function startMinimaPolling(){
 	//Check Balance every second
 	pollMinimaFunction();
@@ -252,13 +336,14 @@ function startMinimaPolling(){
 
 function pollMinimaFunction(){
 	//Encoded rpc call
-	var rpc = "http://"+Minima.host+"/"+encodeURIComponent("status;balance");
+	var rpc = "http://"+Minima.host+"/"+encodeURIComponent("status;balance;tokens");
 	
 	//Check the Status - use base function so no log..
 	httpGetAsync(rpc,function(json){
 		//Status is first..
 		Minima.status  = json[0].response;
 		Minima.balance = json[1].response;
+		Minima.tokens  = json[2].response;
 		
 		//Check for new block
 		if(Minima.status.tip !== Minima.txpowid){
@@ -274,12 +359,12 @@ function pollMinimaFunction(){
 		var balstr = JSON.stringify(Minima.balance);
 		
 		//Simple string check for change
-		if(balstr !== global_balance){
+		if(balstr !== minima_global_balance){
 			postMinimaMessage("newbalance",Minima.balance);
 		}
 		
 		//Store it
-		global_balance = balstr;
+		minima_global_balance = balstr;
 	},false);
 }
 

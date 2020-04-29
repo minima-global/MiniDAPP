@@ -2,7 +2,7 @@
 
 <head>
 	<!--   The MINIMA MiFi Javascript Library -->
-	<script type="text/javascript" src="http://127.0.0.1:21000/minima.js"></script>
+	<script type="text/javascript" src="./js/minima.js"></script>
 	
 	<!--  STYLE -->
 	<link rel="stylesheet" type="text/css" href="./css/coinflip.css">
@@ -33,8 +33,7 @@
 			
 			//Initialise MiFi
 			Minima.init();
-			
-			Minima.logging = false;
+			//Minima.logging = true;
 		});
 		
 	</script>
@@ -110,8 +109,14 @@
 	<tr><td colspan=2>&nbsp;<br></td></tr>
 	
 	<tr>
-		<td style="text-align:left;"><div id="balance"></div></td>
-		<td style="text-align:right;"><div id="blocktime"></div></td>
+		<td colspan=2>
+			<table width=100%>
+				<tr>
+					<td style="text-align:left;" nowrap><div id="balance"></div></td>
+					<td style="text-align:right;" nowrap><div id="blocktime"></div></td>
+				</tr>	
+			</table>
+		</td>
 	</tr>
 	
 	</table>

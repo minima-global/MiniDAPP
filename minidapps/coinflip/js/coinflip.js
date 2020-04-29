@@ -20,30 +20,25 @@ function coinFlipInit(){
 	coinflipPollFunction();
 }
 
+//Called on new block
+function coinflipPollFunction(){
+	setTime();
+	
+	updateMyGames();
+}
+
 function setTime(){
-	//Set the right time
 	document.getElementById("blocktime").innerHTML = "<b>BLOCKTIME : "+Minima.block+"</b>";	
 }
 
 function setBalance(){
-	//Set the Balance..
-	var bal     = Minima.balance.balance[0].confirmed;
-	var balun   = Minima.balance.balance[0].unconfirmed;
-	var mempool = Minima.balance.balance[0].mempool;
-	
-	//Is there unconfirmed money coming..
-	if(balun !== "0" || mempool !== "0"){
-		document.getElementById("balance").innerHTML = "<b>BALANCE : "+bal+" / "+balun+" / "+mempool+"</b>";	
-	}else{
-		document.getElementById("balance").innerHTML = "<b>BALANCE : "+bal+"</b>";
-	}
+	document.getElementById("balance").innerHTML = "<b>BALANCE : "+Minima.util.getBalance("0x00")+"</b>";
 }
 
 function letsplay(){
 	//Get the amount..
 	var selectbox = document.getElementById("newamount");
 	var selamount = selectbox.options[selectbox.selectedIndex].value;
-	//var amount = document.getElementById("newamount").value.trim();
 	
 	if(selamount == "" || selamount == "0"){
 		alert("NO amount set..!");
@@ -61,9 +56,7 @@ function letsplay(){
 	//You need a random number..
 	//A winning payout address
 	//A key to pay your next go..
-	Minima.cmd("random;newaddress;keys new", function(resp){
-		var json = JSON.parse(resp);
-		
+	Minima.cmd("random;newaddress;keys new", function(json){
 		var rand      = json[0].response.random;
 		var myaddress = json[1].response.address.hexaddress;
 		var mykey     = json[2].response.key.publickey;
@@ -74,11 +67,9 @@ function letsplay(){
 		//Now we can use that in a script and get the result to HASH the random number..
 		var runscript = 'runscript "LET hash = SHA3 ( 512 '+rand+' )"';
 		
-		Minima.cmd(runscript, function(resp){
-			var json = JSON.parse(resp);
-			
+		Minima.cmd(runscript, function(jsonrun){
 			//get the value from variables in JSON
-			var hash1 = json.response.variables.hash;
+			var hash1 = jsonrun.response.variables.hash;
 			
 			//MUST STORE THIS NOW.. as we'll need it later
 			storeHash(hash1,rand);
@@ -103,9 +94,8 @@ function letsplay(){
 				"txnpost "+txnid1+";"+
 				"txndelete "+txnid1+";";
 			
-			Minima.cmd( txncreator1 , function(resp){
-				var json = JSON.parse(resp);
-				if(checkAllResponses(json)){
+			Minima.cmd(txncreator1 , function(txnresp){
+				if(Minima.util.checkAllResponses(txnresp)){
 					alert("Game Request Posted..!");
 				}
 		    });
@@ -113,67 +103,8 @@ function letsplay(){
 	});
 }
 
-function removeCoinID(coinID){
-	index = MYGAME_COINID.indexOf(coinID);
-	if (index > -1) {
-		MYGAME_COINID.splice(index, 1);
-	}else{
-		alert("COIN NOT FOUND TO REMOVE!");
-	}
-}
-
-function checkAllResponses(responses){
-	len = responses.length;
-	for(i=0;i<len;i++){
-		if(responses[i].status != true){
-			//Output to console..
-			console.log("ERROR : \n"+JSON.stringify(responses[i]));
-			
-			//Alert!
-			alert("Something went wrong!  Check console..\n\n"+responses[i].message);
-			
-			return false;
-		}
-	}
-	
-	return true;
-}
-
-function getStateVariable(statevarlist, state_port){
-	var pslen = statevarlist.length;
-	for(psloop=0;psloop<pslen;psloop++){
-		if(statevarlist[psloop].port == state_port){
-			return statevarlist[psloop].data;
-		}
-	}
-	
-	//Not found..
-	return "0x00";
-}
-
-//Store the preimage of the hash value
-function storeHash(hash, value){
-	var name = 'COINFLIP_'+hash;
-	window.localStorage.setItem(name,value);
-}
-
-//get the preimage..
-function loadPreHash(hash){
-	var name = 'COINFLIP_'+hash;
-	return window.localStorage.getItem(name);
-}
-
-//Called on newblock
-function coinflipPollFunction(){
-	setTime();
-	
-	updateMyGames();
-}
-
 function updateMyGames(){
-	Minima.cmd("search "+coinflipaddress+";coins all", function(resp){
-		var alljson = JSON.parse(resp);
-		
+	Minima.cmd("search "+coinflipaddress+";coins all", function(alljson){
 		//FIRST DO MY GAMES.. And fill up MYGAME_LIST..
 		var mygames = '<table width=100% border=0>'
 			+'<tr style="height:20;font-size:20;"> '
@@ -190,7 +121,7 @@ function updateMyGames(){
 		for(i=0;i<len;i++){
 			coin = coinlist[i];
 		
-			var round   = getStateVariable(coin.data.prevstate,0);
+			var round   = Minima.util.getStateVariable(coin.data.prevstate,0);
 			var amount  = new Decimal(coin.data.coin.amount);
 			var coinid  = coin.data.coin.coinid;
 			var depth   = Minima.block - coin.data.inblock;
@@ -203,7 +134,7 @@ function updateMyGames(){
 			MYGAME_LIST.push(coinid); 
 			
 			if(round == 0  && !spent && rightaddress){
-				var p1keysr1 = getStateVariable(coin.data.prevstate,2);
+				var p1keysr1 = Minima.util.getStateVariable(coin.data.prevstate,2);
 				
 				if(depth<=3){
 					mygames +='<tr class="bluebox"><td class="bluebox">'+amount+'</td> '
@@ -219,11 +150,11 @@ function updateMyGames(){
 				mygames+='<tr class="bluebox"><td class="bluebox">'+amount+'</td><td class="bluebox">2 / 3</td>';
 				
 				//STATE details that need to be kept..
-				var p1addrr1   = getStateVariable(coin.data.prevstate,1);
-				var p1keysr1   = getStateVariable(coin.data.prevstate,2);
-				var p1hashr1   = getStateVariable(coin.data.prevstate,3);
-				var p2keysr1   = getStateVariable(coin.data.prevstate,4);
-				var p2hashr1   = getStateVariable(coin.data.prevstate,5);
+				var p1addrr1   = Minima.util.getStateVariable(coin.data.prevstate,1);
+				var p1keysr1   = Minima.util.getStateVariable(coin.data.prevstate,2);
+				var p1hashr1   = Minima.util.getStateVariable(coin.data.prevstate,3);
+				var p2keysr1   = Minima.util.getStateVariable(coin.data.prevstate,4);
+				var p2hashr1   = Minima.util.getStateVariable(coin.data.prevstate,5);
 				
 				//Are we deep enuogh to play on..
 				if(depth>5){
@@ -245,12 +176,12 @@ function updateMyGames(){
 			}else if(round == 2 && !spent && rightaddress){
 				mygames+='<tr class="bluebox"><td class="bluebox">'+amount+'</td><td class="bluebox">3 / 3</td>';
 				
-				var p1addrr2   = getStateVariable(coin.data.prevstate,1);
-				var p1keysr2   = getStateVariable(coin.data.prevstate,2);
-				var p1hashr2   = getStateVariable(coin.data.prevstate,3);
-				var p2keysr2   = getStateVariable(coin.data.prevstate,4);
-				var p2hashr2   = getStateVariable(coin.data.prevstate,5);
-				var p1preimage = getStateVariable(coin.data.prevstate,6);
+				var p1addrr2   = Minima.util.getStateVariable(coin.data.prevstate,1);
+				var p1keysr2   = Minima.util.getStateVariable(coin.data.prevstate,2);
+				var p1hashr2   = Minima.util.getStateVariable(coin.data.prevstate,3);
+				var p2keysr2   = Minima.util.getStateVariable(coin.data.prevstate,4);
+				var p2hashr2   = Minima.util.getStateVariable(coin.data.prevstate,5);
+				var p1preimage = Minima.util.getStateVariable(coin.data.prevstate,6);
 				
 				//Are we deep enuogh to play on..
 				if(depth>5){
@@ -271,10 +202,10 @@ function updateMyGames(){
 			}else if(round == 3){
 				if(coin.data.prevstate.length>9){
 					//Check if the key is yours..
-					var p1keysr3    = getStateVariable(coin.data.prevstate,2);
-					var p2keysr3    = getStateVariable(coin.data.prevstate,4);
-					var winnerr3    = getStateVariable(coin.data.prevstate,8);
-					var winamountr3 = getStateVariable(coin.data.prevstate,9);
+					var p1keysr3    = Minima.util.getStateVariable(coin.data.prevstate,2);
+					var p2keysr3    = Minima.util.getStateVariable(coin.data.prevstate,4);
+					var winnerr3    = Minima.util.getStateVariable(coin.data.prevstate,8);
+					var winamountr3 = Minima.util.getStateVariable(coin.data.prevstate,9);
 					
 					//Only want to show ONE of these but there are always 2 - a winner and a loser..
 					var result    = "";
@@ -320,12 +251,12 @@ function updateMyGames(){
 			var coin = json.response.coins[i];
 			
 			//Is this at ROUND 0
-			var round  = getStateVariable(coin.data.prevstate,0);
+			var round  = Minima.util.getStateVariable(coin.data.prevstate,0);
 			
 			//P1 details
-			var p1addressag = getStateVariable(coin.data.prevstate,1);
-			var p1keysag    = getStateVariable(coin.data.prevstate,2);
-			var p1hashag    = getStateVariable(coin.data.prevstate,3);
+			var p1addressag = Minima.util.getStateVariable(coin.data.prevstate,1);
+			var p1keysag    = Minima.util.getStateVariable(coin.data.prevstate,2);
+			var p1hashag    = Minima.util.getStateVariable(coin.data.prevstate,3);
 			
 			var amount = new Decimal(coin.data.coin.amount);
 			var coinid = coin.data.coin.coinid;
@@ -352,9 +283,7 @@ function acceptGame(acceptcoinid, acceptgameamount, acceptp1address, acceptp1key
 	}
 	
 	//First get all the details..
-	Minima.cmd("random;keys new", function(resp){
-		var json = JSON.parse(resp);
-		
+	Minima.cmd("random;keys new", function(json){
 		//Now you have that coin + details..
 		var amtx2  = new Decimal(acceptgameamount).mul(2);
 		var rand   = json[0].response.random;
@@ -366,11 +295,9 @@ function acceptGame(acceptcoinid, acceptgameamount, acceptp1address, acceptp1key
 		//Now we can use that in a script and get the result to HASH the random number..
 		var runscript = 'runscript "LET hash = SHA3 ( 512 '+rand+' )"';
 		
-		Minima.cmd(runscript, function(resp){
-			var json = JSON.parse(resp);
-			
+		Minima.cmd(runscript, function(respjson){
 			//get the value from variables in JSON
-			var hash = json.response.variables.hash;
+			var hash = respjson.response.variables.hash;
 			
 			//MUST STORE THIS NOW.. as we'll need it later
 			storeHash(hash,rand);
@@ -412,9 +339,8 @@ function acceptGame(acceptcoinid, acceptgameamount, acceptp1address, acceptp1key
 				
 				//PHEW.!! ;-p
 			
-			Minima.cmd(txncreator2, function(resp){
-				var json = JSON.parse(resp);
-				if(checkAllResponses(json)){
+			Minima.cmd(txncreator2, function(txnresp){
+				if(Minima.util.checkAllResponses(txnresp)){
 					alert("GAME ON!");
 					
 					//It's one of your games now..
@@ -431,8 +357,7 @@ function acceptGame(acceptcoinid, acceptgameamount, acceptp1address, acceptp1key
 
 function collectItAll(coinid, round, amount, collectkeys){
 	//Player was too slow.. take ALL the funds..
-	Minima.cmd("check "+collectkeys, function(resp){
-		var json = JSON.parse(resp);
+	Minima.cmd("check "+collectkeys, function(json){
 		//Are you the lucky player ?
 		if(json.response.relevant == true){
 			if(!MYGAME_COINID.includes(coinid)){
@@ -444,9 +369,7 @@ function collectItAll(coinid, round, amount, collectkeys){
 			}
 				
 			//Create an address and take the money..
-			Minima.cmd("newaddress", function(resp){
-				var addrjson = JSON.parse(resp);
-			
+			Minima.cmd("newaddress", function(addrjson){
 				var collectoraddr = addrjson.response.address.hexaddress;
 				
 				//Construct the Final transaction..
@@ -465,9 +388,8 @@ function collectItAll(coinid, round, amount, collectkeys){
 					"txnpost "+txnid5+";"+
 					"txndelete "+txnid5+";";
 				
-				Minima.cmd(txncreator5, function(resp){
-					var json = JSON.parse(resp);
-					if(checkAllResponses(json)){
+				Minima.cmd(txncreator5, function(txnresp){
+					if(Minima.util.checkAllResponses(txnresp)){
 						if(round==0){
 							//Remove from action..
 							document.getElementById(coinid).disabled = 'true';
@@ -481,7 +403,6 @@ function collectItAll(coinid, round, amount, collectkeys){
 						removeCoinID(coinid);
 					}
 				});
-			
 			});
 		}
 		
@@ -494,8 +415,7 @@ function roundOneChecker(zChecker_coinid, zChecker_gameamount, zChecker_p1addres
 						zChecker_p1keys, zChecker_p1hash, zChecker_p2keys, zChecker_p2hash ){
 	
 	//Do the ASYNC function in a function.. so variables can't change..
-	Minima.cmd("check "+zChecker_p1keys, function(resp){
-		var json = JSON.parse(resp);
+	Minima.cmd("check "+zChecker_p1keys, function(json){
 		//Are you player 1 ?
 		if(json.response.relevant == true){
 			if(!MYGAME_COINID.includes(zChecker_coinid)){
@@ -547,9 +467,8 @@ function roundOne(r1coinid, r1gameamount, r1p1address, p1keys, p1hash, p2keyspre
 }
 
 function CreateRoundTxn(ztxncreator, zcoinid, zRound){
-	Minima.cmd(ztxncreator, function(resp){
-		var json = JSON.parse(resp);
-		if(!checkAllResponses(json)){
+	Minima.cmd(ztxncreator, function(json){
+		if(!Minima.util.checkAllResponses(json)){
 			//Reset - will need to try again..
 			removeCoinID(zcoinid);
 		}else{
@@ -561,9 +480,7 @@ function CreateRoundTxn(ztxncreator, zcoinid, zRound){
 
 function roundTwoChecker(zChecker2_coinid, zChecker2_gameamount, zChecker2_p1address, zChecker2_p1keys, zChecker2_p1hash, 
 						 zChecker2_p2keys, zChecker2_p2hash, zChecker2_preimage ){
-	Minima.cmd("check "+zChecker2_p2keys, function(resp){
-		var json = JSON.parse(resp);
-	
+	Minima.cmd("check "+zChecker2_p2keys, function(json){
 		//Are you player 1 ?
 		if(json.response.relevant == true){
 			if(!MYGAME_COINID.includes(zChecker2_coinid)){
@@ -586,9 +503,7 @@ function roundTwo(r2coinid, r2gameamount, r2p1address, p1keys, p1hash, p2keyspre
 	+"LET val = NUMBER ( SUBSET ( 0 1 rand ) ) IF ( val LT 128 ) THEN LET winner = 1 ELSE LET winner = 2 ENDIF\"";
 	
 	//Run it and see who WON!
-	Minima.cmd(script+";newaddress", function(resp){
-		var json = JSON.parse(resp);
-		
+	Minima.cmd(script+";newaddress", function(json){
 		//who wins!
 		var winner    = json[0].response.variables.winner;
 		var paywinner = json[0].response.variables.paywinner;
@@ -649,6 +564,25 @@ function roundTwo(r2coinid, r2gameamount, r2p1address, p1keys, p1hash, p2keyspre
 		//Create the TXN.. 
 		CreateRoundTxn(txncreator4, r2coinid, 2);	
 	});
+}
+
+function removeCoinID(coinID){
+	index = MYGAME_COINID.indexOf(coinID);
+	if (index > -1) {
+		MYGAME_COINID.splice(index, 1);
+	}
+}
+
+//Store the preimage of the hash value
+function storeHash(hash, value){
+	var name = 'COINFLIP_'+hash;
+	window.localStorage.setItem(name,value);
+}
+
+//get the preimage..
+function loadPreHash(hash){
+	var name = 'COINFLIP_'+hash;
+	return window.localStorage.getItem(name);
 }
 
 function compareCoin(coin_a, coin_b) {
