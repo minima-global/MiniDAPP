@@ -332,7 +332,6 @@ function takeOrder(type, coinid, coinamount, cointokenid, reqaddress, reqamount,
 			Minima.cmd(txncreator, function(respjson){
 				if(!Minima.util.checkAllResponses(respjson)){
 					alert("Something went wrong.. ?\n\nCheck console log..");
-					console.log(resp);
 					return;
 				}
 				
@@ -438,7 +437,6 @@ function cancelOrder(coinid, owner, address, amount, tokenid){
 	Minima.cmd(txncreator , function(respjson){
 		if(!Minima.util.checkAllResponses(respjson)){
 			alert("Something went wrong.. ?\n\nCheck console log.. ");
-			console.log(resp);
 		}else{
 			alert("ORDER CANCELLED!");
 			//Disable the button..
@@ -448,6 +446,12 @@ function cancelOrder(coinid, owner, address, amount, tokenid){
 }
 
 function buysellaction(buyorsell){
+	//Check a token is selected..
+	if(currentToken.tokenid == undefined ){
+		alert("You have not chosen a token!");
+		return;
+	}
+	
 	//Get the Values..
 	var amount;
 	var price;
@@ -504,7 +508,6 @@ function buysellaction(buyorsell){
 	//We need a new key and a new address
 	Minima.cmd("keys new;newaddress;" , function(keysjson){
 		if(!Minima.util.checkAllResponses(keysjson)){
-			console.log(resp);
 			alert("Something went wrong.. check logs..");
 			return;
 		}
@@ -530,8 +533,7 @@ function buysellaction(buyorsell){
 		//And Run it..
 		Minima.cmd(txncreator , function(respjson){
 			if(!Minima.util.checkAllResponses(respjson)){
-				alert("Something went wrong.. ?\n\nCheck log..\n\nMaybe someone else took this order.");
-				console.log(resp);
+				alert("Something went wrong.. ?\n\nCheck log..");
 			}else{
 				document.getElementById("buyamt").value = "";
 				document.getElementById("buyprice").value = "";
