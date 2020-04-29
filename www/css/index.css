@@ -1,0 +1,21 @@
+.maindiv
+{
+  background-color: #fff;
+  border-radius: 20px;
+  font-size:14px;
+  font-family:monospace;
+  vertical-align:middle;
+  width:800;
+  min-height:300;
+  padding:20;
+  text-align:left;
+}
+
+.mainlinkstable
+{
+  vertical-align:middle;
+  text-align:center;
+  width:800;
+  font-size:18px;
+  font-family:monospace;
+}
