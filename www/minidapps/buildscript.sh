@@ -14,5 +14,7 @@ zip -r ./bin/dexxed.minidapp dexxed
 
 zip -r ./bin/coinflip.minidapp coinflip
 
+zip -r ./bin/blockx.minidapp blockx
+
 cp ./miniwallet/wallet.minidapp ./bin/
 

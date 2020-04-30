@@ -1,28 +1,26 @@
 <html>
 
 <head>
-	
 	<!--   The MINIMA MiFi Javascript Library -->
 	<script type="text/javascript" src="minima.js"></script>
-		
 </head>
 
-<body>
+<body style="background: url(apollospace.jpg) no-repeat center center fixed; background-size:cover;">
 
 <script type="text/javascript">
 
 	//Update the info..
 	function updateInfo(info){
 		document.getElementById("infodiv").innerHTML = 
-			"Host : "+Minima.host+"<br><br>"+
-			"Block : "+Minima.block+"<br><br>"+
-			"TxPoWID : <a href='#' onclick='updateTxPow(Minima.txpowid); return false;'>"+Minima.txpowid+"</a><br><br>";	
+			" <b>CURRENT BLOCK : "+Minima.block+"</b><br><br>"+
+			"<span style='font-family:monospace;font-size:14'><a href='#' onclick='updateTxPow(Minima.txpowid); return false;'>"+Minima.txpowid+"</a><span><br><br>";	
 	}
 
 	//When you click on a txpowid.. get it and print info..
 	function updateTxPow(txpowid){
+		//Run a command on minima to get info about this txpow
 		Minima.cmd("txpowinfo "+txpowid,function(resp){
-			document.getElementById("txpowinfo").value = resp;
+			document.getElementById("txpowinfo").value = JSON.stringify(resp,null,2);
 		});
 	}
 	
@@ -34,7 +32,6 @@
 			
 			//Deal with each message type
 	 		if(evt.detail.event == "connected"){
-	 			
 	 			//Print some data
 	 			updateInfo();
 	 			
@@ -42,14 +39,12 @@
 	 			updateTxPow(Minima.txpowid);
 	 			
 	 		}else if(evt.detail.event == "newblock"){
-	 			
 	 			//Print some data
 	 			updateInfo();
 	 		
 	 		}else if(evt.detail.event == "newbalance"){
-		 		
+		 		//Nothing yet..
 	 		}
-			
 	    });
 		
 		//Initialise MiFi
@@ -59,19 +54,17 @@
 </script>
 
 <center>
-<br>
-<h3>Super Simple MiFi Block Explorer</h3>
-<br>
-<br>
 
-<div id="infodiv">no info yet..</div> 
-<br>
-<br>
-TxPow Info :
-<br>
-<textarea spellcheck="false" rows="35" cols="100" style="border:none;" id="txpowinfo"></textarea>
+<br><br>
+<div style="display: inline-block;padding:20;background-color:#fff;border-radius: 20px;opacity:0.9;font-size:16px;">
+	<br>
+	<h2>Super Simple Minima Block Explorer</h2>
+	<div id="infodiv">no info yet..</div> 
+	<br>
+	<textarea spellcheck="false" rows="35" cols="100" style="border:none;" id="txpowinfo"></textarea>
 
-<br><br><a href='index.html'>HOME</a>
+</div>
+
 </center>
 
 </body>
