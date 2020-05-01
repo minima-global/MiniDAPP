@@ -1,8 +1,10 @@
 <html>
 
 <head>
+	
 	<!--   The MINIMA MiFi Javascript Library -->
-	<script type="text/javascript" src="./minidapps/minima.js"></script>
+	<script type="text/javascript" src="http://mifi.minima.global/js/minima.js"></script>
+	
 </head>
 
 <body>
@@ -11,34 +13,39 @@
 
 	//Send the amount specified to the address
 	function send(){
+		//Get the details
 		var amount  = document.getElementById("amount").value;
 		var address = document.getElementById("address").value;
 		
 		//Do It!
-		var sendcmd = "send "+amount+" "+address;
-		Minima.cmd(sendcmd, function(resp){
-			//And set the block
-			var json = JSON.parse(resp);
-			
+		Minima.cmd("send "+amount+" "+address, function(json){
 			if(json.status == true){
 				alert("Funds Sent!");
 				
 				//Blank them
 				document.getElementById("amount").value = "";
 				document.getElementById("address").value = "";
-				
 			}else{
-				alert(json.error);
+				alert(json.message);
 			}
 		});
 	}
 
 	//Create a new address
 	function newAddress(){
-		Minima.cmd("newaddress", function(resp){
-			var json = JSON.parse(resp);
+		Minima.cmd("newaddress", function(json){
 			document.getElementById("addressdiv").innerHTML = "<b>"+json.response.address.miniaddress+"</b>";
 		});
+	}
+	
+	function setBalance(){
+		//Set the Balance.. Balance is CONFIRMED / UNCONFIRMED / MEMPOOL
+		var bal = Minima.util.getBalance("0x00");
+		document.getElementById("balancediv").innerHTML = "Balance : "+bal;
+	}
+	
+	function setBlock(){
+		document.getElementById("blockdiv").innerHTML = "Block : "+Minima.block;
 	}
 
 	//Wait for the page to load..
@@ -48,27 +55,16 @@
 		window.addEventListener('MinimaEvent', function(evt) {
 			//Deal with each message type
 	 		if(evt.detail.event == "connected"){
-	 			document.getElementById("blockdiv").innerHTML = "Block : "+Minima.block;
+	 			setBlock();
+	 			setBalance();
 	 			
 	 			//Get an address
 	 			newAddress();
 	 			
 	 		}else if(evt.detail.event == "newblock"){
-	 			document.getElementById("blockdiv").innerHTML = "Block : "+Minima.block;
-	 			
+	 			setBlock();
 	 		}else if(evt.detail.event == "newbalance"){
-	 			
-	 			//Set the Balance..
-				var bal     = evt.detail.info.balance[0].confirmed;
-				var balun   = evt.detail.info.balance[0].unconfirmed;
-				var mempool = evt.detail.info.balance[0].mempool;
-				
-				//Is there unconfirmed money coming..
-				if(balun !== "0" || mempool !== "0"){
-					document.getElementById("balancediv").innerHTML = "Balance : "+bal+" / "+balun+" / "+mempool;	
-				}else{
-					document.getElementById("balancediv").innerHTML = "Balance : "+bal;
-				}
+	 			setBalance();	
 	 		}
 	    });
 		
@@ -79,13 +75,14 @@
 </script>
 
 <center>
+
 <br>
-<h3>Basic Wallet</h3>
+<div style="width:700;height;400;background-color: #ccf;border-radius: 20px;">
 <br>
-<br>
+<h1>Basic Wallet</h1>
 <br>
 
-<table width="400">
+<table width="600" align=center>
 	<tr>
 		<td width=200 colspan=2><div id="blockdiv">0</div></td> 
 	</tr>
@@ -119,6 +116,9 @@
 	
 	
 </table>
+
+<br>
+</div>
 
 
 </center>
