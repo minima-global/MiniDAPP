@@ -259,6 +259,8 @@ function advancedConnect(){
 	
 	//Default to local host
 	if(host == ''){
+		alert("Connecting to 127.0.0.1:8999");
+		
 		host = "127.0.0.1:8999";
 	}
 	
