@@ -14,17 +14,10 @@
 /**
  * Are we running in MINIDAPP mode
  * 
- * This can be edited from JAVA when this file supplied..
- * 
- * Use the TAGS as reference
+ * This is edited from JAVA when this file supplied..
  */
-var START_MINIDAPP_TAG;
-
 var MINIDAPPS_MINIMA      = false;
 var MINIDAPPS_MINIMA_HOST = "127.0.0.1:8999";
-
-var END_MINIDAPP_TAG;
-
 
 /**
  * GLOBAL VARIABLES
