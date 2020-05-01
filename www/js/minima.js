@@ -662,7 +662,7 @@ function createOverlayDivs(){
 	
 	button.innerHTML 		= "<table>\n" + 
 	"	<tr>\n" + 
-	"		<td align=center><img width=50 src='./images/icon.png'></td>\n" + 
+	"		<td align=center><img width=50 src='http://mifi.minima.global/images/icon.png'></td>\n" + 
 	"	</tr>\n" + 
 	"	<tr>\n" + 
 	"		<td style='font-size:16;text-align:left;vertical-align:middle;'>MIFI LOGOUT</td>\n" + 
