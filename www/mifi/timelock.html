@@ -68,7 +68,7 @@
 	
 	//Scan for the arrival of coins
 	function scanCoins(){
-		Minima.cmd("coins "+address, function(json){
+		Minima.cmd("coins relevant address:"+address, function(json){
 			if(json.response.coins.length>0){
 				coinid = json.response.coins[0].data.coin.coinid;			
 				document.getElementById("scandiv").innerHTML = "COIN FOUND!<br><br>CoinID : "+coinid;
@@ -185,7 +185,7 @@ This will require
 <br>
 
 <b>Step 4</b> : Send some funds to that address..
-&nbsp;&nbsp;<button onclick='sendFunds();'>SEND 1 MINIMA</button> ( You'll notice a change in your balance.. BUT it's still your coin.. )<br>
+&nbsp;&nbsp;<button onclick='sendFunds();'>SEND 1 MINIMA</button><br>
 <br>
 
 <b>Step 5</b> : Scan your coins for that address.. wait until the 1 Minima has confirmed.. you need the CoinID for the transaction

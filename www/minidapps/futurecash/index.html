@@ -93,7 +93,7 @@
 		}
 		
 		function cashFunction(){
-			Minima.cmd("coins "+timeaddress , function(json){
+			Minima.cmd("coins relevant address:"+timeaddress , function(json){
 				var cashtable="<table width=100% border=0>"+
 				"<tr><th width=33% class=futureheader>AMOUNT</th> <th class=futureheader width=34%>TIME</th> <th class=futureheader width=33%>COLLECT</th></tr>";
 				

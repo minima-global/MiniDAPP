@@ -106,7 +106,7 @@ function letsplay(){
 }
 
 function updateMyGames(){
-	Minima.cmd("search "+coinflipaddress+";coins all", function(alljson){
+	Minima.cmd("coins  address:"+coinflipaddress+";coins relevant type:all", function(alljson){
 		//FIRST DO MY GAMES.. And fill up MYGAME_LIST..
 		var mygames = '<table width=100% border=0>'
 			+'<tr style="height:20;font-size:20;"> '
@@ -367,17 +367,15 @@ function acceptGame(acceptcoinid, acceptgameamount, acceptp1address, acceptp1key
 
 
 function collectItAll(coinid, round, amount, collectkeys){
+	if(MYGAME_COINID.includes(coinid)){
+		//You've already done this..!
+		return;
+	}
+	
 	//Player was too slow.. take ALL the funds..
 	Minima.cmd("check "+collectkeys, function(json){
 		//Are you the lucky player ?
 		if(json.response.relevant == true){
-			if(!MYGAME_COINID.includes(coinid)){
-				//Add it.. will be removed if there is an issue
-				MYGAME_COINID.push(coinid);
-			}else{
-				//NO more..
-				return;
-			}
 				
 			//Create an address and take the money..
 			Minima.cmd("newaddress", function(addrjson){
@@ -401,26 +399,23 @@ function collectItAll(coinid, round, amount, collectkeys){
 				
 				Minima.cmd(txncreator5, function(txnresp){
 					if(Minima.util.checkAllResponses(txnresp)){
+						//Only do this action once.
+						MYGAME_COINID.push(coinid);
 						if(round==0){
 							//Remove from action..
 							document.getElementById(coinid).disabled = 'true';
 							MYGAME_CANCELLED.push(coinid);
 							
-							alert("ALL Funds Collected. Game Cancelled..");	
+							alert("Collection Transaction Posted. Game Cancelled..");	
 						}else{
 							alert("ALL Funds Collected from slow player!\n\nYou win it all -> "+amount+" !!");	
 						}
-					}else{
-						removeCoinID(coinid);
 					}
 				});
 			});
 		}
-		
 	});
-		
 }
-
 
 function roundOneChecker(zChecker_coinid, zChecker_gameamount, zChecker_p1address, 
 						zChecker_p1keys, zChecker_p1hash, zChecker_p2keys, zChecker_p2hash ){
@@ -430,9 +425,6 @@ function roundOneChecker(zChecker_coinid, zChecker_gameamount, zChecker_p1addres
 		//Are you player 1 ?
 		if(json.response.relevant == true){
 			if(!MYGAME_COINID.includes(zChecker_coinid)){
-				//Add it.. will be removed if there is an issue
-				MYGAME_COINID.push(zChecker_coinid);
-				
 				roundOne(zChecker_coinid, zChecker_gameamount, zChecker_p1address, 
 						zChecker_p1keys, zChecker_p1hash, zChecker_p2keys, zChecker_p2hash );
 			}	
@@ -480,9 +472,12 @@ function roundOne(r1coinid, r1gameamount, r1p1address, p1keys, p1hash, p2keyspre
 function CreateRoundTxn(ztxncreator, zcoinid, zRound){
 	Minima.cmd(ztxncreator, function(json){
 		if(!Minima.util.checkAllResponses(json)){
-			//Reset - will need to try again..
-			removeCoinID(zcoinid);
+			//hmmm.. something went wrong.. will try agin..
+			console.log("ROUND "+zRound+" SOMETHIGN WRONG! Check Logs..");
 		}else{
+			//Only NOW add it to your game list
+			MYGAME_COINID.push(zcoinid);
+			
 			//Don't do this move again..
 			console.log("ROUND "+zRound+" PLAYED OK");
 		}
@@ -495,10 +490,6 @@ function roundTwoChecker(zChecker2_coinid, zChecker2_gameamount, zChecker2_p1add
 		//Are you player 1 ?
 		if(json.response.relevant == true){
 			if(!MYGAME_COINID.includes(zChecker2_coinid)){
-				//Add it.. will be removed if there is an issue
-				MYGAME_COINID.push(zChecker2_coinid);
-				
-				//Continue!
 				roundTwo(zChecker2_coinid, zChecker2_gameamount, zChecker2_p1address, zChecker2_p1keys, zChecker2_p1hash, 
 									 zChecker2_p2keys, zChecker2_p2hash, zChecker2_preimage);
 			}

@@ -88,7 +88,7 @@ function UpdateBlockTime(){
 
 function UpdateMyOrders(){
 	//Update YOUR Order Book
-	Minima.cmd("coins "+dexaddress, function(coinsjson){
+	Minima.cmd("coins relevant address:"+dexaddress, function(coinsjson){
 		//Get the details..
 		var cashtable="<table width=100% border=0>"+
 		"<tr> <th>TYPE</th> <th>TOKEN</th> <th>AMOUNT</th> <th>PRICE</th> <th>TOTAL</th> <th>&nbsp;</th> </tr>";
@@ -170,7 +170,7 @@ function UpdateMyOrders(){
 
 function UpdateOrderBook(){
 	//Search for all the coins of this address
-	Minima.cmd("search "+dexaddress, function(coinsjson){
+	Minima.cmd("coins address:"+dexaddress, function(coinsjson){
 		//Cycle through the results..
 		var tokenorders_buy  = [];
 		var tokenorders_sell = [];
