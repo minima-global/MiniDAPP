@@ -13,11 +13,18 @@
 
 /**
  * Are we running in MINIDAPP mode
- * 
- * This is edited from JAVA when this file supplied..
  */
-var MINIDAPPS_MINIMA      = false;
-var MINIDAPPS_MINIMA_HOST = "127.0.0.1:8999";
+var MINIMA_IS_MINIDAPP    = true;
+
+/**
+ * When running as MiniDAPP Where is the Server host RPC
+ */
+var MINIMA_MINIDAPP_HOST = "127.0.0.1:8999";
+
+/**
+ * MiFi Proxy Server for initial connect
+ */
+var MIFIHOST              = "mifi.minima.global";
 
 /**
  * GLOBAL VARIABLES
@@ -26,11 +33,8 @@ var MAIN_DIV 		= "MINIMA_MAIN_DIV";
 var OVERLAY_DIV 	= "MINIMA_OVERLAY_DIV";
 var LOGOUT_BUTTON   = "MINIMA_LOGOUT_BUTTON";
 
-//var MIFIHOST = "127.0.0.1";
-//var MIFIHOST = "10.0.121.68";
-var MIFIHOST = "mifi.minima.global";
 
-var WEBSOCK = null;
+var WEBSOCK         = null;
 var MINIMACONNECTED = false;
 
 /**
@@ -52,7 +56,7 @@ var Minima = {
 		Minimalog("Initialisation..");
 		
 		//Are we running in MINDAPPS MODE
-		if(!MINIDAPPS_MINIMA){
+		if(!MINIMA_IS_MINIDAPP){
 			//Create the Overlay Divs - but don't show them yet
 			createOverlayDivs();
 			
@@ -82,7 +86,7 @@ var Minima = {
 			hide(LOGOUT_BUTTON);
 		}else{
 			//Use it..
-			Minima.host = MINIDAPPS_MINIMA_HOST;
+			Minima.host = MINIMA_MINIDAPP_HOST;
 			
 			//Do the first call..
 			initialStatus();
@@ -237,7 +241,7 @@ function initialStatus(){
 	    Minima.block   = parseInt(Minima.status.lastblock,10);
 	   
 	    //Hide the Divs..
-	    if(!MINIDAPPS_MINIMA){
+	    if(!MINIMA_IS_MINIDAPP){
 		    hide(MAIN_DIV);
 		    hide(OVERLAY_DIV);
 		    show(LOGOUT_BUTTON);
@@ -682,19 +686,19 @@ function createOverlayDivs(){
 }
 
 function setMainDiv(html){
-	if(!MINIDAPPS_MINIMA){
+	if(!MINIMA_IS_MINIDAPP){
 		document.getElementById(MAIN_DIV).innerHTML = html;	
 	}
 }
 
 function show(id){
-	if(!MINIDAPPS_MINIMA){
+	if(!MINIMA_IS_MINIDAPP){
 		document.getElementById(id).style.display = "block";
 	}
 }
 
 function hide(id){
-	if(!MINIDAPPS_MINIMA){
+	if(!MINIMA_IS_MINIDAPP){
 		document.getElementById(id).style.display = "none";
 	}
 }

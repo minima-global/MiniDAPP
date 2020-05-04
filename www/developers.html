@@ -39,8 +39,10 @@ You can open and inspect any MiniDAPP by using any regular archive program or un
 The MiFi demo shows how to integrate Minima into a normal website. The code is exactly the same as a MiniDAPP - and all you need to do is log 
 into the Minima Pop Up that appears. Obviously - Users must be running Minima. We don't want another MetaMask on our hands..<br> 
 <br>
-The only change between using the MiniDAPP and MiFi minima.js file is the MINIDAPPS_MINIMA variable at the top. This stops the Minima 
-PopUp from appearing.. and is served and editted automatically from the Minima app when using the MiniDAPP Hub.<br> 
+The only change between using the MiniDAPP and MiFi minima.js file is MINIMA_IS_MINIDAPP variable. This stops the Minima 
+PopUp from appearing.. and minima.js is served and editted automatically from the Minima app when using the MiniDAPP Hub.<br> 
+<br>
+The minima.js lib also come with the Decimal JS class for high precision mathematics built in - a MUST when using numbers in Minima as JavaScript default number handling is frankly embarrassing. Also a QR Code generator lib. Check the demos to see usage or look at the full versions in the js folder.<br>
 <br>
 This entire site with all the MiniDAPPs can be downloaded from github<br>
 <br>
