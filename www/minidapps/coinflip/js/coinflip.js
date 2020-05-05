@@ -106,7 +106,7 @@ function letsplay(){
 }
 
 function updateMyGames(){
-	Minima.cmd("coins  address:"+coinflipaddress+";coins relevant type:all", function(alljson){
+	Minima.cmd("coins  type:unspent address:"+coinflipaddress+";coins relevant type:all", function(alljson){
 		//FIRST DO MY GAMES.. And fill up MYGAME_LIST..
 		var mygames = '<table width=100% border=0>'
 			+'<tr style="height:20;font-size:20;"> '
