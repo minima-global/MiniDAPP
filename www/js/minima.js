@@ -32,8 +32,6 @@ var MIFIHOST              = "mifi.minima.global";
 var MAIN_DIV 		= "MINIMA_MAIN_DIV";
 var OVERLAY_DIV 	= "MINIMA_OVERLAY_DIV";
 var LOGOUT_BUTTON   = "MINIMA_LOGOUT_BUTTON";
-
-
 var WEBSOCK         = null;
 var MINIMACONNECTED = false;
 
@@ -48,7 +46,7 @@ var Minima = {
 	balance : {},
 	tokens : {},
 	uuid : Math.floor(Math.random()*1000000000),
-	logging : true,
+	logging : false,
 	
 	//Minima Startup
 	init : function(){
@@ -516,17 +514,15 @@ function setAdvancedPage(){
 	"Here you can directly specify the address of the Minima instance you wish to connect to.<br>\n" + 
 	"<br>\n" + 
 	"This could be your phone or a command line version running locally or online.<br>\n" + 
-	"<br>\n" + 
-	"\n" + 
-	"<br><br>\n" + 
-	"<center>\n" + 
-	"	<input placeholder='127.0.0.1:8999' type=text id='minimaconnect'>\n" + 
-	"</center>\n" + 
-
-	"		</td>\n" + 
-	"	</tr>\n" + 
+	"<br>" + 
+	"Leave blank to connect to <b>localhost</b>..<br>" + 
+	"<br><br>" + 
+	"<center>" + 
+	"	<input placeholder='127.0.0.1:8999' type=text id='minimaconnect'>" + 
+	"</center>" + 
+	"		</td>" + 
+	"	</tr>" + 
 	
-
 	"	<tr>\n" + 
 	"		<td height=10 colspan=3 align=center><button onclick='advancedConnect();'>C O N N E C T &GT;&GT;</button></td>\n" + 
 	"	</tr>\n" + 
