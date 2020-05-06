@@ -20,6 +20,18 @@
   font-family:monospace;
 }
 
+.menubutton{
+  background-color:#aaf;
+  border-radius: 10px;
+  font-size:20px;
+  text-align:center;
+  vertical-align:middle;
+  width:150;
+  height:50;
+  outline:none;
+  font-family:monospace;
+}
+
 .minidapptitle{
    font-weight:bold;
    font-size:18;

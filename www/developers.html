@@ -17,21 +17,22 @@
 <table width=750 border=0 align=center>
 <tr>
 	<td style="text-align:left"> <img src="./images/icon.png" height=80></td>
-	<td class="mainlinkstable"><a href="index.html">HOME</a></td>
-	<td class="mainlinkstable"><a href="mifi.html">MIFI</a></td>
-	<td class="mainlinkstable"><a href="minidapps.html">MINIDAPPS</a></td>
-	<td class="mainlinkstable"><a href="developers.html">DEVELOPERS</a></td>
+	<td class="mainlinkstable"><button onclick="window.location.href='index.html';" class="menubutton">&nbsp;HOME&nbsp;</button></td>
+	<td class="mainlinkstable"><button onclick="window.location.href='mifi.html';" class="menubutton">&nbsp;MIFI&nbsp;</button></td>
+	<td class="mainlinkstable"><button onclick="window.location.href='minidapps.html';" class="menubutton">&nbsp;MINIDAPPS&nbsp;</button></td>
+	<td class="mainlinkstable"><button onclick="window.location.href='developers.html';" class="menubutton">&nbsp;DEVELOPERS&nbsp;</button></td>
 	<td style="text-align:right"> <img src="./images/icon.png" height=80></td>
 </tr>
 </table>
+
 <br><br>
 
 Creating a MiniDAPP is simple.<br>
 <br>
-They are standalone HTML5 websites using HTML, JavaScript and CSS that communicate 
+They are standalone HTML5 sites, that run in full from any folder - not a website, using normal HTML, JavaScript and CSS and communicate 
 with the Minima application over simple JSON RPC calls.<br>
 <br>
-All the Minima logic to use the RPC is in a sinlge JS file.. minima.js<br>
+All the Minima logic to use the RPC is in a sinlge JS file.. minima.js.<br>
 <br>
 A MiniDAPP is the folder with your html app, a minidapp.conf file and a couple of images for the 'Menu'.. all zipped up and renamed *.minidapp. 
 You can open and inspect any MiniDAPP by using any regular archive program or unzip directly from the command line.<br>
@@ -57,7 +58,7 @@ The Main MINIDAPP Hub is accessed as a website hosted directly in the Minima app
 <br>
 Use <a target="_blank" href="http://127.0.0.1:21000/">http://127.0.0.1:21000/</a> if you are running the java locally or use the Phones' IP instead to browse from your desktop.<br>
 <br>
-( SSL support coming.. everything still very much in BETA )<br>
+( SSL support coming.. everything still very much pre-ALPHA )<br>
 <br>
 Running a private testnet is very simple.<br>
 <br>
