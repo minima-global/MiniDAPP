@@ -1,0 +1,45 @@
+/* THE VAULT */
+
+/* You need 2 keys */
+LET pkcold = COLD_KEY
+LET pkhot = HOT_KEY
+
+/* COLD key has root access*/
+IF SIGNEDBY ( pkcold ) THEN RETURN TRUE ENDIF
+
+/* The Amount and Recipient are specified in the State */
+LET amt = STATE ( 20 ) LET recip = STATE ( 21 )
+
+/* Now generate the Safe House Address */
+LET safehouse = [ LET pkcold = COLD_KEY LET pkhot = HOT_KEY
+                  IF SIGNEDBY ( pkcold ) THEN RETURN TRUE ENDIF
+                  IF SIGNEDBY ( pkhot ) THEN IF @BLKDIFF GT 20 THEN
+                  RETURN VERIFYOUT ( @INPUT PREVSTATE ( 21 ) @AMOUNT @TOKENID ) ENDIF ENDIF ]
+
+/* Make sure The Safe House Address is the opposite output */
+ASSERT VERIFYOUT ( @INPUT SHA3 ( 256 safehouse ) amt @TOKENID )
+
+/* Send the change back to the Vault */
+LET chg = @AMOUNT - amt
+IF chg GT 0 THEN ASSERT VERIFYOUT ( ( @INPUT + 1 ) @ADDRESS ( @AMOUNT - amt ) @TOKENID ) ENDIF
+
+/* Make sure is signed by the HOT key */
+RETURN SIGNEDBY ( pkhot )
+
+
+/* THE SAFE HOUSE */
+
+/* Same Keys as Vault */
+LET pkcold = COLD_KEY
+LET pkhot = HOT_KEY
+
+/* COLD key again has root access */
+IF SIGNEDBY ( pkcold ) THEN RETURN TRUE ENDIF
+
+/* ONLY spend after 20 blocks and ONLY to the pre-specified address for the whole amount */
+IF SIGNEDBY ( pkhot ) THEN
+  IF @BLKDIFF GT 20 THEN
+    RETURN VERIFYOUT ( @INPUT PREVSTATE ( 21 ) @AMOUNT @TOKENID )
+  ENDIF
+ENDIF
+
