@@ -563,8 +563,8 @@ function UpdateAllTrades(){
 			
 			//check has more than 1 input..
 			txpow = txpowlist[i].txpow;
-			if(txpow.txn.inputs.length>1 && txpitem.isinblock){
-				proof  = txpow.witness.mmrproofs[0].data;
+			if(txpow.body.txn.inputs.length>1 && txpitem.isinblock){
+				proof  = txpow.body.witness.mmrproofs[0].data;
 				coinid = proof.coin.tokenid;
 				
 				var tokenid = coinid;
