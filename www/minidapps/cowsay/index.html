@@ -1,0 +1,51 @@
+<html>
+
+<head>
+
+	<script type="text/javascript" src="./js/minima.js"></script>
+	<script type="text/javascript" src="./js/io.js"></script>
+
+	<!--  STYLE -->
+	<link rel="stylesheet" type="text/css" href="./css/cowsay.css">
+
+</head>
+
+<body style="background-image: url(./images/cowsayBack.png);">
+
+	<script type="text/javascript">
+
+
+		window.addEventListener("load", function(){
+			//Listen for Minima Events
+			window.addEventListener('MinimaEvent', function(evt) {});
+
+			//Initialise MiFi
+			Minima.init();
+		});
+
+	</script>
+
+	<center>
+
+		<div class='background'>
+
+			<h1>Random Cowsay</h1>
+
+			<button onclick='cowsayRandom()'>Cowsay!</button>
+		    <pre>
+				----------------------------------------------------------------------------------------------------------------------------------
+			        <b><span id="output"></span></b>
+				----------------------------------------------------------------------------------------------------------------------------------
+				      \   ^__^
+				       \  (oo)\_______
+				          (__)\ 0   0 )\  *
+				              ||--0-w | \/
+				              ||     ||
+			</pre>
+		</div>
+
+	</center>
+
+</body>
+
+</html>

@@ -1,0 +1,17 @@
+html {
+  font-family: helvetica, sans-serif;
+}
+
+body {
+  width: 70%;
+  margin:auto;
+  text-align:center;
+}
+
+pre {
+  text-align:left;
+}
+
+.backgroundImage {
+	background-image: url(./images/cowsayBack.png);
+}
