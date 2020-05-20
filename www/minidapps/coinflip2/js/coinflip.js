@@ -25,15 +25,17 @@ function coinFlipInit(){
 	
 	//Run the initialising SQL
 	Minima.sql(initsql,function(resp){
-		if(!resp.status){alert("Error in Init SQL..\n\n"+resp.message)}
-		console.log(JSON.stringify(resp, null, 2));
+		if(!resp.status){
+			alert("Error in Init SQL..\n\n"+resp.message);
+			console.log(JSON.stringify(resp, null, 2));
+		}
 		
 		//Add all the old games you know about..
 		var rows = resp.response[2].count;
-		console.log("KEYS FOUND : "+rows);
+//		console.log("KEYS FOUND : "+rows);
 		for(i=0;i<rows;i++){
 			key = resp.response[2].rows[i].KEY;
-			console.log("KEYS added : "+key);
+//			console.log("KEYS added : "+key);
 			MYGAME_KEYS.push(key);
 		}
 		
