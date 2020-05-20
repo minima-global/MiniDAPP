@@ -5,9 +5,12 @@
 var coinflipcontract = "LET round = STATE ( 0 ) LET prevround = PREVSTATE ( 0 ) ASSERT round EQ INC ( prevround ) IF round EQ 1 THEN IF SIGNEDBY ( PREVSTATE ( 2 ) ) THEN RETURN TRUE ENDIF ASSERT SAMESTATE ( 1 3 ) RETURN VERIFYOUT ( @INPUT @ADDRESS ( @AMOUNT * 2 ) @TOKENID ) ELSEIF round EQ 2 THEN IF @BLKDIFF GT 64 AND SIGNEDBY ( PREVSTATE ( 4 ) ) THEN RETURN TRUE ENDIF ASSERT SAMESTATE ( 1 5 ) LET ponehash = STATE ( 3 ) LET preimage = STATE ( 6 ) ASSERT SHA3 ( 512 preimage ) EQ ponehash RETURN VERIFYOUT ( @INPUT @ADDRESS @AMOUNT @TOKENID ) ELSEIF round EQ 3 THEN IF @BLKDIFF GT 64 AND SIGNEDBY ( PREVSTATE ( 2 ) ) THEN RETURN TRUE ENDIF ASSERT SAMESTATE ( 1 6 ) LET ptwohash = STATE ( 5 ) LET ptwopreimage = STATE ( 7 ) ASSERT SHA3 ( 512 ptwopreimage ) EQ ptwohash LET ponepreimage = STATE ( 6 ) LET rand = SHA3 ( 512 HEXCAT ( ponepreimage ptwopreimage ) ) LET val = NUMBER ( SUBSET ( 0 1 rand ) ) IF ( val LT 128 ) THEN LET winner = 1 ELSE LET winner = 2 ENDIF LET paywinner = @AMOUNT * 0.95 LET payloser = @AMOUNT - paywinner ASSERT STATE ( 8 ) EQ winner ASSERT STATE ( 9 ) EQ paywinner LET poneaddress = STATE ( 1 ) IF winner EQ 1 THEN ASSERT VERIFYOUT ( @INPUT poneaddress paywinner @TOKENID ) ELSE ASSERT VERIFYOUT ( @INPUT poneaddress payloser @TOKENID ) ENDIF RETURN SIGNEDBY ( PREVSTATE ( 4 ) ) ENDIF";
 var coinflipaddress  = "0x13F484D30BC6776A1050C90FF9B87CDB8EA8FC0333E206B4D2E71D012505BA43";
 
+//These are kept permanently in SQL..
+var MYGAME_KEYS      = [];
+
+//These keep track of local games - so you don't repeat an action
 var MYGAME_LIST      = [];
 var MYJOIN_LIST      = [];
-var MYGAME_KEYS      = [];
 var MYGAME_COINID    = [];
 var MYGAME_CANCELLED = [];
 
@@ -20,10 +23,12 @@ function coinFlipInit(){
 				  "CREATE TABLE IF NOT EXISTS gamekeys ( key VARCHAR(160) NOT NULL );" +
 				  "SELECT * FROM gamekeys";
 	
+	//Run the initialising SQL
 	Minima.sql(initsql,function(resp){
 		if(!resp.status){alert("Error in Init SQL..\n\n"+resp.message)}
 		console.log(JSON.stringify(resp, null, 2));
 		
+		//Add all the old games you know about..
 		var rows = resp.response[2].count;
 		console.log("KEYS FOUND : "+rows);
 		for(i=0;i<rows;i++){
@@ -41,7 +46,6 @@ function coinFlipInit(){
 //Called on new block
 function coinflipPollFunction(){
 	setTime();
-	
 	updateMyGames();
 }
 
