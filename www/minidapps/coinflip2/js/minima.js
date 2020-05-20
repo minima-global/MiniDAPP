@@ -18,8 +18,6 @@ var MINIMA_IS_MINIDAPP    = true;
 
 /**
  * When running as MiniDAPP Where is the Server host RPC
- * 
- * This replaced AUTOMATICALLY by the Minima App..
  */
 
 var MINIMA_MINIDAPP_HOST = "127.0.0.1:8999";

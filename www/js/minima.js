@@ -19,6 +19,7 @@ var MINIMA_IS_MINIDAPP    = true;
 /**
  * When running as MiniDAPP Where is the Server host RPC
  */
+
 var MINIMA_MINIDAPP_HOST = "127.0.0.1:8999";
 
 /**
@@ -32,6 +33,8 @@ var MIFIHOST              = "mifi.minima.global";
 var MAIN_DIV 		= "MINIMA_MAIN_DIV";
 var OVERLAY_DIV 	= "MINIMA_OVERLAY_DIV";
 var LOGOUT_BUTTON   = "MINIMA_LOGOUT_BUTTON";
+
+
 var WEBSOCK         = null;
 var MINIMACONNECTED = false;
 
@@ -46,7 +49,7 @@ var Minima = {
 	balance : {},
 	tokens : {},
 	uuid : Math.floor(Math.random()*1000000000),
-	logging : false,
+	logging : true,
 	
 	//Minima Startup
 	init : function(){
@@ -100,7 +103,19 @@ var Minima = {
 		var rpc = "http://"+Minima.host+"/"+enc;
 
 		//And Call it..
-		httpGetAsync(rpc, callback,true);
+		httpGetAsync(rpc, callback, true);
+	},
+	
+	//Runs SQL in the Database created for this MiniDAPP
+	sql : function(query, callback){
+		//Encode ready for transmission..
+		var enc = encodeURIComponent(query);
+		
+		//Encoded copy
+		var rpc = "http://"+Minima.host+"/sql/"+enc;
+
+		//And Call it..
+		httpGetAsync(rpc, callback, true);
 	},
 	
 	//Wipes the Locally stored details of the phone IP
@@ -514,15 +529,17 @@ function setAdvancedPage(){
 	"Here you can directly specify the address of the Minima instance you wish to connect to.<br>\n" + 
 	"<br>\n" + 
 	"This could be your phone or a command line version running locally or online.<br>\n" + 
-	"<br>" + 
-	"Leave blank to connect to <b>localhost</b>..<br>" + 
-	"<br><br>" + 
-	"<center>" + 
-	"	<input placeholder='127.0.0.1:8999' type=text id='minimaconnect'>" + 
-	"</center>" + 
-	"		</td>" + 
-	"	</tr>" + 
+	"<br>\n" + 
+	"\n" + 
+	"<br><br>\n" + 
+	"<center>\n" + 
+	"	<input placeholder='127.0.0.1:8999' type=text id='minimaconnect'>\n" + 
+	"</center>\n" + 
+
+	"		</td>\n" + 
+	"	</tr>\n" + 
 	
+
 	"	<tr>\n" + 
 	"		<td height=10 colspan=3 align=center><button onclick='advancedConnect();'>C O N N E C T &GT;&GT;</button></td>\n" + 
 	"	</tr>\n" + 
