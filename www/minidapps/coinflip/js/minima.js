@@ -19,6 +19,7 @@ var MINIMA_IS_MINIDAPP    = true;
 /**
  * When running as MiniDAPP Where is the Server host RPC
  */
+
 var MINIMA_MINIDAPP_HOST = "127.0.0.1:8999";
 
 /**
@@ -102,7 +103,19 @@ var Minima = {
 		var rpc = "http://"+Minima.host+"/"+enc;
 
 		//And Call it..
-		httpGetAsync(rpc, callback,true);
+		httpGetAsync(rpc, callback, true);
+	},
+	
+	//Runs SQL in the Database created for this MiniDAPP
+	sql : function(query, callback){
+		//Encode ready for transmission..
+		var enc = encodeURIComponent(query);
+		
+		//Encoded copy
+		var rpc = "http://"+Minima.host+"/sql/"+enc;
+
+		//And Call it..
+		httpGetAsync(rpc, callback, true);
 	},
 	
 	//Wipes the Locally stored details of the phone IP

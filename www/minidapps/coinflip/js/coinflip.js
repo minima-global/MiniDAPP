@@ -5,9 +5,12 @@
 var coinflipcontract = "LET round = STATE ( 0 ) LET prevround = PREVSTATE ( 0 ) ASSERT round EQ INC ( prevround ) IF round EQ 1 THEN IF SIGNEDBY ( PREVSTATE ( 2 ) ) THEN RETURN TRUE ENDIF ASSERT SAMESTATE ( 1 3 ) RETURN VERIFYOUT ( @INPUT @ADDRESS ( @AMOUNT * 2 ) @TOKENID ) ELSEIF round EQ 2 THEN IF @BLKDIFF GT 64 AND SIGNEDBY ( PREVSTATE ( 4 ) ) THEN RETURN TRUE ENDIF ASSERT SAMESTATE ( 1 5 ) LET ponehash = STATE ( 3 ) LET preimage = STATE ( 6 ) ASSERT SHA3 ( 512 preimage ) EQ ponehash RETURN VERIFYOUT ( @INPUT @ADDRESS @AMOUNT @TOKENID ) ELSEIF round EQ 3 THEN IF @BLKDIFF GT 64 AND SIGNEDBY ( PREVSTATE ( 2 ) ) THEN RETURN TRUE ENDIF ASSERT SAMESTATE ( 1 6 ) LET ptwohash = STATE ( 5 ) LET ptwopreimage = STATE ( 7 ) ASSERT SHA3 ( 512 ptwopreimage ) EQ ptwohash LET ponepreimage = STATE ( 6 ) LET rand = SHA3 ( 512 HEXCAT ( ponepreimage ptwopreimage ) ) LET val = NUMBER ( SUBSET ( 0 1 rand ) ) IF ( val LT 128 ) THEN LET winner = 1 ELSE LET winner = 2 ENDIF LET paywinner = @AMOUNT * 0.95 LET payloser = @AMOUNT - paywinner ASSERT STATE ( 8 ) EQ winner ASSERT STATE ( 9 ) EQ paywinner LET poneaddress = STATE ( 1 ) IF winner EQ 1 THEN ASSERT VERIFYOUT ( @INPUT poneaddress paywinner @TOKENID ) ELSE ASSERT VERIFYOUT ( @INPUT poneaddress payloser @TOKENID ) ENDIF RETURN SIGNEDBY ( PREVSTATE ( 4 ) ) ENDIF";
 var coinflipaddress  = "0x13F484D30BC6776A1050C90FF9B87CDB8EA8FC0333E206B4D2E71D012505BA43";
 
+//These are kept permanently in SQL..
+var MYGAME_KEYS      = [];
+
+//These keep track of local games - so you don't repeat an action
 var MYGAME_LIST      = [];
 var MYJOIN_LIST      = [];
-var MYGAME_KEYS      = [];
 var MYGAME_COINID    = [];
 var MYGAME_CANCELLED = [];
 
@@ -15,15 +18,42 @@ function coinFlipInit(){
 	//Tell Minima about the smart contract so it knows how to spend it..
 	Minima.cmd("extrascript \""+coinflipcontract+"\"");
 	
-	setBalance();
+	//Create the create database..
+	var initsql = "CREATE TABLE IF NOT EXISTS preimage ( image VARCHAR(160) NOT NULL, hash VARCHAR(160) NOT NULL );" +
+				  "CREATE TABLE IF NOT EXISTS gamekeys ( key VARCHAR(160) NOT NULL );" +
+				  "SELECT * FROM gamekeys";
 	
-	coinflipPollFunction();
+	//Run the initialising SQL
+	Minima.sql(initsql,function(resp){
+		if(!resp.status){
+			alert("Error in Init SQL..\n\n"+resp.message);
+			console.log(JSON.stringify(resp, null, 2));
+		}
+		
+		//Add all the old games you know about..
+		var rows = resp.response[2].count;
+//		console.log("KEYS FOUND : "+rows);
+		for(i=0;i<rows;i++){
+			key = resp.response[2].rows[i].KEY;
+//			console.log("KEYS added : "+key);
+			MYGAME_KEYS.push(key);
+		}
+		
+		//Clear it if growing to big - bit rough this..
+		if(rows>50){
+			console.log("CLEARING OUT OLD GAMES!");
+			Minima.sql("DELETE FROM gamekeys");
+		}
+		
+		//Continue startup
+		setBalance();
+		coinflipPollFunction();
+	});
 }
 
 //Called on new block
 function coinflipPollFunction(){
 	setTime();
-	
 	updateMyGames();
 }
 
@@ -62,7 +92,7 @@ function letsplay(){
 		var mykey     = json[2].response.key.publickey;
 		
 		//Store keys for later
-		MYGAME_KEYS.push(mykey);
+		addGameKey(mykey);
 		
 		//Now we can use that in a script and get the result to HASH the random number..
 		var runscript = 'runscript "LET hash = SHA3 ( 512 '+rand+' )"';
@@ -305,7 +335,7 @@ function acceptGame(acceptcoinid, acceptgameamount, acceptp1address, acceptp1key
 		var p2keys = json[1].response.key.publickey;
 		
 		//Store keys for later
-		MYGAME_KEYS.push(p2keys);
+		addGameKey(p2keys);
 		
 		//Now we can use that in a script and get the result to HASH the random number..
 		var runscript = 'runscript "LET hash = SHA3 ( 512 '+rand+' )"';
@@ -443,40 +473,39 @@ function roundOneChecker(zChecker_coinid, zChecker_gameamount, zChecker_p1addres
 }
 
 function roundOne(r1coinid, r1gameamount, r1p1address, p1keys, p1hash, p2keysprev, p2hash ){
-	
 	//Get the preimage..
-	var preimage = loadPreHash(p1hash);
-	
-	//Now we can construct the transaction..
-	var txnid3 = Math.floor(Math.random()*1000000000);
+	loadPreHash(p1hash,function(preimage){
+		//Now we can construct the transaction..
+		var txnid3 = Math.floor(Math.random()*1000000000);
+			
+		//Construct Transaction..
+		var txncreator3 = 
+			"txncreate "+txnid3+";"+
+			
+			//STAGE 2
+			"txnstate "+txnid3+" 0 2;"+
+			
+			//Copy the previous details..
+			"txnstate "+txnid3+" 1 "+r1p1address+";"+
+			"txnstate "+txnid3+" 2 "+p1keys+";"+
+			"txnstate "+txnid3+" 3 "+p1hash+";"+
+			"txnstate "+txnid3+" 4 "+p2keysprev+";"+
+			"txnstate "+txnid3+" 5 "+p2hash+";"+
+			"txnstate "+txnid3+" 6 "+preimage+";"+
+			
+			//Now add the game as input
+			"txninput "+txnid3+" "+r1coinid+";"+
+			//And the same amount/address as an output
+			"txnoutput "+txnid3+" "+r1gameamount+" "+coinflipaddress+" 0x00;"+
+			
+			//NOW POST!	
+			"txnpost "+txnid3+";"+
+			//And cleanup..
+			"txndelete "+txnid3+";";
 		
-	//Construct Transaction..
-	var txncreator3 = 
-		"txncreate "+txnid3+";"+
-		
-		//STAGE 2
-		"txnstate "+txnid3+" 0 2;"+
-		
-		//Copy the previous details..
-		"txnstate "+txnid3+" 1 "+r1p1address+";"+
-		"txnstate "+txnid3+" 2 "+p1keys+";"+
-		"txnstate "+txnid3+" 3 "+p1hash+";"+
-		"txnstate "+txnid3+" 4 "+p2keysprev+";"+
-		"txnstate "+txnid3+" 5 "+p2hash+";"+
-		"txnstate "+txnid3+" 6 "+preimage+";"+
-		
-		//Now add the game as input
-		"txninput "+txnid3+" "+r1coinid+";"+
-		//And the same amount/address as an output
-		"txnoutput "+txnid3+" "+r1gameamount+" "+coinflipaddress+" 0x00;"+
-		
-		//NOW POST!	
-		"txnpost "+txnid3+";"+
-		//And cleanup..
-		"txndelete "+txnid3+";";
-	
-	//Create the TXN.. 
-	CreateRoundTxn(txncreator3, r1coinid, 1);	
+		//Create the TXN.. 
+		CreateRoundTxn(txncreator3, r1coinid, 1);	
+	});	
 }
 
 function CreateRoundTxn(ztxncreator, zcoinid, zRound){
@@ -511,72 +540,85 @@ function roundTwoChecker(zChecker2_coinid, zChecker2_gameamount, zChecker2_p1add
 
 function roundTwo(r2coinid, r2gameamount, r2p1address, p1keys, p1hash, p2keysprev2, p2hash, preimage ){
 	//WHO HAS WON the game..
-	var script = "runscript \"LET paywinner = "+r2gameamount+" * 0.95 LET payloser =  "+r2gameamount+" - paywinner "
-	+"LET preimageone = "+preimage+" LET preimagetwo = "+loadPreHash(p2hash)+" "
-	+"LET rand = SHA3 ( 512 HEXCAT ( preimageone preimagetwo ) ) "
-	+"LET val = NUMBER ( SUBSET ( 0 1 rand ) ) IF ( val LT 128 ) THEN LET winner = 1 ELSE LET winner = 2 ENDIF\"";
+	loadPreHash(p2hash,function(pimage){
+		var script = "runscript \"LET paywinner = "+r2gameamount+" * 0.95 LET payloser =  "+r2gameamount+" - paywinner "
+		+"LET preimageone = "+preimage+" LET preimagetwo = "+pimage+" "
+		+"LET rand = SHA3 ( 512 HEXCAT ( preimageone preimagetwo ) ) "
+		+"LET val = NUMBER ( SUBSET ( 0 1 rand ) ) IF ( val LT 128 ) THEN LET winner = 1 ELSE LET winner = 2 ENDIF\"";
+		
+		//Run it and see who WON!
+		Minima.cmd(script+";newaddress", function(json){
+			//who wins!
+			var winner    = json[0].response.variables.winner;
+			var paywinner = json[0].response.variables.paywinner;
+			var payloser  = json[0].response.variables.payloser;
+			var preimg2   = json[0].response.variables.preimagetwo;
+			
+			var p2address = json[1].response.address.hexaddress;
+			
+			//Construct the Final transaction..
+			var txnid4 = Math.floor(Math.random()*1000000000);
+				
+			//Construct Transaction..
+			var txncreator4 = 
+				"txncreate "+txnid4+";"+
+				
+				//STAGE 2
+				"txnstate "+txnid4+" 0 3;"+
+				
+				//Copy the previous details..
+				"txnstate "+txnid4+" 1 "+r2p1address+";"+
+				"txnstate "+txnid4+" 2 "+p1keys+";"+
+				"txnstate "+txnid4+" 3 "+p1hash+";"+
+				"txnstate "+txnid4+" 4 "+p2keysprev2+";"+
+				"txnstate "+txnid4+" 5 "+p2hash+";"+
+				"txnstate "+txnid4+" 6 "+preimage+";"+
+				
+				//Add your preimage..
+				"txnstate "+txnid4+" 7 "+preimg2+";"+
+				
+				//Add the WINNER.. (this is checked but putting it here helps for later when checking
+				"txnstate "+txnid4+" 8 "+winner+";"+
+				
+				//Add the WIN AMOUNT.. (this is checked but putting it here helps for later when checking
+				"txnstate "+txnid4+" 9 "+paywinner+";"+
+				
+				//Now add the game as input
+				"txninput "+txnid4+" "+r2coinid+";";
+				
+			//ORDER of txnoutputs MATTER!
+			if( winner == "1" ){
+				//Player 1 WINS!
+				txncreator4 += "txnoutput "+txnid4+" "+paywinner+" "+r2p1address+" 0x00;"+
+							  "txnoutput "+txnid4+" "+payloser+" "+p2address+" 0x00;";
+			}else{
+				//Player 2 Wins!
+				txncreator4 += "txnoutput "+txnid4+" "+payloser+" "+r2p1address+" 0x00;"+
+							  "txnoutput "+txnid4+" "+paywinner+" "+p2address+" 0x00;";  
+			}
+			
+			//And finally.. SIGN IT!
+			txncreator4 += "txnsign "+txnid4+" "+p2keysprev2+";";
+			
+			//NOW POST!	
+			txncreator4 +=   "txnpost "+txnid4+";"+
+							//And cleanup..
+							"txndelete "+txnid4+";";
+			
+			//Create the TXN.. 
+			CreateRoundTxn(txncreator4, r2coinid, 2);	
+		});	
+	});
+}
+
+function addGameKey(key){
+	//Add locally
+	MYGAME_KEYS.push(key);
 	
-	//Run it and see who WON!
-	Minima.cmd(script+";newaddress", function(json){
-		//who wins!
-		var winner    = json[0].response.variables.winner;
-		var paywinner = json[0].response.variables.paywinner;
-		var payloser  = json[0].response.variables.payloser;
-		var preimg2   = json[0].response.variables.preimagetwo;
-		
-		var p2address = json[1].response.address.hexaddress;
-		
-		//Construct the Final transaction..
-		var txnid4 = Math.floor(Math.random()*1000000000);
-			
-		//Construct Transaction..
-		var txncreator4 = 
-			"txncreate "+txnid4+";"+
-			
-			//STAGE 2
-			"txnstate "+txnid4+" 0 3;"+
-			
-			//Copy the previous details..
-			"txnstate "+txnid4+" 1 "+r2p1address+";"+
-			"txnstate "+txnid4+" 2 "+p1keys+";"+
-			"txnstate "+txnid4+" 3 "+p1hash+";"+
-			"txnstate "+txnid4+" 4 "+p2keysprev2+";"+
-			"txnstate "+txnid4+" 5 "+p2hash+";"+
-			"txnstate "+txnid4+" 6 "+preimage+";"+
-			
-			//Add your preimage..
-			"txnstate "+txnid4+" 7 "+preimg2+";"+
-			
-			//Add the WINNER.. (this is checked but putting it here helps for later when checking
-			"txnstate "+txnid4+" 8 "+winner+";"+
-			
-			//Add the WIN AMOUNT.. (this is checked but putting it here helps for later when checking
-			"txnstate "+txnid4+" 9 "+paywinner+";"+
-			
-			//Now add the game as input
-			"txninput "+txnid4+" "+r2coinid+";";
-			
-		//ORDER of txnoutputs MATTER!
-		if( winner == "1" ){
-			//Player 1 WINS!
-			txncreator4 += "txnoutput "+txnid4+" "+paywinner+" "+r2p1address+" 0x00;"+
-						  "txnoutput "+txnid4+" "+payloser+" "+p2address+" 0x00;";
-		}else{
-			//Player 2 Wins!
-			txncreator4 += "txnoutput "+txnid4+" "+payloser+" "+r2p1address+" 0x00;"+
-						  "txnoutput "+txnid4+" "+paywinner+" "+p2address+" 0x00;";  
-		}
-		
-		//And finally.. SIGN IT!
-		txncreator4 += "txnsign "+txnid4+" "+p2keysprev2+";";
-		
-		//NOW POST!	
-		txncreator4 +=   "txnpost "+txnid4+";"+
-						//And cleanup..
-						"txndelete "+txnid4+";";
-		
-		//Create the TXN.. 
-		CreateRoundTxn(txncreator4, r2coinid, 2);	
+	//Add to the database..
+	var storesql = "INSERT INTO gamekeys (key) VALUES ('"+key+"')";
+	Minima.sql(storesql,function(resp){
+		if(!resp.status){alert("ERROR in SQL\n\n"+resp.message);}
 	});
 }
 
@@ -589,14 +631,25 @@ function removeCoinID(coinID){
 
 //Store the preimage of the hash value
 function storeHash(hash, value){
-	var name = 'COINFLIP_'+hash;
-	window.localStorage.setItem(name,value);
+	var storesql = "INSERT INTO preimage (image, hash) VALUES ('"+value+"','"+hash+"')";
+	Minima.sql(storesql,function(resp){
+		if(!resp.status){
+			alert("ERROR in SQL\n\n"+resp.message);
+		}
+	});
 }
 
 //get the preimage..
-function loadPreHash(hash){
-	var name = 'COINFLIP_'+hash;
-	return window.localStorage.getItem(name);
+function loadPreHash(hash, callback){
+	var loadsql = "SELECT * FROM preimage WHERE hash='"+hash+"'";
+	Minima.sql(loadsql,function(resp){
+		if(!resp.status){
+			alert("ERROR in SQL\n\n"+resp.message);
+		}else{
+			//Call the callback with the preimage..
+			callback(resp.response.rows[0].IMAGE);	
+		}
+	});
 }
 
 function compareCoin(coin_a, coin_b) {
