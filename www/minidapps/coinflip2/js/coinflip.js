@@ -37,6 +37,12 @@ function coinFlipInit(){
 			MYGAME_KEYS.push(key);
 		}
 		
+		//Clear it if growing to big - bit rough this..
+		if(rows>50){
+			console.log("CLEARING OUT OLD GAMES!");
+			Minima.sql("DELETE FROM gamekeys");
+		}
+		
 		//Continue startup
 		setBalance();
 		coinflipPollFunction();
