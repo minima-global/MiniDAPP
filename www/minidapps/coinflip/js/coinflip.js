@@ -32,10 +32,8 @@ function coinFlipInit(){
 		
 		//Add all the old games you know about..
 		var rows = resp.response[2].count;
-//		console.log("KEYS FOUND : "+rows);
 		for(i=0;i<rows;i++){
 			key = resp.response[2].rows[i].KEY;
-//			console.log("KEYS added : "+key);
 			MYGAME_KEYS.push(key);
 		}
 		
