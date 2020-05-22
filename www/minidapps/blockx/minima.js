@@ -18,8 +18,16 @@ var MINIMA_IS_MINIDAPP    = true;
 
 /**
  * When running as MiniDAPP Where is the Server host RPC
+ * 
+ * This replaced AUTOMATICALLY by the Minima App..
  */
+
 var MINIMA_MINIDAPP_HOST = "127.0.0.1:8999";
+
+/**
+ * The Web Socket Host
+ */
+var MINIMA_WEBSOCKET_HOST = "ws://127.0.0.1:20999";
 
 /**
  * MiFi Proxy Server for initial connect
@@ -102,7 +110,19 @@ var Minima = {
 		var rpc = "http://"+Minima.host+"/"+enc;
 
 		//And Call it..
-		httpGetAsync(rpc, callback,true);
+		httpGetAsync(rpc, callback, true);
+	},
+	
+	//Runs SQL in the Database created for this MiniDAPP
+	sql : function(query, callback){
+		//Encode ready for transmission..
+		var enc = encodeURIComponent(query);
+		
+		//Encoded copy
+		var rpc = "http://"+Minima.host+"/sql/"+enc;
+
+		//And Call it..
+		httpGetAsync(rpc, callback, true);
 	},
 	
 	//Wipes the Locally stored details of the phone IP
@@ -229,6 +249,9 @@ function initialStatus(){
 	//Encoded rpc call
 	var rpc = "http://"+Minima.host+"/"+encodeURIComponent("status;balance;tokens");
 	
+	//Start Listening for messages..
+	startWebSocketListener();
+	
 	//Check the Status - use base function so no log..
 	httpGetAsync(rpc,function(json){
 	    //Status is first..
@@ -334,16 +357,57 @@ function closeWebSocket(){
 	}
 }
 
+function startWebSocketListener(){
+	Minimalog("Starting WebSocket Listener @ "+MINIMA_WEBSOCKET_HOST);
+	
+	//Open up a websocket to the main MINIMA proxy..
+	var minimaws = new WebSocket(MINIMA_WEBSOCKET_HOST);
+	
+	minimaws.onopen = function() {
+		Minimalog("Minima WS Listener Connection opened..");
+	};
+	
+	minimaws.onmessage = function (evt) { 
+//		Minimalog("Minima WS Listener message "+evt.data);
+	
+		var jmsg = JSON.parse(evt.data);
+		
+		if(jmsg.event == "newblock"){
+			postMinimaMessage("block",jmsg.txpow);
+			
+		}else if(jmsg.event == "newtransaction"){
+			postMinimaMessage("transaction",jmsg.txpow);
+			
+		}else if(jmsg.event == "newbalance"){
+			postMinimaMessage("balance",jmsg.txpow);
+			
+		}
+	};
+		
+	minimaws.onclose = function() { 
+		Minimalog("Minima WS Listener closed...");
+	
+		//Start her up in a minute..
+		//..
+	};
+
+	minimaws.onerror = function(error) {
+		//var err = JSON.stringify(error);
+		var err = JSON.stringify(error, ["message", "arguments", "type", "name", "data"])
+		// websocket is closed.
+	    Minimalog("Minima WS Listener Error ... "+err); 
+	};
+}
 /**
  * Start polling to see if something has changed.. 
  */
 var minima_global_balance = "";
 function startMinimaPolling(){
 	//Check Balance every second
-	pollMinimaFunction();
+	//pollMinimaFunction();
 	
 	//Check every 5 secs
-	setInterval(function(){pollMinimaFunction();},10000);
+	//setInterval(function(){pollMinimaFunction();},10000);
 }
 
 function pollMinimaFunction(){

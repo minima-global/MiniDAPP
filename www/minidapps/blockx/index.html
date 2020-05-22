@@ -13,7 +13,7 @@
 	//Update the info..
 	function updateInfo(info){
 		document.getElementById("infodiv").innerHTML = 
-			" <b>CURRENT BLOCK : "+Minima.block+"</b><br><br>"+
+			" CURRENT BLOCK : <b>"+Minima.block+"</b><br><br>"+
 			"<span style='font-family:monospace;font-size:14'><a href='#' onclick='updateTxPow(Minima.txpowid); return false;'>"+Minima.txpowid+"</a><span><br><br>";	
 	}
 
@@ -23,6 +23,16 @@
 		Minima.cmd("txpowinfo "+txpowid,function(resp){
 			document.getElementById("txpowinfo").value = JSON.stringify(resp,null,2);
 		});
+	}
+	
+	//When you click on a txpowid.. get it and print info..
+	function updateTxPowDetails(txpow){
+		document.getElementById("infodiv").innerHTML = 
+			" CURRENT BLOCK <b>"+txpow.header.block+"</b> @ "+txpow.header.date+"<br><br>";
+			//"<span style='font-family:monospace;font-size:14'><a href='#' onclick='updateTxPow(Minima.txpowid); return false;'>"+txpow.txpowid+"</a><span><br><br>";
+			
+	    //Run a command on minima to get info about this txpow
+		document.getElementById("txpowinfo").value = JSON.stringify(txpow,null,2);
 	}
 	
 	//Wait for the page to load..
@@ -41,7 +51,11 @@
 	 			
 	 		}else if(evt.detail.event == "newblock"){
 	 			//Print some data
-	 			updateInfo();
+	 			//updateInfo();
+	 		
+	 		}else if(evt.detail.event == "block"){
+	 			//Print some data
+	 			updateTxPowDetails(evt.detail.info);
 	 		
 	 		}else if(evt.detail.event == "newbalance"){
 		 		//Nothing yet..
@@ -62,7 +76,7 @@
 	<h2>Super Simple Minima Block Explorer</h2>
 	<div id="infodiv">no info yet..</div> 
 	<br>
-	<textarea spellcheck="false" rows="35" cols="100" style="border:none;" id="txpowinfo"></textarea>
+	<textarea spellcheck="false" rows="50" cols="160" style="font-size:10;border:none;" id="txpowinfo"></textarea>
 
 </div>
 
