@@ -10,7 +10,7 @@
 
 <script type="text/javascript">
 
-	//Update the info..
+	/*//Update the info..
 	function updateInfo(info){
 		document.getElementById("infodiv").innerHTML = 
 			" CURRENT BLOCK : <b>"+Minima.block+"</b><br><br>"+
@@ -23,13 +23,11 @@
 		Minima.cmd("txpowinfo "+txpowid,function(resp){
 			document.getElementById("txpowinfo").value = JSON.stringify(resp,null,2);
 		});
-	}
+	}*/
 	
 	//When you click on a txpowid.. get it and print info..
 	function updateTxPowDetails(txpow){
-		document.getElementById("infodiv").innerHTML = 
-			" CURRENT BLOCK <b>"+txpow.header.block+"</b> @ "+txpow.header.date+"<br><br>";
-			//"<span style='font-family:monospace;font-size:14'><a href='#' onclick='updateTxPow(Minima.txpowid); return false;'>"+txpow.txpowid+"</a><span><br><br>";
+		document.getElementById("infodiv").innerHTML = " CURRENT BLOCK <b>"+txpow.header.block+"</b> @ "+txpow.header.date+"<br><br>";
 			
 	    //Run a command on minima to get info about this txpow
 		document.getElementById("txpowinfo").value = JSON.stringify(txpow,null,2);
@@ -43,22 +41,18 @@
 			
 			//Deal with each message type
 	 		if(evt.detail.event == "connected"){
-	 			//Print some data
-	 			updateInfo();
-	 			
 	 			//And set the initial 
-	 			updateTxPow(Minima.txpowid);
-	 			
-	 		}else if(evt.detail.event == "newblock"){
-	 			//Print some data
-	 			//updateInfo();
+	 			//updateTxPow(Minima.txpowid);
 	 		
 	 		}else if(evt.detail.event == "block"){
 	 			//Print some data
 	 			updateTxPowDetails(evt.detail.info);
 	 		
-	 		}else if(evt.detail.event == "newbalance"){
+	 		}else if(evt.detail.event == "transaction"){
+	 		
+	 		}else if(evt.detail.event == "balance"){
 		 		//Nothing yet..
+		 		console.log(Minima.util.getBalance("0x00"));
 	 		}
 	    });
 		

@@ -56,7 +56,7 @@ var Minima = {
 	balance : {},
 	tokens : {},
 	uuid : Math.floor(Math.random()*1000000000),
-	logging : true,
+	logging : false,
 	
 	//Minima Startup
 	init : function(){
@@ -140,16 +140,17 @@ var Minima = {
 	util : {
 			//Get the Balance string for a Tokenid..
 			getBalance : function(tokenid){
-				var ballen = Minima.balance.balance.length;
+				var ballen = Minima.balance.length;
 				for(balloop=0;balloop<ballen;balloop++){
-					if(Minima.balance.balance[balloop].tokenid == tokenid){
-						var bal     = Minima.balance.balance[balloop].confirmed;
-						var balun   = Minima.balance.balance[balloop].unconfirmed;
-						var mempool = Minima.balance.balance[balloop].mempool;
+					if(Minima.balance[balloop].tokenid == tokenid){
+						var bal     = Minima.balance[balloop].confirmed;
+						var balsend = Minima.balance[balloop].sendable;
+						var balun   = Minima.balance[balloop].unconfirmed;
+						var mempool = Minima.balance[balloop].mempool;
 						
 						//Is there unconfirmed money coming..
-						if(balun !== "0" || mempool !== "0"){
-							return bal+" / "+balun+" / "+mempool;	
+						if(balun !== "0" || mempool !== "0" || balsend !== bal){
+							return balsend+" ("+bal+") / "+balun+" / "+mempool;	
 						}else{
 							return ""+bal;
 						}	
@@ -368,27 +369,40 @@ function startWebSocketListener(){
 	};
 	
 	minimaws.onmessage = function (evt) { 
-//		Minimalog("Minima WS Listener message "+evt.data);
-	
+		//Convert to JSON	
 		var jmsg = JSON.parse(evt.data);
 		
 		if(jmsg.event == "newblock"){
+			//Set the new status
+			Minima.status  = jmsg.status;
+			Minima.txpowid = jmsg.status.tip;
+			Minima.block   = parseInt(jmsg.status.lastblock,10);
+			
+			//Post it
 			postMinimaMessage("block",jmsg.txpow);
 			
 		}else if(jmsg.event == "newtransaction"){
+			//New Transaction
 			postMinimaMessage("transaction",jmsg.txpow);
 			
 		}else if(jmsg.event == "newbalance"){
-			postMinimaMessage("balance",jmsg.txpow);
+			//Set the New Balance
+			Minima.balance = jmsg.balance;
+			
+			//Post it..
+			postMinimaMessage("balance",jmsg);
+		
+		}else if(jmsg.event == "newmessage"){
+			//Received a message from another MiniDAPP	
 			
 		}
 	};
 		
 	minimaws.onclose = function() { 
-		Minimalog("Minima WS Listener closed...");
+		Minimalog("Minima WS Listener closed... reconnect attempt in 30 seconds");
 	
 		//Start her up in a minute..
-		//..
+		setTimeout(function(){ startWebSocketListener(); }, 30000);
 	};
 
 	minimaws.onerror = function(error) {
