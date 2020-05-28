@@ -10,27 +10,20 @@
 
 <script type="text/javascript">
 
-	/*//Update the info..
-	function updateInfo(info){
-		document.getElementById("infodiv").innerHTML = 
-			" CURRENT BLOCK : <b>"+Minima.block+"</b><br><br>"+
-			"<span style='font-family:monospace;font-size:14'><a href='#' onclick='updateTxPow(Minima.txpowid); return false;'>"+Minima.txpowid+"</a><span><br><br>";	
-	}
-
-	//When you click on a txpowid.. get it and print info..
-	function updateTxPow(txpowid){
-		//Run a command on minima to get info about this txpow
-		Minima.cmd("txpowinfo "+txpowid,function(resp){
-			document.getElementById("txpowinfo").value = JSON.stringify(resp,null,2);
-		});
-	}*/
-	
 	//When you click on a txpowid.. get it and print info..
 	function updateTxPowDetails(txpow){
-		document.getElementById("infodiv").innerHTML = " CURRENT BLOCK <b>"+txpow.header.block+"</b> @ "+txpow.header.date+"<br><br>";
-			
-	    //Run a command on minima to get info about this txpow
-		document.getElementById("txpowinfo").value = JSON.stringify(txpow,null,2);
+		//Set the Title
+		document.getElementById("infodiv").innerHTML = 
+			"CURRENT BLOCK <b>"+txpow.header.block+"</b> @ "+txpow.header.date+"<br><br>"
+			+"<a style='font-size:12;' href='#' onclick='setFullTxPoW(\""+txpow.txpowid+"\");return false;'>"+txpow.txpowid+"</a>";
+	}
+	
+	function setFullTxPoW(txpowid){
+		//Run a command on minima to get info about this txpow
+		Minima.cmd("txpowinfo "+txpowid,function(resp){
+			//Run a command on minima to get info about this txpow
+			document.getElementById("txpowinfo").value = JSON.stringify(resp.response.txpow,null,2);
+		});
 	}
 	
 	//Wait for the page to load..
@@ -41,22 +34,28 @@
 			
 			//Deal with each message type
 	 		if(evt.detail.event == "connected"){
+	 			//Set the Title
+	 			document.getElementById("infodiv").innerHTML = 
+	 				"CURRENT BLOCK <b>"+Minima.block+"</b><br><br><span style='font-size:12;'>"+Minima.txpowid+"</span>";
+	 				
 	 			//And set the initial 
-	 			//updateTxPow(Minima.txpowid);
+	 			setFullTxPoW(Minima.txpowid);
 	 		
-	 		}else if(evt.detail.event == "block"){
+	 		}else if(evt.detail.event == "newblock"){
 	 			//Print some data
 	 			updateTxPowDetails(evt.detail.info);
 	 		
-	 		}else if(evt.detail.event == "transaction"){
-	 		
-	 		}else if(evt.detail.event == "balance"){
-		 		//Nothing yet..
+	 		}else if(evt.detail.event == "newtransaction"){
+		 		//..
+		 		
+	 		}else if(evt.detail.event == "newbalance"){
+		 		//Nothing yet.. just print something in the console.. using the util function
 		 		console.log(Minima.util.getBalance("0x00"));
 	 		}
 	    });
 		
 		//Initialise MiFi
+		//Minima.logging=false;
 		Minima.init();
 	});
 	
