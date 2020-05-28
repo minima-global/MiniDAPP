@@ -14,7 +14,7 @@
 /**
  * Are we running in MINIDAPP mode
  */
-var MINIMA_IS_MINIDAPP    = true;
+var MINIMA_IS_MINIDAPP    = false;
 
 /**
  * When running as MiniDAPP Where is the Server host RPC
