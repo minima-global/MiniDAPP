@@ -1,25 +1,27 @@
 /*
   COIN FLIP SCRIPT
 
-  Quite a funky little script.. here written with comments
+  Funky little script.. with comments. Works as is in Script IDE. 
+   
+  0 - Round Number
    
   PLAYER 1 puts his details in state 1-3
-  1 - payout address
+  1 - Payout address
   2 - Cancel / Last Resort key
-  3 - hash of random number  
+  3 - Hash of random number  
 
   PLAYER 2 adds his details
   4 - Last Resort key
-  5 - hash of random number
+  5 - Hash of random number
 
   Then player 1 reveals..
-  6 - preimage of 3
+  6 - Preimage of 3
 
-  Then player 2 reveals and pays out ( wins or takes back 5% )
-  7 - preimage of 5
+  Then player 2 reveals and pays out ( wins 95% or takes back 5% - incentive to finish game )
+  7 - Preimage of 5
  
   If Player 1 or 2 do not reveal or pay out in a time limit 
-  then other player gets everything as last resort..
+  other player gets everything as last resort..
 
 */
 
