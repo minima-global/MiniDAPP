@@ -3,7 +3,10 @@
 
    Very simple contract that lets anyone 
    spend it as long as the correct amount 
-   of the correct token is sent to the correct address
+   of the correct token is sent to the 
+   correct address
+   
+   Owner can cancel
    
    All or Nothing. 
 */
