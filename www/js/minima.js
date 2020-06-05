@@ -56,6 +56,7 @@ var Minima = {
 	balance : {},
 	uuid : Math.floor(Math.random()*1000000000),
 	logging : true,
+	showmining : false,
 	
 	//Minima Startup
 	init : function(){
@@ -190,6 +191,36 @@ var Minima = {
 				
 				//Not found
 				return null;
+			},
+			
+			notify : function(message){
+				if(!Minima.showmining){
+					return;
+				}
+				
+				//Do we support notifications
+				if (!("Notification" in window)) {
+				    console.log("This browser does not support notifications");
+					return;
+				}
+				
+				var options = {
+				      body: message
+				  }
+			
+				//Do we already have permissions..
+				if (Notification.permission === "granted") {
+				    // If it's okay let's create a notification
+				    var notification = new Notification("Minima",options);
+				    
+				}else if (Notification.permission !== "denied") {
+				    Notification.requestPermission().then(function (permission) {
+				      // If the user accepts, let's create a notification
+				      if (permission === "granted") {
+				    	  var notification = new Notification("Minima",options);
+				      }
+				    });
+			    }
 			}
 			
 	}
@@ -363,6 +394,13 @@ function startWebSocketListener(){
 		}else if(jmsg.event == "newmessage"){
 			//Received a message from another MiniDAPP	
 			
+		}else if(jmsg.event == "txpowstart"){
+			console.log("Mining start!");
+			Minima.util.notify("Mining Transaction Started!");	
+			
+		}else if(jmsg.event == "txpowend"){
+			console.log("Mining end!");
+			Minima.util.notify("Mining Transaction Finished!");
 		}
 	};
 		
