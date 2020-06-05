@@ -75,6 +75,12 @@ var Minima = {
 				//Use it..
 				Minima.host = ip;
 				
+				//Now set the websocket Host
+			    var justhost = Minima.host.indexOf(":");
+			    var justip   = Minima.host.substring(0,justhost);
+			    MINIMA_WEBSOCKET_HOST = "ws://"+justip+":20999";
+			    Minimalog("Minima Websocket set "+Minima.host);
+			    
 				//Show Logout.. in case we need to as previous connection is broken
 				show(LOGOUT_BUTTON);
 				
@@ -242,8 +248,7 @@ function advancedConnect(){
 	
 	//Default to local host
 	if(host == ''){
-		alert("Connecting to 127.0.0.1:8999");
-		
+		alert("Connecting to 127.0.0.1:8999");	
 		host = "127.0.0.1:8999";
 	}
 	
@@ -253,6 +258,14 @@ function advancedConnect(){
     //Set it..
     Minima.host = host;
     Minimalog("Host set "+Minima.host);
+    
+    //Now set the websocket Host
+    var justhost = host.indexOf(":");
+    var justip = host.substring(0,justhost);
+    console.log("JUST IP "+justip);
+    
+    MINIMA_WEBSOCKET_HOST = "ws://"+justip+":20999";
+    Minimalog("Minima Websocket set "+Minima.host);
     
     //Run Status once to populate the main details..
     initialStatus();
