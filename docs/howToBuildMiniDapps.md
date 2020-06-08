@@ -102,7 +102,7 @@ Finally, make your `minidapp.conf` look like this:
 }
 ```
 
-## Zip up your MiniDapp
+## Zip Up Your MiniDapp
 
 If you look in the [MiFi](https://github.com/glowkeeper/MiFi) repository's [MiniDapps directory](../www/minidapps/), you'll see a file called `buildscript.sh`. Add `helloWorld` to the end of that:
 
