@@ -41,7 +41,7 @@ If all has gone well, you should now have a `helloWorld` directory containing al
 First thing we're going to do is tidy up a bit by removing things we don't need and renaming those that we do:
 
 1. Rename `cowsay.css` to `helloWorld.css`
-2. Rename all the files in the `images` directory so they say `helloWorld`, rather than `cowsay`. Better still, if you are able to create your own amazing artwork for `helloWorldBackdrop.png`, `helloWorldBody.png` and `helloWorldicon.png`, do so now ;)
+2. Rename all the files in the `images` directory so they say `helloWorld`, rather than `cowsay`. Better still, if you are able to create your own amazing artwork for `helloWorldBackdrop.png`, `helloWorldBody.png` and `helloWorldIcon.png`, do so now ;)
 3. Remove the `cowsay.js` and `io.js` files from the `js` directory, since they are no longer required (fyi, `io.js` makes `cowsay` do some io, and `cowsay.js` was a CommonJS port of https://github.com/schacon/cowsay)
 
 Now your `helloWorld` directory should look like this:
@@ -53,41 +53,39 @@ We're going to make the `helloWorld` MiniDapp say, well, _"Hello World!"_ (or so
 ```
 <html>
 
-<head>
+	<head>
 
-	<script type="text/javascript" src="./js/minima.js"></script>
+		<script type="text/javascript" src="./js/minima.js"></script>
 
-	<!--  STYLE -->
-	<link rel="stylesheet" type="text/css" href="./css/helloWorld.css">
+		<link rel="stylesheet" type="text/css" href="./css/helloWorld.css">
 
-</head>
+	</head>
 
-<body style="background-image: url(./images/helloWorldBody.png);">
+	<body style="background-image: url(./images/helloWorldBody.png);">
 
-	<script type="text/javascript">
+		<script type="text/javascript">
 
+			window.addEventListener("load", function(){
+				//Listen for Minima Events
+				window.addEventListener('MinimaEvent', function(evt) {});
 
-		window.addEventListener("load", function(){
-			//Listen for Minima Events
-			window.addEventListener('MinimaEvent', function(evt) {});
+				//Initialise MiFi
+				Minima.init();
+			});
 
-			//Initialise MiFi
-			Minima.init();
-		});
+		</script>
 
-	</script>
+		<center>
 
-	<center>
+			<div class='background'>
 
-		<div class='background'>
+				<p>Hello (decentralised) World!</p>
 
-			<p>Hello (decentralised) World!</p>
+			</div>
 
-		</div>
+		</center>
 
-	</center>
-
-</body>
+	</body>
 
 </html>
 ```
@@ -106,7 +104,7 @@ Finally, make your `minidapp.conf` look like this:
 
 ## Zip up your MiniDapp
 
-If you look in the directory containing all the MiniDapps, you'll see a file called `buildscript.sh`. Add `helloWorld` to the end of that:
+If you look in the [MiFi](https://github.com/glowkeeper/MiFi) repository's [MiniDapps directory](../www/minidapps/), you'll see a file called `buildscript.sh`. Add `helloWorld` to the end of that:
 
 ```
 #!/bin/sh
@@ -134,7 +132,7 @@ cp ./miniwallet/wallet.minidapp ./bin/
 zip -r ./bin/helloWorld.minidapp helloWorld
 ```
 
-Now drop out of your favourite editor (if it's not [atom](https://atom.io/), why not?), and run `buildscript.sh`. If all went well, you should have a number of `.minidapp` files in you MiFi repository's [www/minidapps/bin](www/minidapps/bin) directory, including `helloWorld.minidapp`. It's time to introduce it to the world!
+Now drop out of your favourite editor (if it's not [atom](https://atom.io/), why not?), and run `buildscript.sh`. If all went well, you should have a number of `.minidapp` files in you MiFi repository's [www/minidapps/bin](../www/minidapps/bin) directory, including `helloWorld.minidapp`. It's time to introduce it to the world!
 
 ## Hello World!
 
