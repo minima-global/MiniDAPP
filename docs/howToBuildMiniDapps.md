@@ -49,7 +49,7 @@ Now your Directory should look like this:
 
 ![](./images/hellowWorldCleanup.png)
 
-We're going to make the helloWorld MiniDapp say, well, _"Hello World!"_ (or something similar). Edit `index.html`, and make it look like this:
+We're going to make the `helloWorld` MiniDapp say, well, _"Hello World!"_ (or something similar). Edit `index.html`, and make it look like this:
 
 ```
 <html>
@@ -105,7 +105,7 @@ Finally, make your `minidapp.conf` look like this:
 }
 ```
 
-## Zip up your (first) MiniDapp
+## Zip up your MiniDapp
 
 If you look in the directory containing all the MiniDapps, you'll see a file called `buildscript.sh`. Add `helloWorld` to the end of that:
 
@@ -155,10 +155,10 @@ Now, click on the `Hello World MiniDapp`, and you _should_ see this:
 
 ## What Next?
 
-Although `helloWorld.minidapp` is fit for purpose (it outputs "hello World!" (almost)), it doesn't actually interact with the Minima network. So the obvious next step is to do just that and investigate the Minima API. A good way of seeing what's available there is to run the `terminal` minidapp (which we created earlier when we ran `buildscript.sh`). Install that, load it, then type help:
+Although `helloWorld.minidapp` is fit for purpose (it outputs "hello World!" (almost)), it doesn't actually interact with the Minima network. So the obvious next step is to do just that by investigating the Minima API. A good way of seeing what's available there is to run the `terminal` MiniDapp  (which we created earlier when we ran `buildscript.sh`). Install that, load it, then type help:
 
 ![](./images/helloWorldTerminal.png)
 
-You could get some ideas from the other minidapps, too - for example, [cowsay](https://github.com/glowkeeper/MiFi/www/minidapps/cowsay) makes use of the Minima `random` command. But there are endless more possibilities...
+You could get some ideas from the other MiniDapps, too - for example, [cowsay](https://github.com/glowkeeper/MiFi/www/minidapps/cowsay) makes use of the Minima `random` command. But there are endless more possibilities...
 
 Good luck!
