@@ -122,15 +122,13 @@
 				var data = json[2].response.coins[i].data;
 				var blkdiff = json[2].response.coins[i].blocktime - data.inblock;
 				var timetxt = "TIME REMAINING : "+blkdiff+" / 20";
+				forwfunc = "alert('You have not waited enough time.. Transaction Invalid');";
 				
-				//forwfunc = "alert('You have not waited enough time.\n\nThis transaction is INVALID!');";
-				forwfunc = "alert('HELLO');";
-				
-				/*if(blkdiff > 20){
+				if(blkdiff > 20){
 					timetxt = "WAIT COMPLETE ";
 					forwfunc = "ForwardFundsFromSafeHouse("+data.coin.amount
 								+",'"+data.prevstate[1].data+"','"+data.coin.coinid+"');";
-				}*/
+				}
 				
 				rescfunc = "RescueFundsFromSafeHouse("+data.coin.amount+",'"+data.coin.coinid+"');";
 				
