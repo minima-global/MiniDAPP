@@ -16,5 +16,7 @@ zip -r ./bin/coinflip.minidapp coinflip
 
 zip -r ./bin/blockx.minidapp blockx
 
+zip -r ./bin/cowsay.minidapp cowsay
+
 cp ./miniwallet/wallet.minidapp ./bin/
 

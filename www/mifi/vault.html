@@ -3,7 +3,8 @@
 <head>
 	
 	<!--   The MINIMA MiFi Javascript Library -->
-	<script type="text/javascript" src="http://mifi.minima.global/js/minima.js"></script>
+	<!--  <script type="text/javascript" src="http://mifi.minima.global/js/minima.js"></script> -->
+	<script type="text/javascript" src="../js/minima.js"></script>
 	
 </head>
 
@@ -55,7 +56,7 @@
 			+ " IF chg GT 0 THEN ASSERT VERIFYOUT ( ( @INPUT + 1 ) @ADDRESS ( @AMOUNT - amt ) @TOKENID ) ENDIF "
 			+ " RETURN SIGNEDBY ( pkhot )";
 	
-		//document.getElementById("vaultscript").innerHTML   = vscript;
+		document.getElementById("vaultscript").innerHTML   = vscript;
 		
 		var shouse = "LET pkcold = "+coldkey
 			+ " LET pkhot = "+hotkey
@@ -63,11 +64,13 @@
 			+ " IF SIGNEDBY ( pkhot ) THEN IF @BLKDIFF GT 20 THEN"
 			+ " RETURN VERIFYOUT ( @INPUT PREVSTATE ( 21 ) @AMOUNT @TOKENID ) ENDIF ENDIF"
 		
-		//document.getElementById("safescript").innerHTML   = shouse;
+		document.getElementById("safescript").innerHTML   = shouse;
 	
 		//Now tell Minima Wallet to look out for these 2 addresses
 		var addrcmd = "newscript \""+vscript+"\";newscript \""+shouse+"\"";
 		Minima.cmd(addrcmd, function(json){
+			console.log("SCRIPTS : "+JSON.stringify(json));
+			
 			vaultaddress     = json[0].response.address.hexaddress;
 			safehouseaddress = json[1].response.address.hexaddress;
 		
@@ -85,12 +88,18 @@
 	}
 	
 	function pollFunction(){
+		if(vaultaddress == ""){
+			console.log("No Vault specified yet..");
+			return;
+		}
+		
 		//Set the time..
 		document.getElementById("blocktime").innerHTML = Minima.block;
 			
 		comm = "balance "+vaultaddress+";coins relevant address:"+vaultaddress+";coins relevant address:"+safehouseaddress+";balance "+rescaddr;
+		//console.log("POLL : "+comm);
+		
 		Minima.cmd( comm , function(json){
-			
 			//Set the balances..
 			vaultamount = json[0].response.balance[0].confirmed;
 			document.getElementById("vaultbalance").innerHTML = 
@@ -113,9 +122,8 @@
 				var data = json[2].response.coins[i].data;
 				var blkdiff = json[2].response.coins[i].blocktime - data.inblock;
 				var timetxt = "TIME REMAINING : "+blkdiff+" / 20";
+				forwfunc = "alert('You have not waited enough time.. Transaction Invalid');";
 				
-				forwfunc = "alert('You have not waited enough time.\n\nThis transaction is INVALID!');";
-
 				if(blkdiff > 20){
 					timetxt = "WAIT COMPLETE ";
 					forwfunc = "ForwardFundsFromSafeHouse("+data.coin.amount
@@ -127,8 +135,8 @@
 				safetext +="<tr><td align=center nowrap colspan=2><br>"
 						 +" SAFE HOUSE FOUND WITH "+data.coin.amount
 						 +"<br>"+data.prevstate[1].data+"<br>"+timetxt+"<br></td></tr>";
-				safetext +="<tr> <td align=left><button onclick=\""+rescfunc+"\">RESCUE</button></td>"
-						 +"  <td align=right onclick=''><button onclick=\""+forwfunc+"\">FORWARD FUNDS</button></td> </tr>";
+				safetext +="<tr> <td align=left><button onmousedown=\""+rescfunc+"\">RESCUE</button></td>"
+						 +"  <td align=right><button onmousedown=\""+forwfunc+"\">FORWARD FUNDS</button></td> </tr>";
 				safetext +="<tr> <td colspan=2>&nbsp; <hr> &nbsp;</td> </tr>";		
 			}
 			
@@ -184,6 +192,8 @@
 	}
 	
 	function  ForwardFundsFromSafeHouse(amount,address,coinid){
+		console.log("ForwardFundsFromSafeHouse");
+		
 		var txnid = Math.floor(Math.random()*1000000000);
 		
 		//Now construct a transaction..
@@ -272,6 +282,7 @@
 		MINIMA_IS_MINIDAPP = false;
 		
 		//Initialise MiFi
+		Minima.logging = false;
 		Minima.init();
 	});
 	
@@ -395,14 +406,13 @@ So - let's play.. All the setup is done in the background.. just <b>make sure yo
 </tr>
 </table>
   
-<!--  <br>
+<br>
 <b>VAULT SCRIPT</b> : 
 <div id="vaultscript" style='border-radius:10px;padding:10;background-color:#CCCCCC;color:#000000;width:750px;text-align:left;font-size:13px;font-family:monospace;'></div>
  
 <br>
 <b>SAFE HOUSE SCRIPT</b> : 
 <div id="safescript" style='border-radius:10px;padding:10;background-color:#CCCCCC;color:#000000;width:750px;text-align:left;font-size:13px;font-family:monospace;'></div>
--->
 
 <br><br>
 Here are the scripts..<br>
