@@ -144,7 +144,7 @@ Click on `Install`, then go find the `helloWorld.minidapp` we created earlier. I
 
 ![](./images/helloWorldMiniDappServer.png)
 
-Now, click on the `Hello World MiniDapp`, and you _should_ see this:
+Now, click on the `Hello World` MiniDapp, and you _should_ see this:
 
 ![](./images/helloDecentralisedWorld.png)
 
