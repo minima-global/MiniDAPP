@@ -1,8 +1,6 @@
 # How to Build Your First MiniDapp
 
-This is a brief (and irreverent) doc' to get you started creating your first Minima MiniDapp. And in the best traditions of Computing, the MiniDapp this doc' creates outputs:
-
-"Hello (decentralised) World".
+This is a brief (and irreverent) doc' to get you started creating your first Minima MiniDapp. And in the best traditions of Computing, the MiniDapp this doc' creates outputs a version of the immortal words, _"Hello World"_. Obvs.
 
 ## Prerequisites
 
@@ -15,7 +13,7 @@ java -jar ./jar/minima.jar
 
 ````
 
-Importantly, for our purposes, that command fires up a MiniDapp server on port 21000 of our local machine. We'll use that, later.
+Importantly, for our purposes, that command fires up a MiniDapp server on port [21000](http://localhost:2100) of your local machine. We'll use that, later.
 
 As a brief aside, you could also start the MiniDapp server via:
 
@@ -28,7 +26,7 @@ That could come in useful later should you ever need (or want) to change somethi
 
 ## Creatively Commandeer
 
-There is no need to start from scratch, as a number of MiniDapps have already been created. So for the purposes of this tutorial, we're going to re-engineer [cowsay](https://github.com/glowkeeper/MiFi/www/minidapps/cowsay). Change to your cloned MiFi directory, then:
+There is no need to start from scratch - the [MiFi](https://github.com/glowkeeper/MiFi) repository  already contains a number of MiniDapps, so we'll commanderr one of those - [cowsay](https://github.com/glowkeeper/MiFi/www/minidapps/cowsay). Change to your cloned MiFi directory, then:
 
 ```
 cd www/minidapps
@@ -36,9 +34,11 @@ cp -R cowsay helloWorld
 
 ```
 
-If all has gone well, you should now have a helloWorld directory containing all the goodness (and more). Load that directory up into your favourite IDE - here's what it that looks like in my IDE of choice, ([atom](https://atom.io/)):
+If all has gone well, you should now have a `helloWorld` directory containing all the goodness (and more). Load that directory up into your favourite IDE - here's what it that looks like in my IDE of choice, ([atom](https://atom.io/)):
 
 ![](./helloWorld.png)
+
+## Make Hello World
 
 First thing we're going to do is tidy up a bit by removing things we don't need and renaming those that we do:
 
