@@ -16,7 +16,7 @@
 		//Set the Title
 		document.getElementById("infodiv").innerHTML = 
 			"CURRENT BLOCK <b>"+txpow.header.block+"</b> @ "+txpow.header.date+"<br><br>"
-			+"<a style='font-size:12;' href='#' onclick='setFullTxPoW(\""+txpow.txpowid+"\");return false;'>"+txpow.txpowid+"</a>";
+			+"<a style='font-size:12;' href='#' onmousedown='setFullTxPoW(\""+txpow.txpowid+"\");return false;'>"+txpow.txpowid+"</a>";
 	}
 	
 	function setFullTxPoW(txpowid){

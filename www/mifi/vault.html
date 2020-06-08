@@ -3,8 +3,8 @@
 <head>
 	
 	<!--   The MINIMA MiFi Javascript Library -->
-	<script type="text/javascript" src="http://mifi.minima.global/js/minima.js"></script>
-	<!-- <script type="text/javascript" src="../js/minima.js"></script> -->
+	<!--  <script type="text/javascript" src="http://mifi.minima.global/js/minima.js"></script> -->
+	<script type="text/javascript" src="../js/minima.js"></script>
 	
 </head>
 
@@ -119,27 +119,26 @@
 			var safelen = json[2].response.coins.length;
 			var safetext = "<table width=100% border=0>";
 			for(i=0;i<safelen;i++){
-				console.log(json[2]);
-				
 				var data = json[2].response.coins[i].data;
 				var blkdiff = json[2].response.coins[i].blocktime - data.inblock;
 				var timetxt = "TIME REMAINING : "+blkdiff+" / 20";
 				
-				forwfunc = "alert('You have not waited enough time.\n\nThis transaction is INVALID!');";
-
-				if(blkdiff > 20){
+				//forwfunc = "alert('You have not waited enough time.\n\nThis transaction is INVALID!');";
+				forwfunc = "alert('HELLO');";
+				
+				/*if(blkdiff > 20){
 					timetxt = "WAIT COMPLETE ";
 					forwfunc = "ForwardFundsFromSafeHouse("+data.coin.amount
 								+",'"+data.prevstate[1].data+"','"+data.coin.coinid+"');";
-				}
+				}*/
 				
 				rescfunc = "RescueFundsFromSafeHouse("+data.coin.amount+",'"+data.coin.coinid+"');";
 				
 				safetext +="<tr><td align=center nowrap colspan=2><br>"
 						 +" SAFE HOUSE FOUND WITH "+data.coin.amount
 						 +"<br>"+data.prevstate[1].data+"<br>"+timetxt+"<br></td></tr>";
-				safetext +="<tr> <td align=left><button onclick=\""+rescfunc+"\">RESCUE</button></td>"
-						 +"  <td align=right onclick=''><button onclick=\""+forwfunc+"\">FORWARD FUNDS</button></td> </tr>";
+				safetext +="<tr> <td align=left><button onmousedown=\""+rescfunc+"\">RESCUE</button></td>"
+						 +"  <td align=right><button onmousedown=\""+forwfunc+"\">FORWARD FUNDS</button></td> </tr>";
 				safetext +="<tr> <td colspan=2>&nbsp; <hr> &nbsp;</td> </tr>";		
 			}
 			
@@ -195,6 +194,8 @@
 	}
 	
 	function  ForwardFundsFromSafeHouse(amount,address,coinid){
+		console.log("ForwardFundsFromSafeHouse");
+		
 		var txnid = Math.floor(Math.random()*1000000000);
 		
 		//Now construct a transaction..
