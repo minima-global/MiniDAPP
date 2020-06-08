@@ -1,6 +1,6 @@
 # How to Build Your First MiniDapp
 
-This is a brief doc' to help you create your first Minima MiniDapp. And in the best traditions of Computing, this MiniDapp outputs a version of those immortal words, _"Hello World"_. Obvs.
+This is a brief doc' designed to help you create your first Minima MiniDapp. And in the best traditions of Computing, this MiniDapp outputs a version of those immortal words, _"Hello World"_. Obvs.
 
 ## Prerequisites
 
@@ -10,7 +10,6 @@ Then do the same with the [Minima](https://github.com/spartacusrex99/Minima) rep
 
 ````
 java -jar ./jar/minima.jar
-
 ````
 
 Importantly, for our purposes, that command fires up a MiniDapp server on port [21000](http://localhost:2100) of your local machine. We'll use that, later.
@@ -21,19 +20,17 @@ As a brief aside, you could also start the MiniDapp server via:
 cd bin
 
 java org.minima.Start
-
 ````
 
-That could come in useful to you sometime in the future, should you ever need (or want) to change something in the Minima source, since when you build that source, the `bin` directory is where the build gets compiled.
+That could come in useful to you sometime in the future, should you ever need (or want) to change something in the Minima source, since when you build that source, that's how you'll fire up your new build.
 
 ## Creatively Commandeer
 
-There is no need to start from scratch - the [MiFi](https://github.com/glowkeeper/MiFi) repository  already contains a number of MiniDapps, so we'll commandeer one of those - [cowsay](https://github.com/glowkeeper/MiFi/www/minidapps/cowsay). Change to your cloned MiFi directory, then:
+There is no need to start from scratch when creating your first MiniDapp - the [MiFi](https://github.com/glowkeeper/MiFi) repository  already contains some examples, so we'll commandeer one of those - [cowsay](https://github.com/glowkeeper/MiFi/www/minidapps/cowsay). Change to your cloned MiFi directory, then:
 
 ```
 cd www/minidapps
 cp -R cowsay helloWorld
-
 ```
 
 If all has gone well, you should now have a `helloWorld` directory containing all the goodness (and more) of [cowsay](https://github.com/glowkeeper/MiFi/www/minidapps/cowsay). Open that directory in your favourite IDE - here's what it that looks like in my IDE of choice, ([atom](https://atom.io/)):
@@ -70,12 +67,7 @@ Now drop out of your favourite editor (if it's not [atom](https://atom.io/), why
 
 ## Hello World!
 
-[Earlier](#prerequisites), we fired up a MiniDapp server on port 21000 - we're going to connect to that now. Load your favourite browser ([Firefox](https://www.mozilla.org/en-GB/firefox/new/)), and load this url:
-
-```
-http://localhost:21000
-
-```
+[Earlier](#prerequisites), we fired up a MiniDapp server on port 21000 - we're going to connect to that now. Load your favourite browser ([Firefox](https://www.mozilla.org/en-GB/firefox/new/)), and load [http://localhost:21000](ttp://localhost:21000)
 
 If all has gone well, you should see something like this:
 
