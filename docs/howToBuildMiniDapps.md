@@ -18,7 +18,6 @@ As a brief aside, you could also start the MiniDapp Server via:
 
 ````
 cd bin
-
 java org.minima.Start
 ````
 
@@ -45,7 +44,7 @@ First thing we're going to do is tidy up a bit by removing things we don't need 
 2. Rename all the files in the `images` directory so they say `helloWorld`, rather than `cowsay`. Better still, if you are able to create your own amazing artwork for `helloWorldBackdrop.png`, `helloWorldBody.png` and `helloWorldicon.png`, do so now ;)
 3. Remove the `cowsay.js` and `io.js` files from the `js` directory, since they are no longer required (fyi, `io.js` makes `cowsay` do some io, and `cowsay.js` was a CommonJS port of https://github.com/schacon/cowsay)
 
-Now your Directory should look like this:
+Now your `helloWorld` directory should look like this:
 
 ![](./images/hellowWorldCleanup.png)
 
