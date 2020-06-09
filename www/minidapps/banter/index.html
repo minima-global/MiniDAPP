@@ -18,12 +18,14 @@
 			
 			//Deal with each message type
 	 		if(evt.detail.event == "connected"){
+	 			//Set the UID os this APP - so other dapps can talk to you..
+	 			Minima.util.setUID("banter");
 	 			
-	 			//Send a message..
+	 			//Now- Send a message..
 	 			Minima.util.send("banter","HELLO YOU!",function(resp){
+	 				//What was the reply
 	 				console.log("MSG REPLY : "+resp);
 	 			});
-	 			
 	 			
 	 		}else if(evt.detail.event == "newblock"){
 	 			
@@ -32,17 +34,17 @@
 	 		}else if(evt.detail.event == "newbalance"){
 		 	
 	 		}else if(evt.detail.event == "newmessage"){
-			 	//One MiniDAPP is communicating wth you..
-			 	console.log("RECEIVED MESSAGE "+evt.detail.info.message);
-			 	
-			 	//Do something.. and reply..
+			 	//What message have we received..
+			 	console.log("MSG REC : "+evt.detail.info.message);
+	 			
+	 			//Do something.. and reply..
 			 	Minima.util.reply(evt, "Thanks!");
 	 		}
 	    });
 		
 		//Initialise MiFi
-		Minima.logging=true;
 		Minima.init();
+		
 	});
 	
 </script>

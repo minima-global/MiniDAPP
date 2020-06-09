@@ -17,11 +17,6 @@
 var MINIMA_IS_MINIDAPP    = true;
 
 /**
- * The ID of this MiniDAPP - set automagically or you can hardset when testing
- */
-var MINIMA_MINIDAPP_ID = "banter";
-
-/**
  * When running as MiniDAPP Where is the Server host RPC
  * 
  * This replaced AUTOMATICALLY by the Minima App..
@@ -268,8 +263,16 @@ var Minima = {
 
 				//And send it..
 				MINIMA_COMMS_SOCK.send(JSON.stringify(msg));
-			}
+			},
 			
+			setUID : function(uid){
+				//UID JSON Message
+				uid = { "type":"uid", "location": window.location.href, "uid":uid };
+				
+				//Send your name.. normally set automagically but can be hard set when debugging
+				MINIMA_COMMS_SOCK.send(JSON.stringify(uid));
+			}
+				
 	}
 	
 };
@@ -409,13 +412,7 @@ function startWebSocketListener(){
 	
 	MINIMA_COMMS_SOCK.onopen = function() {
 		//Connected
-		Minimalog("Minima WS Listener Connection opened..");
-	
-		//UID JSON Message
-		uid = { "type":"uid", "location": window.location.href, "uid":MINIMA_MINIDAPP_ID };
-		
-		//Send your name.. normally set automagically but can be hard set when debugging
-		MINIMA_COMMS_SOCK.send(JSON.stringify(uid));
+		Minimalog("Minima WS Listener Connection opened..");	
 	};
 	
 	MINIMA_COMMS_SOCK.onmessage = function (evt) { 
@@ -456,8 +453,14 @@ function startWebSocketListener(){
 					//Get the callback
 					callback = MINIDAPP_FUNCSTORE_LIST[i].callback;
 					
-					//call it with the reply message
-					callback(jmsg.message);
+					//Was there an ERROR
+					if(jmsg.error !== ""){
+						//Log the error
+						console.log("Message Error : "+jmsg.error);
+					}else{
+						//call it with the reply message
+						callback(jmsg.message);
+					}
 					
 					//And remove it from the list..
 					MINIDAPP_FUNCSTORE_LIST.splice(i,1);
