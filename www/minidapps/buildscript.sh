@@ -20,3 +20,5 @@ zip -r ./bin/cowsay.minidapp cowsay
 
 cp ./miniwallet/wallet.minidapp ./bin/
 
+zip -r ./bin/tokenator.minidapp tokenator
+
