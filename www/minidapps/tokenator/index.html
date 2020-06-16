@@ -1,0 +1,48 @@
+<html>
+
+<head>
+	<!--   The MINIMA MiFi Javascript Library -->
+	<script type="text/javascript" src="./js/minima.js"></script>
+	
+	<!--  STYLE -->
+	<link rel="stylesheet" type="text/css" href="./css/tokenator.css">
+	
+	<script type="text/javascript" src="./js/tokenator.js"></script>
+	
+</head>
+
+<body>
+
+<script type="text/javascript">
+	//Listen for Minima Events
+	window.addEventListener('MinimaEvent', function(evt) {
+		//Deal with each message type
+ 		if(evt.detail.event == "connected"){
+ 			coinFlipInit();
+ 			
+	 	}else if(evt.detail.event == "newblock"){
+ 			coinflipPollFunction();
+	 		
+ 		}else if(evt.detail.event == "newbalance"){
+ 			//Set the Balance..
+	 		setBalance();
+ 		}
+    });
+	
+	//Initialise MiFi
+	Minima.init();
+</script>
+
+<div class="maindiv">
+
+<br>
+
+<h1>TOKENATOR</h1>
+
+	
+</div>
+	
+	
+</body>
+
+</html>
