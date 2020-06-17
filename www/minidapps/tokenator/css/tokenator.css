@@ -1,10 +1,28 @@
 
 .maindiv {
   margin: auto;
-  
   width:800;
   height:600;
   font-size:16px;
   text-align:center;
+}
+
+.mainpage {
+  margin: auto;
+  width:800;
+  height:600;
+  font-size:16px;
+  text-align:center;
+  background-color: #fdd;
   
+}
+
+.tokenbutton{
+  background-color: #dfd;
+  border-radius: 10px;
+  width:200;
+  font-size:20px;
+  font-weight:bold;
+  font-family:monospace;
+  outline: none;
 }

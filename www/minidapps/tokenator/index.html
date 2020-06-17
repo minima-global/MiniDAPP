@@ -18,19 +18,19 @@
 	window.addEventListener('MinimaEvent', function(evt) {
 		//Deal with each message type
  		if(evt.detail.event == "connected"){
- 			coinFlipInit();
+ 			//Set the create page
+ 			setCreateToken();
  			
 	 	}else if(evt.detail.event == "newblock"){
- 			coinflipPollFunction();
-	 		
+ 			
  		}else if(evt.detail.event == "newbalance"){
- 			//Set the Balance..
-	 		setBalance();
+ 			
  		}
     });
 	
 	//Initialise MiFi
 	Minima.init();
+	
 </script>
 
 <div class="maindiv">
@@ -38,6 +38,15 @@
 <br>
 
 <h1>TOKENATOR</h1>
+
+<br>
+
+<button class="tokenbutton">MY TOKENS</button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button class="tokenbutton">CREATE</button>
+<br><br>
+
+<div id="mainpage" class="mainpage">
+
+</div>
 
 	
 </div>
