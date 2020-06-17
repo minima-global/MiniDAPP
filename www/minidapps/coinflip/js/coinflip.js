@@ -435,9 +435,9 @@ function collectItAll(coinid, round, amount, collectkeys){
 							//Remove from action..
 							document.getElementById(coinid).disabled = 'true';
 							MYGAME_CANCELLED.push(coinid);
-							alert("Collection Transaction Posted. Game Cancelled..");	
+							alert("Collection transaction posted.\n\nGame cancelled..");	
 						}else{
-							alert("ALL Funds Collected from slow player!\n\nYou win it all -> "+amount+" !!");	
+							alert("All funds collected from slow player!\n\nYou win it all -> "+amount+" !!");	
 						}
 					}
 				});
