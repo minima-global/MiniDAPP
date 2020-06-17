@@ -844,11 +844,12 @@ function createMinimaNotification(text, bgcolor){
 	if(bgcolor){
 		notifydiv.style.background   = bgcolor;
 	}else{
-		notifydiv.style.background   = "#777777";	
+		notifydiv.style.background   = "#bbbbbb";	
 	}
 	
 	notifydiv.style.opacity 	 = "0";
 	notifydiv.style.borderRadius = "10px";
+	notifydiv.style.border = "thick solid #222222";
 	
 	//Add it to the Page
 	document.body.appendChild(notifydiv);
