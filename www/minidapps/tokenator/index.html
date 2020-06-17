@@ -18,14 +18,9 @@
 	window.addEventListener('MinimaEvent', function(evt) {
 		//Deal with each message type
  		if(evt.detail.event == "connected"){
- 			//Set the create page
- 			setCreateToken();
- 			
-	 	}else if(evt.detail.event == "newblock"){
- 			
- 		}else if(evt.detail.event == "newbalance"){
- 			
- 		}
+ 			//Initialise the SQL
+ 			initTokenator();
+	 	}
     });
 	
 	//Initialise MiFi
@@ -43,17 +38,13 @@
 
 <button class="tokenbutton" onclick="setMyTokens();">MY TOKENS</button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <button class="tokenbutton" onclick="setAllTokens();">ALL TOKENS</button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<button class="tokenbutton" onclick="setCreateToken();">CREATE TOKEN</button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<button class="tokenbutton" onclick="setCreateToken();">CREATE TOKEN</button>
 <br><br>
 
-<div id="mainpage" class="mainpage">
-
-</div>
-
+<div id="mainpage" class="mainpage"></div>
 	
 </div>
-	
-	
+
 </body>
 
 </html>
