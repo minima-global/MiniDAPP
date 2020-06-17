@@ -14,7 +14,7 @@
 /**
  * Are we running in MINIDAPP mode
  */
-var MINIMA_IS_MINIDAPP = true;
+var MINIMA_IS_MINIDAPP = false;
 
 /**
  * When running as MiniDAPP Where is the Server host RPC
@@ -188,6 +188,7 @@ var Minima = {
 				len = responses.length;
 				for(i=0;i<len;i++){
 					if(responses[i].status != true){
+						alert(responses[i].message+"\n\nERROR @ "+responses[i].minifunc);
 						Minimalog("ERROR in Multi-Command ["+i+"] "+JSON.stringify(responses[i],null,2));
 						return false;
 					}
@@ -218,34 +219,6 @@ var Minima = {
 				}else{
 					createMinimaNotification(message);	
 				}
-				
-//				if(!Minima.showmining){
-//					return;
-//				}
-//				
-//				//Do we support notifications
-//				if (!("Notification" in window)) {
-//					Minimalog("This browser does not support notifications");
-//					return;
-//				}
-//				
-//				var options = {
-//				      body: message
-//				  }
-//			
-//				//Do we already have permissions..
-//				if (Notification.permission === "granted") {
-//				    // If it's okay let's create a notification
-//				    var notification = new Notification("Minima",options);
-//				    
-//				}else if (Notification.permission !== "denied") {
-//				    Notification.requestPermission().then(function (permission) {
-//				      // If the user accepts, let's create a notification
-//				      if (permission === "granted") {
-//				    	  var notification = new Notification("Minima",options);
-//				      }
-//				    });
-//			    }
 			},
 			
 			send : function(minidappid, message, callback){
@@ -861,7 +834,7 @@ function createMinimaNotification(text, bgcolor){
 	notifydiv.style.top 		 = 20 + TOTAL_NOTIFICATIONS * 110;
 	TOTAL_NOTIFICATIONS++;
 	
-	notifydiv.style.right 		 = "20";
+	notifydiv.style.right 		 = "-20";
 	notifydiv.style.width 	     = "400";
 	notifydiv.style.height 	     = "90";
 	
@@ -872,27 +845,38 @@ function createMinimaNotification(text, bgcolor){
 		notifydiv.style.background   = "#777777";	
 	}
 	
-	notifydiv.style.opacity 	 = "75%";
+	notifydiv.style.opacity 	 = "0";
 	notifydiv.style.borderRadius = "10px";
 	
 	//Add it to the Page
 	document.body.appendChild(notifydiv);
-		
+	
 	//Create an HTML window
-	var notiytext = "<table border=0 width=100% height=100%><tr>" +
+	var notifytext = "<table border=0 width=100% height=100%><tr>" +
 			"<td style='font-size:16px;font-family:monospace;color:black;text-align:center;vertical-align:middle;'>"+text+"</td></tr></table>";
 	
+	//Now get that element
+	var elem = document.getElementById(notifyid);
+	
 	//Set the Text..
-	document.getElementById(notifyid).innerHTML = notiytext;
+	elem.innerHTML = notifytext;
+	
+	//Fade in..
+	elem.style.transition = "all 1s";
+	
+	// reflow
+	elem.getBoundingClientRect();
+
+	// it transitions!
+	elem.style.opacity = 0.8;
+	elem.style.right   = 40;
 	
 	//And create a timer to shut it down..
 	setTimeout(function() {
 		TOTAL_NOTIFICATIONS--;
 		document.getElementById(notifyid).style.display = "none";  
-	 }, 3000);
+	 }, 4000);
 }
-
-
 
 /**
  * Utility function for GET request

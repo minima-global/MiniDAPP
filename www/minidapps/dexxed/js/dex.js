@@ -333,12 +333,12 @@ function takeOrder(type, coinid, coinamount, cointokenid, reqaddress, reqamount,
 			//Create this first stage
 			Minima.cmd(txncreator, function(respjson){
 				if(!Minima.util.checkAllResponses(respjson)){
-					alert("Something went wrong.. ?\n\nCheck console log..");
+					//alert("Something went wrong.. ?\n\nCheck console log..");
 					return;
 				}
 				
 				//SHOULD .. Check every response is TRUE
-				alert("ORDER SENT!");
+				//alert("ORDER SENT!");
 			});
 			
 		}else{
@@ -467,9 +467,9 @@ function cancelOrder(coinid, owner, address, amount, tokenid){
 	//And Run it..
 	Minima.cmd(txncreator , function(respjson){
 		if(!Minima.util.checkAllResponses(respjson)){
-			alert("Something went wrong.. ?\n\nCheck console log.. ");
+			//alert("Something went wrong.. ?\n\nCheck console log.. ");
 		}else{
-			alert("ORDER CANCELLED!");
+			//alert("ORDER CANCELLED!");
 			//Disable the button..
 			document.getElementById(coinid).disabled = 'true';
 		}
@@ -539,7 +539,7 @@ function buysellaction(buyorsell){
 	//We need a new key and a new address
 	Minima.cmd("keys new;newaddress;" , function(keysjson){
 		if(!Minima.util.checkAllResponses(keysjson)){
-			alert("Something went wrong.. check logs..");
+			//alert("Something went wrong.. check logs..");
 			return;
 		}
 		
@@ -564,13 +564,13 @@ function buysellaction(buyorsell){
 		//And Run it..
 		Minima.cmd(txncreator , function(respjson){
 			if(!Minima.util.checkAllResponses(respjson)){
-				alert("Something went wrong.. ?\n\nCheck log..");
+				//alert("Something went wrong.. ?\n\nCheck log..");
 			}else{
 				document.getElementById("buyamt").value = "";
 				document.getElementById("buyprice").value = "";
 				document.getElementById("sellamt").value = "";
 				document.getElementById("sellprice").value = "";	
-				alert("ORDER POSTED!");
+				//alert("ORDER POSTED!");
 			}
 		});	
 	});

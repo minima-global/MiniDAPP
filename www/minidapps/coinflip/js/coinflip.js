@@ -125,11 +125,7 @@ function letsplay(){
 			console.log("POST GAME "+txncreator1);
 			
 			Minima.cmd(txncreator1 , function(txnresp){
-				if(Minima.util.checkAllResponses(txnresp)){
-					alert("Game Request Posted..!");
-				}else{
-					alert("Somethng went wrong.. Funds ?\n\nCheck logs..");
-				}
+				Minima.util.checkAllResponses(txnresp);
 		    });
 		});	
 	});
@@ -386,15 +382,11 @@ function acceptGame(acceptcoinid, acceptgameamount, acceptp1address, acceptp1key
 			
 			Minima.cmd(txncreator2, function(txnresp){
 				if(Minima.util.checkAllResponses(txnresp)){
-					alert("GAME ON!");
-					
 					//It's one of your games now..
 					MYJOIN_LIST.push(acceptcoinid);
 					
 					//Update..
 					updateMyGames();
-				}else{
-					alert("Somethng went wrong.. Funds ?\n\nCheck logs..");
 				}
 			});
 		});
@@ -443,7 +435,6 @@ function collectItAll(coinid, round, amount, collectkeys){
 							//Remove from action..
 							document.getElementById(coinid).disabled = 'true';
 							MYGAME_CANCELLED.push(coinid);
-							
 							alert("Collection Transaction Posted. Game Cancelled..");	
 						}else{
 							alert("ALL Funds Collected from slow player!\n\nYou win it all -> "+amount+" !!");	

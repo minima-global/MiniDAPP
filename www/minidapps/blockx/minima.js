@@ -14,14 +14,13 @@
 /**
  * Are we running in MINIDAPP mode
  */
-var MINIMA_IS_MINIDAPP    = true;
+var MINIMA_IS_MINIDAPP = false;
 
 /**
  * When running as MiniDAPP Where is the Server host RPC
  * 
  * This replaced AUTOMATICALLY by the Minima App..
  */
-
 var MINIMA_MINIDAPP_HOST = "127.0.0.1:8999";
 
 /**
@@ -45,6 +44,9 @@ var LOGOUT_BUTTON   = "MINIMA_LOGOUT_BUTTON";
 var WEBSOCK         = null;
 var MINIMACONNECTED = false;
 
+var MINIMA_COMMS_SOCK = null;
+var MINIDAPP_FUNCSTORE_LIST = [];
+
 /**
  * Main MINIMA Object for all interaction
  */
@@ -55,7 +57,8 @@ var Minima = {
 	status : {},
 	balance : {},
 	uuid : Math.floor(Math.random()*1000000000),
-	logging : true,
+	logging : false,
+	showmining : false,
 	
 	//Minima Startup
 	init : function(){
@@ -75,6 +78,12 @@ var Minima = {
 				//Use it..
 				Minima.host = ip;
 				
+				//Now set the websocket Host
+			    var justhost = Minima.host.indexOf(":");
+			    var justip   = Minima.host.substring(0,justhost);
+			    MINIMA_WEBSOCKET_HOST = "ws://"+justip+":20999";
+			    Minimalog("Minima Websocket set "+Minima.host);
+			    
 				//Show Logout.. in case we need to as previous connection is broken
 				show(LOGOUT_BUTTON);
 				
@@ -97,6 +106,21 @@ var Minima = {
 			
 			//Do the first call..
 			initialStatus();
+		}
+	},
+	
+	//Clean Shutdown..
+	exit : function(){
+		if(WEBSOCK != null){
+			if(WEBSOCK.readyState == WebSocket.OPEN){
+				WEBSOCK.close();
+			}
+		}
+		
+		if(MINIMA_COMMS_SOCK != null){
+			if(MINIMA_COMMS_SOCK.readyState == WebSocket.OPEN){
+				MINIMA_COMMS_SOCK.close();
+			}
 		}
 	},
 	
@@ -164,9 +188,8 @@ var Minima = {
 				len = responses.length;
 				for(i=0;i<len;i++){
 					if(responses[i].status != true){
-						//Output to console..
-						console.log("Minima @ "+new Date().toLocaleString()
-								+"\nERROR in Multi-Command ["+i+"] "+JSON.stringify(responses[i],null,2));
+						alert(responses[i].message+"\n\nERROR @ "+responses[i].minifunc);
+						Minimalog("ERROR in Multi-Command ["+i+"] "+JSON.stringify(responses[i],null,2));
 						return false;
 					}
 				}
@@ -182,51 +205,58 @@ var Minima = {
 					}
 				}
 				
-				//Not found..
-//				console.log("Minima @ "+new Date().toLocaleString()
-//						+"\nERROR StateVariable doesn't exist.. "+port);
-				
 				//Not found
 				return null;
 			},
 			
-			
-			getTokenName : function(tokenid){
-				if(tokenid == "0x00"){
-					return "Minima";
+			notify : function(message,bgcolor){
+				//Log it..
+				Minimalog("Notify : "+message);
+				
+				//Show a little popup across the screen..
+				if(bgcolor){
+					createMinimaNotification(message,bgcolor);
+				}else{
+					createMinimaNotification(message);	
 				}
-				
-				var toklen = Minima.tokens.tokens.length;
-				for(tokloop=0;tokloop<toklen;tokloop++){
-					//check it
-					if(Minima.tokens.tokens[tokloop].tokenid == tokenid){
-						return Minima.tokens.tokens[tokloop].token;
-					}
-				}
-				
-				//Not found..
-				console.log("Minima @ "+new Date().toLocaleString()
-						+"\nERROR TokenName doesn't exist.. "+tokenid);
-				
-				return null;
 			},
 			
-			getTokenScale : function(tokenid){
-				var toklen = Minima.tokens.tokens.length;
-				for(tokloop=0;tokloop<toklen;tokloop++){
-					if(Minima.tokens.tokens[tokloop].tokenid == tokenid){
-						temptokenscale       = new Decimal(Minima.tokens.tokens[tokloop].scale); 
-						temptokenscalefactor = new Decimal(10).pow(temptokenscale); 
-						return temptokenscalefactor;
-					}
-				}
+			send : function(minidappid, message, callback){
+				//Create a random number to track this function call..
+				var funcid = ""+Math.floor(Math.random()*1000000000);
 				
-				//Not found..
-				console.log("Minima @ "+new Date().toLocaleString()
-						+"\nERROR TokenScale doesn't exist.. "+tokenid);
+				//Construct a JSON object
+				msg = { "type":"message", "to":minidappid, "funcid":funcid, "message":message };
+
+				//Add this Funcid and this callback to the list.. when you receive a reply 
+				//you can respond to the correct callback
+				funcstore = { "functionid":funcid, "callback":callback };
+				MINIDAPP_FUNCSTORE_LIST.push(funcstore);
 				
-				return null;
+				//And send it..
+				MINIMA_COMMS_SOCK.send(JSON.stringify(msg));
+			},
+			
+			reply : function(evt, message){
+				//Get the reply id
+				var replyid = evt.detail.info.replyid;
+				var replyto = evt.detail.info.from;
+				
+				//Construct a JSON object
+				msg = { "type":"reply", "to":replyto, "replyid":replyid, "message":message };
+
+				//And send it..
+				MINIMA_COMMS_SOCK.send(JSON.stringify(msg));
+			},
+			
+			setUID : function(uid){
+				//UID JSON Message
+				uid = { "type":"uid", "location": window.location.href, "uid":uid };
+				
+				//Send your name.. normally set automagically but can be hard set when debugging
+				MINIMA_COMMS_SOCK.send(JSON.stringify(uid));
 			}
+				
 	}
 	
 };
@@ -255,8 +285,6 @@ function initialStatus(){
 		Minima.status  = json[0].response;
 		Minima.balance = json[1].response.balance;
 		
-		console.log("init:"+JSON.stringify(Minima.status,null,2));
-		
 	    //Store this..
 	    Minima.txpowid = Minima.status.tip;
 	    Minima.block   = parseInt(Minima.status.lastblock,10);
@@ -268,14 +296,8 @@ function initialStatus(){
 		    show(LOGOUT_BUTTON);
 	    }
 	    
-	    //We Are Connected..
-	    MINIMACONNECTED = true;
-	   
-	    //Send a message
-	    postMinimaMessage("connected", "success");
-	    
 	    //Start Listening for messages..
-		startWebSocketListener();
+		startWebSocketListener();	    
    });
 }
 
@@ -285,8 +307,7 @@ function advancedConnect(){
 	
 	//Default to local host
 	if(host == ''){
-		alert("Connecting to 127.0.0.1:8999");
-		
+		alert("Connecting to 127.0.0.1:8999");	
 		host = "127.0.0.1:8999";
 	}
 	
@@ -296,6 +317,13 @@ function advancedConnect(){
     //Set it..
     Minima.host = host;
     Minimalog("Host set "+Minima.host);
+    
+    //Now set the websocket Host
+    var justhost = host.indexOf(":");
+    var justip = host.substring(0,justhost);
+    
+    MINIMA_WEBSOCKET_HOST = "ws://"+justip+":20999";
+    Minimalog("Minima Websocket set "+Minima.host);
     
     //Run Status once to populate the main details..
     initialStatus();
@@ -317,9 +345,6 @@ function startWebSocket(){
 	
 	WEBSOCK.onopen = function() {
 		Minimalog("WS Connection opened to the Minima Proxy..");
-		
-	   // Web Socket is connected, send data using send()
-	   WEBSOCK.send(Minima.uuid);
 	};
 	
 	WEBSOCK.onmessage = function (evt) { 
@@ -359,14 +384,26 @@ function closeWebSocket(){
 function startWebSocketListener(){
 	Minimalog("Starting WebSocket Listener @ "+MINIMA_WEBSOCKET_HOST);
 	
-	//Open up a websocket to the main MINIMA proxy..
-	var minimaws = new WebSocket(MINIMA_WEBSOCKET_HOST);
+	//Check connected
+	if(MINIMA_COMMS_SOCK !== null){
+		MINIMA_COMMS_SOCK.close();
+	}
 	
-	minimaws.onopen = function() {
-		Minimalog("Minima WS Listener Connection opened..");
+	//Open up a websocket to the main MINIMA proxy..
+	MINIMA_COMMS_SOCK = new WebSocket(MINIMA_WEBSOCKET_HOST);
+	
+	MINIMA_COMMS_SOCK.onopen = function() {
+		//Connected
+		Minimalog("Minima WS Listener Connection opened..");	
+		
+		//We Are Connected..
+	    MINIMACONNECTED = true;
+	   
+	    //Send a message
+	    postMinimaMessage("connected", "success");
 	};
 	
-	minimaws.onmessage = function (evt) { 
+	MINIMA_COMMS_SOCK.onmessage = function (evt) { 
 		//Convert to JSON	
 		var jmsg = JSON.parse(evt.data);
 		
@@ -391,21 +428,58 @@ function startWebSocketListener(){
 			postMinimaMessage("newbalance",jmsg.balance);
 		
 		}else if(jmsg.event == "newmessage"){
-			//Received a message from another MiniDAPP	
+			//Create a nice JSON message
+			var msgdata = { "message":jmsg.message, "replyid":jmsg.functionid, "from":jmsg.from}; 
 			
+			//Post it..
+			postMinimaMessage("newmessage",msgdata);
+		
+		}else if(jmsg.event == "newreply"){
+			var funclen = MINIDAPP_FUNCSTORE_LIST.length;
+			for(i=0;i<funclen;i++){
+				if(MINIDAPP_FUNCSTORE_LIST[i].functionid == jmsg.functionid){
+					//Get the callback
+					callback = MINIDAPP_FUNCSTORE_LIST[i].callback;
+					
+					//Was there an ERROR
+					if(jmsg.error !== ""){
+						//Log the error
+						Minimalog("Message Error : "+jmsg.error);
+					}else{
+						//call it with the reply message
+						callback(jmsg.message);
+					}
+					
+					//And remove it from the list..
+					MINIDAPP_FUNCSTORE_LIST.splice(i,1);
+					
+					//All done
+					return;
+				}
+			}
+			
+			//Not found..
+			Minimalog("REPLY CALLBACK NOT FOUND "+JSON.stringify(jmsg));
+			
+		}else if(jmsg.event == "txpowstart"){
+			Minima.util.notify("Mining Transaction Started..","#55DD55");	
+			
+		}else if(jmsg.event == "txpowend"){
+			Minima.util.notify("Mining Transaction Finished","#DD5555");
 		}
 	};
 		
-	minimaws.onclose = function() { 
-		Minimalog("Minima WS Listener closed... reconnect attempt in 30 seconds");
+	MINIMA_COMMS_SOCK.onclose = function() { 
+		Minimalog("Minima WS Listener closed... reconnect attempt in 10 seconds");
 	
 		//Start her up in a minute..
-		setTimeout(function(){ startWebSocketListener(); }, 30000);
+		setTimeout(function(){ startWebSocketListener(); }, 10000);
 	};
 
-	minimaws.onerror = function(error) {
+	MINIMA_COMMS_SOCK.onerror = function(error) {
 		//var err = JSON.stringify(error);
 		var err = JSON.stringify(error, ["message", "arguments", "type", "name", "data"])
+		
 		// websocket is closed.
 	    Minimalog("Minima WS Listener Error ... "+err); 
 	};
@@ -739,11 +813,70 @@ function hide(id){
  * 
  */
 function Minimalog(info){
-	if(Minima.logging){
-		console.log("Minima @ "+new Date().toLocaleString()+"\n"+info);
-	}
+	console.log("Minima @ "+new Date().toLocaleString()+"\n"+info);
 }
 
+/**
+ * Notification Div
+ */
+var TOTAL_NOTIFICATIONS = 0;
+function createMinimaNotification(text, bgcolor){
+	//First add the total overlay div
+	var notifydiv = document.createElement('div');
+	
+	//Create a random ID for this DIV..
+	var notifyid = Math.floor(Math.random()*1000000000);
+	
+	//Details..
+	notifydiv.id  = notifyid;
+	notifydiv.style.position 	 = "absolute";
+	
+	notifydiv.style.top 		 = 20 + TOTAL_NOTIFICATIONS * 110;
+	TOTAL_NOTIFICATIONS++;
+	
+	notifydiv.style.right 		 = "-20";
+	notifydiv.style.width 	     = "400";
+	notifydiv.style.height 	     = "90";
+	
+	//Regular or specific color
+	if(bgcolor){
+		notifydiv.style.background   = bgcolor;
+	}else{
+		notifydiv.style.background   = "#777777";	
+	}
+	
+	notifydiv.style.opacity 	 = "0";
+	notifydiv.style.borderRadius = "10px";
+	
+	//Add it to the Page
+	document.body.appendChild(notifydiv);
+	
+	//Create an HTML window
+	var notifytext = "<table border=0 width=100% height=100%><tr>" +
+			"<td style='font-size:16px;font-family:monospace;color:black;text-align:center;vertical-align:middle;'>"+text+"</td></tr></table>";
+	
+	//Now get that element
+	var elem = document.getElementById(notifyid);
+	
+	//Set the Text..
+	elem.innerHTML = notifytext;
+	
+	//Fade in..
+	elem.style.transition = "all 1s";
+	
+	// reflow
+	elem.getBoundingClientRect();
+
+	// it transitions!
+	elem.style.opacity = 0.8;
+	elem.style.right   = 40;
+	
+	//And create a timer to shut it down..
+	setTimeout(function() {
+		TOTAL_NOTIFICATIONS--;
+		document.getElementById(notifyid).style.display = "none";  
+	 }, 4000);
+}
 
 /**
  * Utility function for GET request

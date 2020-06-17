@@ -84,11 +84,7 @@
 			
 				//Post it..
 				Minima.cmd( txncreator , function(resp){
-					if(Minima.util.checkAllResponses(resp)){
-						alert("FUNDS SENT!");	
-					}else{
-						alert("Something went wrong.. check logs..");
-					}
+					Minima.util.checkAllResponses(resp);
 				});
 			}
 		}
@@ -160,8 +156,6 @@
 				Minima.cmd( txncreator , function(resp){
 					if(Minima.util.checkAllResponses(resp)){
 						alert("FUNDS COLLECTED!\n\nCHECK BALANCE!");
-					}else{
-						alert("Something went wrong..\n\nCheck logs..");
 					}
 			    });	
 			});
