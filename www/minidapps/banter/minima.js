@@ -14,7 +14,7 @@
 /**
  * Are we running in MINIDAPP mode
  */
-var MINIMA_IS_MINIDAPP    = true;
+var MINIMA_IS_MINIDAPP = false;
 
 /**
  * When running as MiniDAPP Where is the Server host RPC
@@ -57,7 +57,7 @@ var Minima = {
 	status : {},
 	balance : {},
 	uuid : Math.floor(Math.random()*1000000000),
-	logging : true,
+	logging : false,
 	showmining : false,
 	
 	//Minima Startup
@@ -106,6 +106,21 @@ var Minima = {
 			
 			//Do the first call..
 			initialStatus();
+		}
+	},
+	
+	//Clean Shutdown..
+	exit : function(){
+		if(WEBSOCK != null){
+			if(WEBSOCK.readyState == WebSocket.OPEN){
+				WEBSOCK.close();
+			}
+		}
+		
+		if(MINIMA_COMMS_SOCK != null){
+			if(MINIMA_COMMS_SOCK.readyState == WebSocket.OPEN){
+				MINIMA_COMMS_SOCK.close();
+			}
 		}
 	},
 	
@@ -173,9 +188,8 @@ var Minima = {
 				len = responses.length;
 				for(i=0;i<len;i++){
 					if(responses[i].status != true){
-						//Output to console..
-						console.log("Minima @ "+new Date().toLocaleString()
-								   +"\nERROR in Multi-Command ["+i+"] "+JSON.stringify(responses[i],null,2));
+						alert(responses[i].message+"\n\nERROR @ "+responses[i].minifunc);
+						Minimalog("ERROR in Multi-Command ["+i+"] "+JSON.stringify(responses[i],null,2));
 						return false;
 					}
 				}
@@ -195,43 +209,19 @@ var Minima = {
 				return null;
 			},
 			
-			notify : function(message){
-				if(!Minima.showmining){
-					return;
-				}
+			notify : function(message,bgcolor){
+				//Log it..
+				Minimalog("Notify : "+message);
 				
-				//Do we support notifications
-				if (!("Notification" in window)) {
-				    console.log("This browser does not support notifications");
-					return;
+				//Show a little popup across the screen..
+				if(bgcolor){
+					createMinimaNotification(message,bgcolor);
+				}else{
+					createMinimaNotification(message);	
 				}
-				
-				var options = {
-				      body: message
-				  }
-			
-				//Do we already have permissions..
-				if (Notification.permission === "granted") {
-				    // If it's okay let's create a notification
-				    var notification = new Notification("Minima",options);
-				    
-				}else if (Notification.permission !== "denied") {
-				    Notification.requestPermission().then(function (permission) {
-				      // If the user accepts, let's create a notification
-				      if (permission === "granted") {
-				    	  var notification = new Notification("Minima",options);
-				      }
-				    });
-			    }
 			},
 			
 			send : function(minidappid, message, callback){
-				//Check connected
-				if(MINIMA_COMMS_SOCK.readyState !== WebSocket.OPEN){
-					console.log("SEND Comms WebSocket not open.. "+MINIMA_COMMS_SOCK.readyState);
-					return false;
-				}
-				
 				//Create a random number to track this function call..
 				var funcid = ""+Math.floor(Math.random()*1000000000);
 				
@@ -251,12 +241,6 @@ var Minima = {
 				//Get the reply id
 				var replyid = evt.detail.info.replyid;
 				var replyto = evt.detail.info.from;
-				
-				//Check connected
-				if(MINIMA_COMMS_SOCK.readyState !== WebSocket.OPEN){
-					console.log("REPLY Comms WebSocket not open.. "+MINIMA_COMMS_SOCK.readyState);
-					return false;
-				}
 				
 				//Construct a JSON object
 				msg = { "type":"reply", "to":replyto, "replyid":replyid, "message":message };
@@ -292,9 +276,6 @@ function postMinimaMessage(event, info){
  * @returns
  */
 function initialStatus(){
-	//Start Listening for messages..
-	startWebSocketListener();
-	
 	//Encoded rpc call
 	var rpc = "http://"+Minima.host+"/"+encodeURIComponent("status;balance");
 	
@@ -315,11 +296,8 @@ function initialStatus(){
 		    show(LOGOUT_BUTTON);
 	    }
 	    
-	    //We Are Connected..
-	    MINIMACONNECTED = true;
-	   
-	    //Send a message
-	    postMinimaMessage("connected", "success");
+	    //Start Listening for messages..
+		startWebSocketListener();	    
    });
 }
 
@@ -343,7 +321,6 @@ function advancedConnect(){
     //Now set the websocket Host
     var justhost = host.indexOf(":");
     var justip = host.substring(0,justhost);
-    console.log("JUST IP "+justip);
     
     MINIMA_WEBSOCKET_HOST = "ws://"+justip+":20999";
     Minimalog("Minima Websocket set "+Minima.host);
@@ -407,12 +384,23 @@ function closeWebSocket(){
 function startWebSocketListener(){
 	Minimalog("Starting WebSocket Listener @ "+MINIMA_WEBSOCKET_HOST);
 	
+	//Check connected
+	if(MINIMA_COMMS_SOCK !== null){
+		MINIMA_COMMS_SOCK.close();
+	}
+	
 	//Open up a websocket to the main MINIMA proxy..
 	MINIMA_COMMS_SOCK = new WebSocket(MINIMA_WEBSOCKET_HOST);
 	
 	MINIMA_COMMS_SOCK.onopen = function() {
 		//Connected
 		Minimalog("Minima WS Listener Connection opened..");	
+		
+		//We Are Connected..
+	    MINIMACONNECTED = true;
+	   
+	    //Send a message
+	    postMinimaMessage("connected", "success");
 	};
 	
 	MINIMA_COMMS_SOCK.onmessage = function (evt) { 
@@ -456,7 +444,7 @@ function startWebSocketListener(){
 					//Was there an ERROR
 					if(jmsg.error !== ""){
 						//Log the error
-						console.log("Message Error : "+jmsg.error);
+						Minimalog("Message Error : "+jmsg.error);
 					}else{
 						//call it with the reply message
 						callback(jmsg.message);
@@ -471,23 +459,21 @@ function startWebSocketListener(){
 			}
 			
 			//Not found..
-			console.log("REPLY CALLBACK NOT FOUND "+JSON.stringify(jmsg));
+			Minimalog("REPLY CALLBACK NOT FOUND "+JSON.stringify(jmsg));
 			
 		}else if(jmsg.event == "txpowstart"){
-			console.log("Mining start!");
-			Minima.util.notify("Mining Transaction Started!");	
+			Minima.util.notify("Mining Transaction Started..","#55DD55");	
 			
 		}else if(jmsg.event == "txpowend"){
-			console.log("Mining end!");
-			Minima.util.notify("Mining Transaction Finished!");
+			Minima.util.notify("Mining Transaction Finished","#DD5555");
 		}
 	};
 		
 	MINIMA_COMMS_SOCK.onclose = function() { 
-		Minimalog("Minima WS Listener closed... reconnect attempt in 30 seconds");
+		Minimalog("Minima WS Listener closed... reconnect attempt in 10 seconds");
 	
 		//Start her up in a minute..
-		setTimeout(function(){ startWebSocketListener(); }, 30000);
+		setTimeout(function(){ startWebSocketListener(); }, 10000);
 	};
 
 	MINIMA_COMMS_SOCK.onerror = function(error) {
@@ -827,11 +813,77 @@ function hide(id){
  * 
  */
 function Minimalog(info){
-	if(Minima.logging){
-		console.log("Minima @ "+new Date().toLocaleString()+"\n"+info);
-	}
+	console.log("Minima @ "+new Date().toLocaleString()+"\n"+info);
 }
 
+/**
+ * Notification Div
+ */
+var TOTAL_NOTIFICATIONS     = 0;
+var TOTAL_NOTIFICATIONS_MAX = 0;
+function createMinimaNotification(text, bgcolor){
+	//First add the total overlay div
+	var notifydiv = document.createElement('div');
+	
+	//Create a random ID for this DIV..
+	var notifyid = Math.floor(Math.random()*1000000000);
+	
+	//Details..
+	notifydiv.id  = notifyid;
+	notifydiv.style.position 	 = "absolute";
+	
+	notifydiv.style.top 		 = 20 + TOTAL_NOTIFICATIONS_MAX * 110;
+	TOTAL_NOTIFICATIONS++;
+	TOTAL_NOTIFICATIONS_MAX++;
+	
+	notifydiv.style.right 		 = "0";
+	notifydiv.style.width 	     = "400";
+	notifydiv.style.height 	     = "90";
+	
+	//Regular or specific color
+	if(bgcolor){
+		notifydiv.style.background   = bgcolor;
+	}else{
+		notifydiv.style.background   = "#777777";	
+	}
+	
+	notifydiv.style.opacity 	 = "0";
+	notifydiv.style.borderRadius = "10px";
+	
+	//Add it to the Page
+	document.body.appendChild(notifydiv);
+	
+	//Create an HTML window
+	var notifytext = "<table border=0 width=100% height=100%><tr>" +
+			"<td style='font-size:16px;font-family:monospace;color:black;text-align:center;vertical-align:middle;'>"+text+"</td></tr></table>";
+	
+	//Now get that element
+	var elem = document.getElementById(notifyid);
+	
+	//Set the Text..
+	elem.innerHTML = notifytext;
+	
+	//Fade in..
+	elem.style.transition = "all 1s";
+	
+	// reflow
+	elem.getBoundingClientRect();
+
+	// it transitions!
+	elem.style.opacity = 0.8;
+	elem.style.right   = 40;
+	
+	//And create a timer to shut it down..
+	setTimeout(function() {
+		TOTAL_NOTIFICATIONS--;
+		if(TOTAL_NOTIFICATIONS<=0){
+			TOTAL_NOTIFICATIONS=0;
+			TOTAL_NOTIFICATIONS_MAX=0;
+		}
+		
+		document.getElementById(notifyid).style.display = "none";  
+	 }, 4000);
+}
 
 /**
  * Utility function for GET request

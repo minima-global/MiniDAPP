@@ -819,7 +819,8 @@ function Minimalog(info){
 /**
  * Notification Div
  */
-var TOTAL_NOTIFICATIONS = 0;
+var TOTAL_NOTIFICATIONS     = 0;
+var TOTAL_NOTIFICATIONS_MAX = 0;
 function createMinimaNotification(text, bgcolor){
 	//First add the total overlay div
 	var notifydiv = document.createElement('div');
@@ -831,10 +832,11 @@ function createMinimaNotification(text, bgcolor){
 	notifydiv.id  = notifyid;
 	notifydiv.style.position 	 = "absolute";
 	
-	notifydiv.style.top 		 = 20 + TOTAL_NOTIFICATIONS * 110;
+	notifydiv.style.top 		 = 20 + TOTAL_NOTIFICATIONS_MAX * 110;
 	TOTAL_NOTIFICATIONS++;
+	TOTAL_NOTIFICATIONS_MAX++;
 	
-	notifydiv.style.right 		 = "-20";
+	notifydiv.style.right 		 = "0";
 	notifydiv.style.width 	     = "400";
 	notifydiv.style.height 	     = "90";
 	
@@ -874,6 +876,11 @@ function createMinimaNotification(text, bgcolor){
 	//And create a timer to shut it down..
 	setTimeout(function() {
 		TOTAL_NOTIFICATIONS--;
+		if(TOTAL_NOTIFICATIONS<=0){
+			TOTAL_NOTIFICATIONS=0;
+			TOTAL_NOTIFICATIONS_MAX=0;
+		}
+		
 		document.getElementById(notifyid).style.display = "none";  
 	 }, 4000);
 }
