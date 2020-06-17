@@ -102,9 +102,9 @@ function getOutputString(){
 	var rows  = table.getElementsByTagName("tr")
 	var len   = rows.length;
 	for(i=2;i<len;i++){
-		var address = document.getElementById("table_address_"+i).innerHTML;
-		var amount  = document.getElementById("table_amount_"+i).innerHTML;
-		var tokenid = document.getElementById("table_tokenid_"+i).innerHTML;
+		var address = getTableValue( document.getElementById("table_address_"+i).innerHTML );
+		var amount  = getTableValue( document.getElementById("table_amount_"+i).innerHTML );
+		var tokenid = getTableValue( document.getElementById("table_tokenid_"+i).innerHTML );
 		
 		outputs += address+":"+amount+":"+tokenid+"#";
 	}
@@ -235,13 +235,20 @@ function addOutput(addr,amt,tok){
 	output.innerHTML = ""+out;
 	
 	address.id = "table_address_"+len;
-	address.innerHTML = ""+addr;
+	address.innerHTML = "<input size=30 type=text value=\""+addr+"\">";
 	
 	amount.id = "table_amount_"+len;
-	amount.innerHTML = ""+amt;
+	amount.innerHTML = "<input size=20 type=number value=\""+amt+"\">";
 	
 	tokenid.id = "table_tokenid_"+len;
-	tokenid.innerHTML = ""+tok;
+	tokenid.innerHTML = "<input size=30 type=text value=\""+tok+"\">";
+}
+
+function getTableValue(fullhtml){
+	start = fullhtml.indexOf("value=\"")+7;
+	end   = fullhtml.indexOf("\"",start);
+	ret   = fullhtml.substring(start,end); 
+	return ret; 
 }
 
 function deleteOutput(){
