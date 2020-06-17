@@ -1,3 +1,7 @@
+.mainbody{
+	background: url(../images/bluesea.jpg) no-repeat center center fixed;
+	background-size:cover;
+}
 
 .maindiv {
   margin: auto;
@@ -13,8 +17,6 @@
   height:600;
   font-size:16px;
   text-align:center;
-  background-color: #fdd;
-  
 }
 
 .tokenbutton{
@@ -25,4 +27,27 @@
   font-weight:bold;
   font-family:monospace;
   outline: none;
+}
+
+.createtablerow{
+	background-color: #dfd;
+	padding : 5px;
+}
+
+.createtableleft{
+  vertical-align:top;
+  text-align:right;
+  width:150;
+  font-size:18px;
+  font-weight:bold;
+  font-family:monospace;
+  padding:10px;
+}
+
+.createtableright{
+  vertical-align:top;
+  text-align:left;
+  font-size:14px;
+  font-family:monospace;
+  padding:10px;
 }
