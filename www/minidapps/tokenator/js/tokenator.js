@@ -38,6 +38,12 @@ function createTokenList(TokenJSON){
 
 	var createpage = "<table align=center border=0 width=700>";
 	
+	//Only Minima?
+	if(len <= 1){
+		createpage += "<tr> <td style='text-align:center;'> <b>NO TOKENS FOUND</b> </td> </tr> </table>";
+		return createpage;
+	}
+	
 	for(bal=0;bal<len;bal++){
 		//Get the balance object
 		var balobj = TokenJSON[bal];
