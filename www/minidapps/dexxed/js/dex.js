@@ -8,7 +8,7 @@ var dexcontract  = "LET owner = PREVSTATE ( 0 ) IF SIGNEDBY ( owner ) THEN RETUR
 var dexaddress   = "0xB68787A65D917793643F1F2E7D9E3DFA020767AA85CE38640135297A0A553C8C";
 
 //Cascade and Confirm depth..
-var MAX_ORDER_AGE = 1000;
+var MAX_ORDER_AGE = 8000;
 var MIN_ORDER_AGE = 3;
 
 var SLIDER_VALUE = new Decimal(0);
@@ -229,7 +229,7 @@ function UpdateOrderBook(){
 				var diff  =  currblk.sub(inblk);
 				if(diff.gte(MAX_ORDER_AGE)){
 					//Too OLD! = no one but you can see it..
-					cashtable+="<tr class='infoboxpurple'><td width=33%>"+amount+"</td> <td width=34%>"+price+"</td> <td width=33%>"+total+"</td> </tr>";
+//					cashtable+="<tr class='infoboxpurple'><td width=33%>"+amount+"</td> <td width=34%>"+price+"</td> <td width=33%>"+total+"</td> </tr>";
 				}else if(diff.gte(MIN_ORDER_AGE)){
 					//Create the order function
 					var tkorder = "takeOrder('BUY', '"+coinid+"', '"+coinamount+"', '"+cointoken+"', '"+reqaddress+"', '"+reqamount+"', '"+reqtokenid+"', '"+price+"', '"+amount+"', '"+total+"' );";
@@ -269,7 +269,7 @@ function UpdateOrderBook(){
 				var diff  =  currblk.sub(inblk);
 				if(diff.gte(MAX_ORDER_AGE)){
 					//Too OLD! = no one but you can see it..
-					cashtable+="<tr class='infoboxpurple'> <td width=33%>"+amount+"</td> <td width=34%>"+price+"</td> <td width=33%>"+total+"</td> </tr>";
+//					cashtable+="<tr class='infoboxpurple'> <td width=33%>"+amount+"</td> <td width=34%>"+price+"</td> <td width=33%>"+total+"</td> </tr>";
 				}else if(diff.gte(MIN_ORDER_AGE)){
 					//Create the order function
 					var tkorder = "takeOrder('SELL', '"+coinid+"', '"+coinamount+"', '"+cointoken+"', '"+reqaddress+"', '"+reqamount+"', '"+reqtokenid+"', '"+price+"', '"+amount+"', '"+total+"' );";
