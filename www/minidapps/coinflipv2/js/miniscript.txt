@@ -1,0 +1,105 @@
+/*
+  COIN FLIP SCRIPT
+
+  Funky little script.. with comments. Works as is in Script IDE. 
+   
+  0 - Round Number
+   
+  PLAYER 1 puts his details in state 1-3
+  1 - Payout address
+  2 - Cancel / Last Resort key
+  3 - Hash of random number  
+
+  PLAYER 2 adds his details
+  4 - Last Resort key
+  5 - Hash of random number
+
+  Then player 1 reveals..
+  6 - Preimage of 3
+
+  Then player 2 reveals and pays out ( wins 95% or takes back 5% - incentive to finish game )
+  7 - Preimage of 5
+ 
+  If Player 1 or 2 do not reveal or pay out in a time limit 
+  other player gets everything as last resort..
+
+*/
+
+/* What state are we at */
+LET round = STATE ( 0 ) 
+LET prevround = PREVSTATE ( 0 ) 
+
+/* Make sure we are 1 round ahead of before */
+ASSERT round EQ INC ( prevround ) 
+
+/* PLAYER 2 Joins OR Player 1 Cancels */
+IF round EQ 1 THEN 
+
+    /* Player 1 can still cancel at this stage */
+    IF SIGNEDBY ( PREVSTATE ( 2 ) ) THEN RETURN TRUE ENDIF 
+
+    /* Make sure all the details are kept */
+    ASSERT SAMESTATE ( 1 3 ) 
+
+    /* This round someone accepts.. check double the money*/
+    RETURN VERIFYOUT ( @INPUT @ADDRESS ( @AMOUNT * 2 ) @TOKENID ) 
+
+/* PLAYER 1 REVEALS HIS HAND */
+ELSEIF round EQ 2 THEN 
+
+    /* If player 1 does NOT reveal.. in time limit (here 20 mins).. player 2 gets everything */
+    IF @BLKDIFF GT 64 AND SIGNEDBY ( PREVSTATE ( 4 ) ) THEN RETURN TRUE ENDIF 
+
+    /* make sure all the details of both players are kept.. */
+    ASSERT SAMESTATE ( 1 5 ) 
+
+    /* Now check that the preimage of player 1 is correct */
+    LET ponehash = STATE ( 3 ) 
+    LET preimage = STATE ( 6 ) 
+    ASSERT SHA3 ( 512 preimage ) EQ ponehash 
+
+    /* OK - He has shown his random number.. continue */
+    RETURN VERIFYOUT ( @INPUT @ADDRESS @AMOUNT @TOKENID ) 
+
+/* PLAYER 2 REVEALS AND PAYS OUT */
+ELSEIF round EQ 3 THEN 
+
+    /* If player 2 does NOT reveal.. in time limit (here 20 mins).. player 1 gets everything */
+    IF @BLKDIFF GT 64 AND SIGNEDBY ( PREVSTATE ( 2 ) ) THEN RETURN TRUE ENDIF 
+
+    /* make sure all the details of both players are kept.. */
+    ASSERT SAMESTATE ( 1 6 ) 
+
+    /* Now check that the preimage of player 2 is correct */
+    LET ptwohash = STATE ( 5 ) 
+    LET ptwopreimage = STATE ( 7 ) 
+    ASSERT SHA3 ( 512 ptwopreimage ) EQ ptwohash 
+
+    /* OK - lets see who wins..! */
+    LET ponepreimage = STATE ( 6 ) 
+    LET rand = SHA3 ( 512 HEXCAT ( ponepreimage ptwopreimage ) ) 
+
+    /* GET THE FIRST BYTE*/  
+    LET val = NUMBER ( SUBSET ( 0 1 rand ) ) 
+    IF ( val LT 128 ) THEN LET winner = 1 ELSE LET winner = 2 ENDIF 
+
+    /* Calculate the Payout for each */ 
+    LET paywinner = @AMOUNT * 0.95 
+    LET payloser = @AMOUNT - paywinner 
+
+    /* Check that State 8 states the correct winner.. for future easy lookup*/
+    ASSERT STATE ( 8 ) EQ winner 
+    ASSERT STATE ( 9 ) EQ paywinner 
+
+    /* Now check the payout! */ 
+    LET poneaddress = STATE ( 1 ) 
+    IF winner EQ 1 THEN 
+        ASSERT VERIFYOUT ( @INPUT poneaddress paywinner @TOKENID ) 
+    ELSE 
+        ASSERT VERIFYOUT ( @INPUT poneaddress payloser @TOKENID ) 
+    ENDIF 
+    
+    /* And finally check the signature  - MUST sign as otherwise someone else could claim */
+    RETURN SIGNEDBY ( PREVSTATE ( 4 ) ) 
+    
+ENDIF
