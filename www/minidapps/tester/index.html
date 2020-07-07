@@ -1,0 +1,46 @@
+<html>
+
+<head>
+	<!--   The MINIMA MiFi Javascript Library -->
+	<script type="text/javascript" src="minima.js"></script>
+	
+</head>
+
+<body>
+
+<script type="text/javascript">
+	
+	//Listen for Minima Events
+	window.addEventListener('MinimaEvent', function(evt) {
+		
+		//Deal with each message type
+ 		if(evt.detail.event == "connected"){
+		 			
+ 		}else if(evt.detail.event == "newmessage"){
+		 	
+ 		}
+    });
+	
+	//Initialise MiFi
+	Minima.init();
+	
+</script>
+
+<center>
+<br><br>
+
+TESTER
+
+<br><br>
+<button onclick="Minima.cmd('random',function(resp){ console.log(JSON.stringify(resp,null,2));});">NOTIFY!</button>
+
+
+<br><br>
+<button onclick="Minima.sql('SELECT * FROM users',function(resp){ console.log(JSON.stringify(resp,null,2));});">SQL</button>
+
+<br><br>
+<button onclick="Minima.file('SELECT * FROM users',function(resp){ console.log(JSON.stringify(resp,null,2));});">SQL</button>
+
+</center>
+</body>
+</html>
