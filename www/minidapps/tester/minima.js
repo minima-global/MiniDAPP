@@ -128,36 +128,81 @@ var Minima = {
 	cmd : function(minifunc, callback){
 		//Encode ready for transmission..
 		var enc = encodeURIComponent(minifunc);
-		
-		//Encoded copy
-		//var rpc = "http://"+Minima.host+"/"+enc;
 
-		//And Call it..
-		//httpGetAsync(rpc, callback, true);
-		
-		//Encoded copy
-		var rpc = "http://"+Minima.host+"/cmd/";
+		//GET
+		//httpGetAsync("http://"+Minima.host+"/"+enc, callback, true);
 
-		//And Call it..
-		httpPostAsync(rpc, enc, callback, true);
+		//POST..
+		httpPostAsync("http://"+Minima.host+"/cmd/", enc, callback, true);
 	},
 	
 	//Runs SQL in the Database created for this MiniDAPP
 	sql : function(query, callback){
 		//Encode ready for transmission..
 		var enc = encodeURIComponent(query);
-		
-		//Encoded copy
-		//var rpc = "http://"+Minima.host+"/sql/"+enc;
+	
+		//GET
+		//httpGetAsync("http://"+Minima.host+"/sql/"+enc, callback, true);
 
-		//And Call it..
-		//httpGetAsync(rpc, callback, true);
-		
-		//Encoded copy
-		var rpc = "http://"+Minima.host+"/sql/";
-
-		//And Call it..
-		httpPostAsync(rpc, enc, callback, true);
+		//POST
+		httpPostAsync("http://"+Minima.host+"/sql/", enc, callback, true);
+	},
+	
+	/**
+	 * File Functions
+	 */ 
+	file : {
+			save : function(jsonobject, file,  callback) {
+				//No Blanks..
+				if(file==""){
+					console.log("Cannot save blank file");
+				}
+				
+				//Encode ready for transmission..
+				var enc = encodeURIComponent("save "+file+" "+JSON.stringify(jsonobject));
+				
+				//And now fire off a call saving it 
+				httpPostAsync("http://"+Minima.host+"/file/", enc, callback, true);
+			},
+			
+			load : function(file, callback) {
+				//No Blanks..
+				if(file==""){
+					console.log("Cannot load blank file");
+				}
+				
+				//Encode ready for transmission..
+				var enc = encodeURIComponent("load "+file);
+				
+				//And now fire off a call saving it 
+				httpPostAsync("http://"+Minima.host+"/file/", enc, callback, true);
+			},
+			
+			list : function(file, callback) {
+				//No Blanks..
+				if(file==""){
+					file = "/";
+				}
+				
+				//Encode ready for transmission..
+				var enc = encodeURIComponent("list "+file);
+				
+				//And now fire off a call saving it 
+				httpPostAsync("http://"+Minima.host+"/file/", enc, callback, true);
+			},
+			
+			delete : function(file, callback) {
+				//No Blanks..
+				if(file==""){
+					console.log("Cannot delete blank file - use / to clear root");
+				}
+				
+				//Encode ready for transmission..
+				var enc = encodeURIComponent("delete "+file);
+				
+				//And now fire off a call saving it 
+				httpPostAsync("http://"+Minima.host+"/file/", enc, callback, true);
+			}
 	},
 	
 	//Wipes the Locally stored details of the phone IP
@@ -908,12 +953,10 @@ function createMinimaNotification(text, bgcolor){
  */
 function httpPostAsync(theUrl, params, callback, logenabled)
 {	
-	console.log("POST "+theUrl+" "+params);
-	
 	var xmlHttp = new XMLHttpRequest();
     xmlHttp.onreadystatechange = function() { 
         if (xmlHttp.readyState == 4 && xmlHttp.status == 200){
-        	//Always a JSON ..
+			//Always a JSON ..
         	var rpcjson = JSON.parse(xmlHttp.responseText);
         	
         	//Do we log it..

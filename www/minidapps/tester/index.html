@@ -24,6 +24,14 @@
 	//Initialise MiFi
 	Minima.init();
 	
+	var jsonobject = { "name" : "paddy", "age" : 45, "dir": true };
+	
+	function onloaddata(data){
+		console.log("1) name : "+ data.name);
+		console.log("2) age : "+ data.age);
+		console.log("3) directory : "+ data.dir);
+	}
+	
 </script>
 
 <center>
@@ -39,7 +47,24 @@ TESTER
 <button onclick="Minima.sql('SELECT * FROM users',function(resp){ console.log(JSON.stringify(resp,null,2));});">SQL</button>
 
 <br><br>
-<button onclick="Minima.file('SELECT * FROM users',function(resp){ console.log(JSON.stringify(resp,null,2));});">SQL</button>
+FILE:
+<br><br>
+<button onclick="Minima.file.save(jsonobject,'fold/tester.file',function(resp){ console.log(JSON.stringify(resp,null,2));});">SAVE</button>
+
+<br><br>
+<button onclick="Minima.file.load('fold/tester.file',function(resp){ console.log(JSON.stringify(resp,null,2));});">LOAD</button>
+
+<br><br>
+<button onclick="Minima.file.list('',function(resp){ console.log(JSON.stringify(resp,null,2));});">LIST</button>
+
+<br><br>
+<button onclick="Minima.file.list('fold',function(resp){ console.log(JSON.stringify(resp,null,2));});">LIST FOLDER</button>
+
+<br><br>
+<button onclick="Minima.file.delete('fold/tester.file',function(resp){ console.log(JSON.stringify(resp,null,2));});">DELETE</button>
+
+<br><br>
+<button onclick="Minima.file.delete('fold',function(resp){ console.log(JSON.stringify(resp,null,2));});">DELETE FOLDER</button>
 
 </center>
 </body>
