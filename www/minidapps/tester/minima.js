@@ -124,6 +124,11 @@ var Minima = {
 		}
 	},
 	
+	//Log some data to console - with a timestamp..
+	log : function(output){
+		Minimalog(output);
+	},
+	
 	//Runs a function on the phone
 	cmd : function(minifunc, callback){
 		//Encode ready for transmission..
@@ -155,7 +160,7 @@ var Minima = {
 			save : function(jsonobject, file,  callback) {
 				//No Blanks..
 				if(file==""){
-					console.log("Cannot save blank file");
+					Minimalog("Cannot save blank file");
 				}
 				
 				//Encode ready for transmission..
@@ -168,7 +173,7 @@ var Minima = {
 			load : function(file, callback) {
 				//No Blanks..
 				if(file==""){
-					console.log("Cannot load blank file");
+					Minimalog("Cannot load blank file");
 				}
 				
 				//Encode ready for transmission..
@@ -194,7 +199,7 @@ var Minima = {
 			delete : function(file, callback) {
 				//No Blanks..
 				if(file==""){
-					console.log("Cannot delete blank file - use / to clear root");
+					Minimalog("Cannot delete blank file - use / to clear root");
 				}
 				
 				//Encode ready for transmission..
