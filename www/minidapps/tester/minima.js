@@ -546,7 +546,7 @@ function startWebSocketListener(){
 			postMinimaMessage("newbalance",jmsg.balance);
 		
 		}else if(jmsg.event == "network"){
-			Minimalog("NETWORK : "+evt);
+			Minimalog("NETWORK : "+evt.data);
 		
 		}else if(jmsg.event == "newmessage"){
 			//Create a nice JSON message
