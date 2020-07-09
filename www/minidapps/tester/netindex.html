@@ -1,0 +1,59 @@
+<html>
+
+<head>
+	<!--   The MINIMA MiFi Javascript Library -->
+	<script type="text/javascript" src="minima.js"></script>
+	
+</head>
+
+<body>
+
+<script type="text/javascript">
+	
+	//Listen for Minima Events
+	window.addEventListener('MinimaEvent', function(evt) {
+		
+		//Deal with each message type
+ 		if(evt.detail.event == "connected"){
+		 			
+ 		}else if(evt.detail.event == "newmessage"){
+		 	
+ 		}
+    });
+	
+	//Initialise MiFi
+	Minima.init();
+	
+	var jsonobject = { "name" : "paddy", "age" : 45, "dir": true };
+	
+	function onloaddata(data){
+		console.log("1) name : "+ data.name);
+		console.log("2) age : "+ data.age);
+		console.log("3) directory : "+ data.dir);
+	}
+	
+</script>
+
+<center>
+<br><br>
+
+TESTER
+
+<br><br>
+<button onclick="Minima.net.listen(10000,function(resp){ console.log(JSON.stringify(resp,null,2));});">LISTEN</button>
+
+<br><br>
+<button onclick="Minima.net.stop(10000,function(resp){ console.log(JSON.stringify(resp,null,2));});">STOP</button>
+
+<br><br>
+<button onclick="Minima.net.broadcast(jsonobject, 10000, function(resp){ console.log(JSON.stringify(resp,null,2));});">BROADCAST</button>
+
+<br><br>
+<button onclick="Minima.net.connect('127.0.0.1:10000',function(resp){ console.log(JSON.stringify(resp,null,2));});">CONNECT</button>
+
+<br><br>
+<button onclick="Minima.net.disconnect('127.0.0.1:10000',function(resp){ console.log(JSON.stringify(resp,null,2));});">DISCONNECT</button>
+
+</center>
+</body>
+</html>

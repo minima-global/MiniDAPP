@@ -154,6 +154,62 @@ var Minima = {
 	},
 	
 	/**
+	 * NETWORK Functions
+	 */
+	net : {
+		
+		listen : function(port,callback){
+			//Start listening on a port..
+			var enc = encodeURIComponent("listen "+port);
+				
+			//And now fire off a call saving it 
+			httpPostAsync("http://"+Minima.host+"/net/", enc, callback, true);
+		},
+		
+		stop : function(port,callback){
+			//Start listening on a port..
+			var enc = encodeURIComponent("stop "+port);
+				
+			//And now fire off a call saving it 
+			httpPostAsync("http://"+Minima.host+"/net/", enc, callback, true);
+		},
+		
+		broadcast : function(jsonobject, port, callback){
+			//Start listening on a port..
+			var enc = encodeURIComponent("broadcast "+port+" "+JSON.stringify(jsonobject));
+				
+			//And now fire off a call saving it 
+			httpPostAsync("http://"+Minima.host+"/net/", enc, callback, true);
+		},
+		
+		connect : function(hostport, callback){
+			//Start listening on a port..
+			var enc = encodeURIComponent("connect "+hostport);
+				
+			//And now fire off a call saving it 
+			httpPostAsync("http://"+Minima.host+"/net/", enc, callback, true);
+		},
+		
+		disconnect : function(hostport, callback){
+			//Start listening on a port..
+			var enc = encodeURIComponent("disconnect "+hostport);
+				
+			//And now fire off a call saving it 
+			httpPostAsync("http://"+Minima.host+"/net/", enc, callback, true);
+		},
+		
+		send : function(jsonobject, UID, callback){
+			//Start listening on a port..
+			var enc = encodeURIComponent("send "+UID+" "+JSON.stringify(jsonobject));
+				
+			//And now fire off a call saving it 
+			httpPostAsync("http://"+Minima.host+"/net/", enc, callback, true);
+		}
+		
+	},
+	
+	
+	/**
 	 * File Functions
 	 */ 
 	file : {
@@ -488,6 +544,9 @@ function startWebSocketListener(){
 			
 			//Post it..
 			postMinimaMessage("newbalance",jmsg.balance);
+		
+		}else if(jmsg.event == "network"){
+			Minimalog("NETWORK : "+evt);
 		
 		}else if(jmsg.event == "newmessage"){
 			//Create a nice JSON message
