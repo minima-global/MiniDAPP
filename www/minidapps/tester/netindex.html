@@ -15,7 +15,7 @@
 		
 		//Deal with each message type
  		if(evt.detail.event == "connected"){
-		 			
+			 			
  		}else if(evt.detail.event == "newmessage"){
 		 	
  		}
@@ -40,19 +40,21 @@
 TESTER
 
 <br><br>
-<button onclick="Minima.net.listen(10000,function(resp){ console.log(JSON.stringify(resp,null,2));});">LISTEN</button>
+<!--   <button onclick="Minima.net.listen(10000,function(resp){ console.log(JSON.stringify(resp,null,2));});">LISTEN</button>-->
+<button onclick="Minima.net.listen(10000);">LISTEN</button>
 
 <br><br>
-<button onclick="Minima.net.stop(10000,function(resp){ console.log(JSON.stringify(resp,null,2));});">STOP</button>
+<!--  <button onclick="Minima.net.stop(10000,function(resp){ console.log(JSON.stringify(resp,null,2));});">STOP</button>-->
+<button onclick="Minima.net.stop(10000);">STOP</button>
 
 <br><br>
-<button onclick="Minima.net.broadcast(jsonobject, 10000, function(resp){ console.log(JSON.stringify(resp,null,2));});">BROADCAST</button>
+<button onclick="Minima.net.broadcast(jsonobject, 10000);">BROADCAST</button>
 
 <br><br>
-<button onclick="Minima.net.connect('127.0.0.1:10000',function(resp){ console.log(JSON.stringify(resp,null,2));});">CONNECT</button>
+<button onclick="Minima.net.connect('127.0.0.1:10000');">CONNECT</button>
 
 <br><br>
-<button onclick="Minima.net.disconnect('127.0.0.1:10000',function(resp){ console.log(JSON.stringify(resp,null,2));});">DISCONNECT</button>
+<button onclick="Minima.net.disconnect('127.0.0.1:10000');">DISCONNECT</button>
 
 </center>
 </body>
