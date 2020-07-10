@@ -32,6 +32,13 @@
 		console.log("3) directory : "+ data.dir);
 	}
 	
+	function funcdisconnect(){
+		var uid = document.getElementById("disconnector").value;
+		console.log("Disconnect UID "+uid);
+		Minima.net.disconnect(uid);
+	}
+	
+	
 </script>
 
 <center>
@@ -54,7 +61,8 @@ TESTER
 <button onclick="Minima.net.connect('127.0.0.1:10000');">CONNECT</button>
 
 <br><br>
-<button onclick="Minima.net.disconnect('127.0.0.1:10000');">DISCONNECT</button>
+<input type=text id="disconnector"> &nbsp;&nbsp;&nbsp;
+<button onclick="funcdisconnect();">DISCONNECT</button>
 
 </center>
 </body>
