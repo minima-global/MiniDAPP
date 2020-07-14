@@ -190,9 +190,9 @@ var Minima = {
 			httpPostAsync("http://"+Minima.host+"/net/", enc, callback, true);
 		},
 		
-		disconnect : function(hostport, callback){
+		disconnect : function(UID, callback){
 			//Start listening on a port..
-			var enc = encodeURIComponent("disconnect "+hostport);
+			var enc = encodeURIComponent("disconnect "+UID);
 				
 			//And now fire off a call saving it 
 			httpPostAsync("http://"+Minima.host+"/net/", enc, callback, true);
@@ -201,6 +201,22 @@ var Minima = {
 		send : function(jsonobject, UID, callback){
 			//Start listening on a port..
 			var enc = encodeURIComponent("send "+UID+" "+JSON.stringify(jsonobject));
+				
+			//And now fire off a call saving it 
+			httpPostAsync("http://"+Minima.host+"/net/", enc, callback, true);
+		},
+		
+		info : function(callback){
+			//Start listening on a port..
+			var enc = encodeURIComponent("info");
+				
+			//And now fire off a call saving it 
+			httpPostAsync("http://"+Minima.host+"/net/", enc, callback, true);
+		},
+		
+		get : function(url, callback){
+			//Start listening on a port..
+			var enc = encodeURIComponent("get "+url);
 				
 			//And now fire off a call saving it 
 			httpPostAsync("http://"+Minima.host+"/net/", enc, callback, true);

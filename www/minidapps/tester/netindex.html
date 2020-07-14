@@ -34,8 +34,12 @@
 	
 	function funcdisconnect(){
 		var uid = document.getElementById("disconnector").value;
-		console.log("Disconnect UID "+uid);
 		Minima.net.disconnect(uid);
+	}
+	
+	function funcsend(){
+		var uid = document.getElementById("sender").value;
+		Minima.net.send(jsonobject, uid);
 	}
 	
 	
@@ -58,11 +62,21 @@ TESTER
 <button onclick="Minima.net.broadcast(jsonobject, 10000);">BROADCAST</button>
 
 <br><br>
+<button onclick="Minima.net.info(function(resp){console.log(JSON.stringify(resp));});">INFO</button>
+
+<br><br>
 <button onclick="Minima.net.connect('127.0.0.1:10000');">CONNECT</button>
 
 <br><br>
 <input type=text id="disconnector"> &nbsp;&nbsp;&nbsp;
 <button onclick="funcdisconnect();">DISCONNECT</button>
+
+<br><br>
+<input type=text id="sender"> &nbsp;&nbsp;&nbsp;
+<button onclick="funcsend();">SEND</button>
+
+<br><br>
+<button onclick="Minima.net.get('http://www.google.com',function(resp){console.log(JSON.stringify(resp));});">GET</button>
 
 </center>
 </body>
