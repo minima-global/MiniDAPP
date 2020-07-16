@@ -14,24 +14,16 @@
 	
 	//Listen for Minima Events
 	window.addEventListener('MinimaEvent', function(evt) {
-		
+		 	
 		//Deal with each message type
  		if(evt.detail.event == "connected"){
-			console.log(JSON.stringify(evt));
+			console.log("connected");
 		
-		}else if(evt.detail.event == "network"){
-		 	console.log(JSON.stringify(evt));
-		 	
-		 	details = evt.detail.details;
-		 	
-		 	//if(details.action)
+		}else if(evt.event == "network"){
+			console.log("MinimaEvent : "+JSON.stringify(evt.detail));
 		 	
  		}
     });
-	
-	
-	MINIMA_IS_MINIDAPP   = true;
-	MINIMA_MINIDAPP_HOST = "127.0.0.1:8999";
 	
 	//Initialise MiFi
 	Minima.init();
@@ -45,11 +37,15 @@
 	}
 	
 	function start(){
-		Minima.net.listen(10000);
+		Minima.net.listen(10000,function(json){console.log(JSON.stringify(json));});
 	}
 	
 	function stop(){
 		Minima.net.stop(10000);
+	}
+	
+	function info(){
+		Minima.net.info(function(json){console.log(JSON.stringify(json));});
 	}
 	
 	function send(){
@@ -77,7 +73,7 @@ Chat appears  in here..
 <button onclick="send();">SEND</button>
 
 <br><br>
-<button onclick="start();">START SERVER</button> <button onclick="stop();">STOP SERVER</button>
+<button onclick="start();">START SERVER</button> <button onclick="stop();">STOP SERVER</button> <button onclick="info();">INFO</button>
 </center>
 </body>
 </html>

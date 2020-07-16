@@ -6,16 +6,10 @@
 * @spartacusrex
 */
 
-
 /**
  * The Web Socket Host for PUSH messages
  */
-var MINIMA_WEBSOCKET_HOST = "ws://127.0.0.1:20999";
-
-
-var MINIMACONNECTED = false;
-
-var MINIMA_COMMS_SOCK = null;
+var MINIMA_WEBSOCKET = null;
 
 /**
  * Intra MiniDAPP communication
@@ -33,7 +27,12 @@ var Minima = {
 	txpowid : "0x00",
 	
 	//RPC Host for Minima
-	rpchost : "127.0.0.1:8999",
+	rpchost : "http://127.0.0.1:9002",
+	
+	//Web Socket Host for Minima
+	wshost : "ws://127.0.0.1:9003",
+	
+	//Current Network Status - and Balance 
 	status : {},
 	balance : {},
 	
@@ -46,24 +45,26 @@ var Minima = {
 	//Minima Startup
 	init : function(){
 		//Log a little..
-		Minimalog("Initialisation..");
+		Minima.log("Initialisation..");
 		
 		//Do the first call..
-		initialStatus();
-	},
-	
-	//Clean Shutdown..
-	exit : function(){
-		if(MINIMA_COMMS_SOCK != null){
-			if(MINIMA_COMMS_SOCK.readyState == WebSocket.OPEN){
-				MINIMA_COMMS_SOCK.close();
-			}
-		}
+		Minima.cmd("status;balance", function(json){
+			//Status is first..
+			Minima.status  = json[0].response;
+			Minima.balance = json[1].response.balance;
+			
+		    //Store this..
+		    Minima.txpowid = Minima.status.tip;
+		    Minima.block   = parseInt(Minima.status.lastblock,10);
+		    
+		    //Start Listening for messages..
+			MinimaWebSocketListener();
+		});
 	},
 	
 	//Log some data to console - with a timestamp..
 	log : function(output){
-		console.log("Minima @ "+new Date().toLocaleString()+" : "+info);
+		console.log("Minima @ "+new Date().toLocaleString()+" : "+output);
 	},
 	
 	//Runs a function on the phone
@@ -98,104 +99,45 @@ var Minima = {
 		},
 		
 		disconnect : function(UID, callback){
-			//Start listening on a port..
-			var enc = encodeURIComponent("disconnect "+UID);
-				
-			//And now fire off a call saving it 
-			httpPostAsync("http://"+Minima.host+"/net/", enc, callback, true);
+			MinimaRPC("net","disconnect "+UID,callback);
 		},
 		
 		send : function(jsonobject, UID, callback){
-			//Start listening on a port..
-			var enc = encodeURIComponent("send "+UID+" "+JSON.stringify(jsonobject));
-				
-			//And now fire off a call saving it 
-			httpPostAsync("http://"+Minima.host+"/net/", enc, callback, true);
+			MinimaRPC("net","send "+UID+" "+JSON.stringify(jsonobject),callback);
 		},
 		
 		info : function(callback){
-			//Start listening on a port..
-			var enc = encodeURIComponent("info");
-				
-			//And now fire off a call saving it 
-			httpPostAsync("http://"+Minima.host+"/net/", enc, callback, true);
+			MinimaRPC("net","info",callback);
 		},
 		
 		get : function(url, callback){
-			//Start listening on a port..
-			var enc = encodeURIComponent("get "+url);
-				
-			//And now fire off a call saving it 
-			httpPostAsync("http://"+Minima.host+"/net/", enc, callback, true);
+			MinimaRPC("net","get "+url,callback);
 		}
 		
 	},
 	
 	
 	/**
-	 * File Functions
+	 * FILE Functions
 	 */ 
 	file : {
-			save : function(jsonobject, file,  callback) {
-				//No Blanks..
-				if(file==""){
-					Minimalog("Cannot save blank file");
-				}
-				
-				//Encode ready for transmission..
-				var enc = encodeURIComponent("save "+file+" "+JSON.stringify(jsonobject));
-				
-				//And now fire off a call saving it 
-				httpPostAsync("http://"+Minima.host+"/file/", enc, callback, true);
-			},
-			
-			load : function(file, callback) {
-				//No Blanks..
-				if(file==""){
-					Minimalog("Cannot load blank file");
-				}
-				
-				//Encode ready for transmission..
-				var enc = encodeURIComponent("load "+file);
-				
-				//And now fire off a call saving it 
-				httpPostAsync("http://"+Minima.host+"/file/", enc, callback, true);
-			},
-			
-			list : function(file, callback) {
-				//No Blanks..
-				if(file==""){
-					file = "/";
-				}
-				
-				//Encode ready for transmission..
-				var enc = encodeURIComponent("list "+file);
-				
-				//And now fire off a call saving it 
-				httpPostAsync("http://"+Minima.host+"/file/", enc, callback, true);
-			},
-			
-			delete : function(file, callback) {
-				//No Blanks..
-				if(file==""){
-					Minimalog("Cannot delete blank file - use / to clear root");
-				}
-				
-				//Encode ready for transmission..
-				var enc = encodeURIComponent("delete "+file);
-				
-				//And now fire off a call saving it 
-				httpPostAsync("http://"+Minima.host+"/file/", enc, callback, true);
-			}
-	},
-	
-	//Wipes the Locally stored details of the phone IP
-	logout : function(){
-		//Remove the locally stored IP
-		window.localStorage.removeItem('MinimaIP');
 		
-		//And refresh the page..
-		location.reload();
+		save : function(jsonobject, file,  callback) {
+			MinimaRPC("file","save "+file+" "+JSON.stringify(jsonobject),callback);
+		},
+		
+		load : function(file, callback) {
+			MinimaRPC("file","load "+file,callback);
+		},
+		
+		list : function(file, callback) {
+			MinimaRPC("file","list "+file,callback);
+		},
+		
+		delete : function(file, callback) {
+			MinimaRPC("file","delete "+file,callback);
+		}
+			
 	},
 	
 	/**
@@ -230,7 +172,7 @@ var Minima = {
 				for(i=0;i<len;i++){
 					if(responses[i].status != true){
 						alert(responses[i].message+"\n\nERROR @ "+responses[i].minifunc);
-						Minimalog("ERROR in Multi-Command ["+i+"] "+JSON.stringify(responses[i],null,2));
+						Minima.log("ERROR in Multi-Command ["+i+"] "+JSON.stringify(responses[i],null,2));
 						return false;
 					}
 				}
@@ -252,7 +194,7 @@ var Minima = {
 			
 			notify : function(message,bgcolor){
 				//Log it..
-				Minimalog("Notify : "+message);
+				Minima.log("Notify : "+message);
 				
 				//Show a little popup across the screen..
 				if(bgcolor){
@@ -275,7 +217,7 @@ var Minima = {
 				MINIDAPP_FUNCSTORE_LIST.push(funcstore);
 				
 				//And send it..
-				MINIMA_COMMS_SOCK.send(JSON.stringify(msg));
+				MINIMA_WEBSOCKET.send(JSON.stringify(msg));
 			},
 			
 			reply : function(evt, message){
@@ -287,7 +229,7 @@ var Minima = {
 				msg = { "type":"reply", "to":replyto, "replyid":replyid, "message":message };
 
 				//And send it..
-				MINIMA_COMMS_SOCK.send(JSON.stringify(msg));
+				MINIMA_WEBSOCKET.send(JSON.stringify(msg));
 			},
 			
 			setUID : function(uid){
@@ -295,73 +237,48 @@ var Minima = {
 				uid = { "type":"uid", "location": window.location.href, "uid":uid };
 				
 				//Send your name.. normally set automagically but can be hard set when debugging
-				MINIMA_COMMS_SOCK.send(JSON.stringify(uid));
+				MINIMA_WEBSOCKET.send(JSON.stringify(uid));
 			}
 				
 	}
 	
 };
 
-function MinimaRPC(type, data, callbck){
+/**
+ * POST the RPC call - can be cmd/sql/file/net
+ */
+function MinimaRPC(type, data, callback){
+	if(Minima.logging){
+		Minima.log("RPC "+type+" "+data);	
+	}
+	
 	//And now fire off a call saving it 
-	httpPostAsync("http://"+Minima.rpchost+"/"+type+"/", encodeURIComponent(data), callback, true);
+	httpPostAsync(Minima.rpchost+"/"+type+"/", encodeURIComponent(data), callback, true);
 }
 
 /**
- * The Fist connection status message
- * 
- * @returns
+ * Start listening for PUSH messages
  */
-function initialStatus(){
-	//Encoded rpc call
-	var rpc = "http://"+Minima.host+"/"+encodeURIComponent("status;balance");
-	
-	//Check the Status - use base function so no log..
-	httpGetAsync(rpc,function(json){
-	    //Status is first..
-		Minima.status  = json[0].response;
-		Minima.balance = json[1].response.balance;
-		
-	    //Store this..
-	    Minima.txpowid = Minima.status.tip;
-	    Minima.block   = parseInt(Minima.status.lastblock,10);
-	   
-	    //Hide the Divs..
-	    if(!MINIMA_IS_MINIDAPP){
-		    hide(MAIN_DIV);
-		    hide(OVERLAY_DIV);
-		    show(LOGOUT_BUTTON);
-	    }
-	    
-	    //Start Listening for messages..
-		startWebSocketListener();	    
-   });
-}
-
-
-function startWebSocketListener(){
-	Minimalog("Starting WebSocket Listener @ "+MINIMA_WEBSOCKET_HOST);
+function MinimaWebSocketListener(){
+	Minima.log("Starting WebSocket Listener @ "+Minima.wshost);
 	
 	//Check connected
-	if(MINIMA_COMMS_SOCK !== null){
-		MINIMA_COMMS_SOCK.close();
+	if(MINIMA_WEBSOCKET !== null){
+		MINIMA_WEBSOCKET.close();
 	}
 	
 	//Open up a websocket to the main MINIMA proxy..
-	MINIMA_COMMS_SOCK = new WebSocket(MINIMA_WEBSOCKET_HOST);
+	MINIMA_WEBSOCKET = new WebSocket(Minima.wshost);
 	
-	MINIMA_COMMS_SOCK.onopen = function() {
+	MINIMA_WEBSOCKET.onopen = function() {
 		//Connected
-		Minimalog("Minima WS Listener Connection opened..");	
+		Minima.log("Minima WS Listener Connection opened..");	
 		
-		//We Are Connected..
-	    MINIMACONNECTED = true;
-	   
 	    //Send a message
-	    postMinimaMessage("connected", "success");
+	    MinimaPostMessage("connected", "success");
 	};
 	
-	MINIMA_COMMS_SOCK.onmessage = function (evt) { 
+	MINIMA_WEBSOCKET.onmessage = function (evt) { 
 		//Convert to JSON	
 		var jmsg = JSON.parse(evt.data);
 		
@@ -372,31 +289,31 @@ function startWebSocketListener(){
 			Minima.block   = parseInt(jmsg.status.lastblock,10);
 			
 			//Post it
-			postMinimaMessage("newblock",jmsg.txpow);
+			MinimaPostMessage("newblock",jmsg.txpow);
 			
 		}else if(jmsg.event == "newtransaction"){
 			//New Transaction
-			postMinimaMessage("newtransaction",jmsg.txpow);
+			MinimaPostMessage("newtransaction",jmsg.txpow);
 			
 		}else if(jmsg.event == "newbalance"){
 			//Set the New Balance
 			Minima.balance = jmsg.balance;
 			
 			//Post it..
-			postMinimaMessage("newbalance",jmsg.balance);
+			MinimaPostMessage("newbalance",jmsg.balance);
 		
 		}else if(jmsg.event == "network"){
-			Minimalog("NETWORK : "+evt.data);
+			Minima.log("NETWORK : "+evt.data);
 		
 			//Forward it..
-			postMinimaMessage("network",evt);
+			MinimaPostMessage("network",jmsg);
 			
 		}else if(jmsg.event == "newmessage"){
 			//Create a nice JSON message
 			var msgdata = { "message":jmsg.message, "replyid":jmsg.functionid, "from":jmsg.from}; 
 			
 			//Post it..
-			postMinimaMessage("newmessage",msgdata);
+			MinimaPostMessage("newmessage",msgdata);
 		
 		}else if(jmsg.event == "newreply"){
 			var funclen = MINIDAPP_FUNCSTORE_LIST.length;
@@ -408,7 +325,7 @@ function startWebSocketListener(){
 					//Was there an ERROR
 					if(jmsg.error !== ""){
 						//Log the error
-						Minimalog("Message Error : "+jmsg.error);
+						Minima.log("Message Error : "+jmsg.error);
 					}else{
 						//call it with the reply message
 						callback(jmsg.message);
@@ -423,7 +340,7 @@ function startWebSocketListener(){
 			}
 			
 			//Not found..
-			Minimalog("REPLY CALLBACK NOT FOUND "+JSON.stringify(jmsg));
+			Minima.log("REPLY CALLBACK NOT FOUND "+JSON.stringify(jmsg));
 			
 		}else if(jmsg.event == "txpowstart"){
 			Minima.util.notify("Mining Transaction Started..","#55DD55");	
@@ -433,40 +350,31 @@ function startWebSocketListener(){
 		}
 	};
 		
-	MINIMA_COMMS_SOCK.onclose = function() { 
-		Minimalog("Minima WS Listener closed... reconnect attempt in 10 seconds");
+	MINIMA_WEBSOCKET.onclose = function() { 
+		Minima.log("Minima WS Listener closed... reconnect attempt in 10 seconds");
 	
 		//Start her up in a minute..
-		setTimeout(function(){ startWebSocketListener(); }, 10000);
+		setTimeout(function(){ MinimaWebSocketListener(); }, 10000);
 	};
 
-	MINIMA_COMMS_SOCK.onerror = function(error) {
+	MINIMA_WEBSOCKET.onerror = function(error) {
 		//var err = JSON.stringify(error);
 		var err = JSON.stringify(error, ["message", "arguments", "type", "name", "data"])
 		
 		// websocket is closed.
-	    Minimalog("Minima WS Listener Error ... "+err); 
+	    Minima.log("Minima WS Listener Error ... "+err); 
 	};
 }
 
 /**
  * Post a message to the Minima Event Listeners
  */
-function postMinimaMessage(event, info){
-   //And finally..
-   var data = { "event": event, "info" : info }
-   
-   //And dispatch
-   var custom = new CustomEvent("MinimaEvent", {detail:data});
-   window.dispatchEvent(custom);
-}
+function MinimaPostMessage(event, info){
+   //Create Data Object
+   var data = { "event": event, "info" : info };
 
-/**
- * Utility functions used by the Minima Object
- * 
- */
-function Minimalog(info){
-	console.log("Minima @ "+new Date().toLocaleString()+"\n"+info);
+   //And dispatch
+   window.dispatchEvent(new CustomEvent("MinimaEvent", {detail:data} ));
 }
 
 /**
@@ -558,7 +466,7 @@ function httpPostAsync(theUrl, params, callback, logenabled){
         	//Do we log it..
         	if(Minima.logging && logenabled){
         		var logstring = JSON.stringify(rpcjson, null, 2).replace(/\\n/g,"\n");
-        		Minimalog(theUrl+"\n"+logstring);
+        		Minima.log(theUrl+"\n"+logstring);
         	}
         	
         	//Send it to the callback function..
@@ -590,7 +498,7 @@ function httpGetAsync(theUrl, callback, logenabled)
         	//Do we log it..
         	if(Minima.logging && logenabled){
         		var logstring = JSON.stringify(rpcjson, null, 2).replace(/\\n/g,"\n");
-        		Minimalog(theUrl+"\n"+logstring);
+        		Minima.log(theUrl+"\n"+logstring);
         	}
         	
         	//Send it to the callback function..
