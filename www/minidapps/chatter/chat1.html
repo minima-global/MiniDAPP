@@ -4,54 +4,34 @@
 	<!--   The MINIMA MiFi Javascript Library -->
 	<script type="text/javascript" src="minima.js"></script>
 	
+	<!--  The Chat Lib  -->
+	<script type="text/javascript" src="chat.js"></script>
+	
 </head>
 
 <body>
 
 <script type="text/javascript">
 	
-	var netuid = 0;
+	//Set some Variables
+	chatname = "POPO";
 	
 	//Listen for Minima Events
 	window.addEventListener('MinimaEvent', function(evt) {
 		 	
 		//Deal with each message type
  		if(evt.detail.event == "connected"){
-			console.log("connected");
-		
-		}else if(evt.event == "network"){
-			console.log("MinimaEvent : "+JSON.stringify(evt.detail));
-		 	
+			
+		}else if(evt.detail.event == "network"){
+			networkMessage(evt)
  		}
     });
 	
 	//Initialise MiFi
 	Minima.init();
 	
-	function connect(){
-		Minima.net.connect("127.0.0.1:10000");
-	}
-	
-	function disconnect(){
-		Minima.net.disconnect(netuid);
-	}
-	
-	function start(){
-		Minima.net.listen(10000,function(json){console.log(JSON.stringify(json));});
-	}
-	
-	function stop(){
-		Minima.net.stop(10000);
-	}
-	
-	function info(){
-		Minima.net.info(function(json){console.log(JSON.stringify(json));});
-	}
-	
 	function send(){
-		var msg = document.getElementById("sender").value;
-		var jsonobject = { "name" : "paddy", "message" : msg };
-		Minima.net.send(jsonobject, uid);
+		SendMessage(document.getElementById("sender").value);
 	}
 	
 </script>
@@ -65,7 +45,7 @@ CHAT PLAYER 1<br>
 <br>
 
 <textarea id="chatwindow" rows="20" cols="80">
-Chat appears  in here..
+Minima Chat..
 </textarea>
 
 <br><br>
@@ -74,6 +54,15 @@ Chat appears  in here..
 
 <br><br>
 <button onclick="start();">START SERVER</button> <button onclick="stop();">STOP SERVER</button> <button onclick="info();">INFO</button>
+
+<script type="text/javascript">
+	//Set the chat window
+	chatwindow = document.getElementById("chatwindow");
+</script>
+
+
+
+
 </center>
 </body>
 </html>

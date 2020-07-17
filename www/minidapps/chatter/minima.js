@@ -303,10 +303,8 @@ function MinimaWebSocketListener(){
 			MinimaPostMessage("newbalance",jmsg.balance);
 		
 		}else if(jmsg.event == "network"){
-			Minima.log("NETWORK : "+evt.data);
-		
 			//Forward it..
-			MinimaPostMessage("network",jmsg);
+			MinimaPostMessage("network",jmsg.details);
 			
 		}else if(jmsg.event == "newmessage"){
 			//Create a nice JSON message

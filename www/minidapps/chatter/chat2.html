@@ -4,50 +4,36 @@
 	<!--   The MINIMA MiFi Javascript Library -->
 	<script type="text/javascript" src="minima.js"></script>
 	
+	<!--  The Chat Lib  -->
+	<script type="text/javascript" src="chat.js"></script>
+	
 </head>
 
 <body>
 
 <script type="text/javascript">
 	
-	var netuid = 0;
+	//Set some Variables
+	chatname = "JHONNY";
 	
 	//Listen for Minima Events
 	window.addEventListener('MinimaEvent', function(evt) {
-		
+		 	
 		//Deal with each message type
  		if(evt.detail.event == "connected"){
-			console.log(JSON.stringify(evt));
-		
+			
 		}else if(evt.detail.event == "network"){
-		 	console.log(JSON.stringify(evt));
-		 	
-		 	details = evt.detail.details;
-		 	
-		 	//if(details.action)
-		 	
+			networkMessage(evt)
  		}
     });
 	
-	
-	MINIMA_IS_MINIDAPP   = true;
-	MINIMA_MINIDAPP_HOST = "127.0.0.1:7001";
-	
 	//Initialise MiFi
+	Minima.rpchost="http://127.0.0.1:7002"
+	Minima.wshost="ws://127.0.0.1:7003"
 	Minima.init();
 	
-	function connect(){
-		Minima.net.connect("127.0.0.1:10000");
-	}
-	
-	function disconnect(){
-		Minima.net.disconnect(netuid);
-	}
-	
 	function send(){
-		var msg = document.getElementById("sender").value;
-		var jsonobject = { "name" : "paddy", "message" : msg };
-		Minima.net.send(jsonobject, uid);
+		SendMessage(document.getElementById("sender").value);
 	}
 	
 </script>
@@ -55,18 +41,29 @@
 <center>
 <br><br>
 
-CHAT PLAYER 1<br>
+CHAT PLAYER 2<br>
 <br>
 <button onclick="connect();">CONNECT</button> <button onclick="disconnect();">DISCONNECT</button><br>
 <br>
 
 <textarea id="chatwindow" rows="20" cols="80">
-Chat appears  in here..
+Minima Chat..
 </textarea>
 
 <br><br>
 <input type=text id="sender" size="50"> &nbsp;&nbsp;&nbsp;
 <button onclick="send();">SEND</button>
+
+<br><br>
+<button onclick="start();">START SERVER</button> <button onclick="stop();">STOP SERVER</button> <button onclick="info();">INFO</button>
+
+<script type="text/javascript">
+	//Set the chat window
+	chatwindow = document.getElementById("chatwindow");
+</script>
+
+
+
 
 </center>
 </body>
