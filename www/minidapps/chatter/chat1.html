@@ -23,7 +23,7 @@
  		if(evt.detail.event == "connected"){
 			
 		}else if(evt.detail.event == "network"){
-			networkMessage(evt)
+			networkMessage(evt);
  		}
     });
 	
@@ -33,6 +33,13 @@
 	function send(){
 		SendMessage(document.getElementById("sender").value);
 	}
+	
+	function get(){
+		Minima.net.get("http://www.google.com",function(resp){
+			Minima.log("gooogle : "+decodeURIComponent(resp.result));
+		});
+	}
+	
 	
 </script>
 
@@ -54,6 +61,9 @@ Minima Chat..
 
 <br><br>
 <button onclick="start();">START SERVER</button> <button onclick="stop();">STOP SERVER</button> <button onclick="info();">INFO</button>
+
+<br><br>
+<button onclick="get();">GET GOOGLE</button>
 
 <script type="text/javascript">
 	//Set the chat window
