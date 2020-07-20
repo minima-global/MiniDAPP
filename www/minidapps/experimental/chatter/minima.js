@@ -32,14 +32,22 @@ var Minima = {
 	//Web Socket Host for Minima
 	wshost : "ws://127.0.0.1:9003",
 	
-	//Current Network Status - and Balance 
+	/**
+	 * Current Status of the Minima Network
+	 */ 
 	status : {},
+	
+	/**
+	 * Current Balance of this User
+	 */
 	balance : {},
 	
 	//Show RPC commands
 	logging : false,
 	
-	//Minima Startup
+	/**
+	 * Minima Startup
+	 */
 	init : function(){
 		//Log a little..
 		Minima.log("Initialisation..");
@@ -59,17 +67,23 @@ var Minima = {
 		});
 	},
 	
-	//Log some data to console - with a timestamp..
+	/**
+	 * Log some data with a timestamp in a consistent manner to the console
+	 */
 	log : function(output){
 		console.log("Minima @ "+new Date().toLocaleString()+" : "+output);
 	},
 	
-	//Runs a function on the phone
+	/**
+	 * Runs a function on the Minima Command Line
+	 */
 	cmd : function(minifunc, callback){
 		MinimaRPC("cmd",minifunc,callback);
 	},
 	
-	//Runs SQL in the Database created for this MiniDAPP
+	/**
+	 * Run SQL in the Database created for this MiniDAPP
+	 */
 	sql : function(query, callback){
 		MinimaRPC("sql",query,callback);
 	},
@@ -195,9 +209,9 @@ var Minima = {
 				
 				//Show a little popup across the screen..
 				if(bgcolor){
-					createMinimaNotification(message,bgcolor);
+					MinimaCreateNotification(message,bgcolor);
 				}else{
-					createMinimaNotification(message);	
+					MinimaCreateNotification(message);	
 				}
 			},
 			
@@ -247,6 +261,17 @@ var Minima = {
 function MinimaRPC(type, data, callback){
 	//And now fire off a call saving it 
 	httpPostAsync(Minima.rpchost+"/"+type+"/", encodeURIComponent(data), callback);
+}
+
+/**
+ * Post a message to the Minima Event Listeners
+ */
+function MinimaPostMessage(event, info){
+   //Create Data Object
+   var data = { "event": event, "info" : info };
+
+   //And dispatch
+   window.dispatchEvent(new CustomEvent("MinimaEvent", {detail:data} ));
 }
 
 /**
@@ -358,22 +383,11 @@ function MinimaWebSocketListener(){
 }
 
 /**
- * Post a message to the Minima Event Listeners
- */
-function MinimaPostMessage(event, info){
-   //Create Data Object
-   var data = { "event": event, "info" : info };
-
-   //And dispatch
-   window.dispatchEvent(new CustomEvent("MinimaEvent", {detail:data} ));
-}
-
-/**
  * Notification Div
  */
 var TOTAL_NOTIFICATIONS     = 0;
 var TOTAL_NOTIFICATIONS_MAX = 0;
-function createMinimaNotification(text, bgcolor){
+function MinimaCreateNotification(text, bgcolor){
 	//First add the total overlay div
 	var notifydiv = document.createElement('div');
 	
@@ -468,7 +482,7 @@ function httpPostAsync(theUrl, params, callback){
 }
 
 /**
- * Utility function for GET request
+ * Utility function for GET request (UNUSED for now..)
  * 
  * @param theUrl
  * @param callback

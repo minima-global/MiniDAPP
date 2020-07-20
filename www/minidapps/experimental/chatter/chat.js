@@ -64,11 +64,11 @@ function info(){
 
 function SendMessage(msg){
 	Minima.log("Send Attempt : "+msg+" "+netuid);
-	Minima.net.send( { "name" : chatname , "message" : msg, server : false }, netuid);
+	Minima.net.send(netuid, { "name" : chatname , "message" : msg, server : false });
 }
 
 function braodcastMessage(msgjson){
 	Minima.log("Broadcast Attempt : "+JSON.stringify(msgjson));
 	msgjson.server = true;
-	Minima.net.broadcast( msgjson , 10000);
+	Minima.net.broadcast(10000, msgjson);
 }
