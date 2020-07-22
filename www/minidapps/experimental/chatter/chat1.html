@@ -18,6 +18,8 @@
 	
 	//Listen for Minima Events
 	window.addEventListener('MinimaEvent', function(evt) {
+		
+		console.log("EVENT : "+JSON.stringify(evt.detail));
 		 	
 		//Deal with each message type
  		if(evt.detail.event == "connected"){

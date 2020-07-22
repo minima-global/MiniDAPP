@@ -4,70 +4,74 @@
 	<!--   The MINIMA MiFi Javascript Library -->
 	<script type="text/javascript" src="minima.js"></script>
 	
+	<!--  The Chat Lib  -->
+	<script type="text/javascript" src="chat.js"></script>
+	
 </head>
 
 <body>
 
 <script type="text/javascript">
 	
+	//Set some Variables
+	chatname = "POPO";
+	
 	//Listen for Minima Events
 	window.addEventListener('MinimaEvent', function(evt) {
-		
+		 	
 		//Deal with each message type
  		if(evt.detail.event == "connected"){
-		
-			//Start a server..
 			
-		 			
- 		}else if(evt.detail.event == "newmessage"){
-		 	
+		}else if(evt.detail.event == "network"){
+			networkMessage(evt);
  		}
     });
 	
 	//Initialise MiFi
 	Minima.init();
 	
-	var jsonobject = { "name" : "paddy", "age" : 45, "dir": true };
-	
-	function onloaddata(data){
-		console.log("1) name : "+ data.name);
-		console.log("2) age : "+ data.age);
-		console.log("3) directory : "+ data.dir);
+	function send(){
+		SendMessage(document.getElementById("sender").value);
 	}
+	
+	function get(){
+		Minima.net.get("http://www.google.com",function(resp){
+			Minima.log("gooogle : "+decodeURIComponent(resp.result));
+		});
+	}
+	
 	
 </script>
 
 <center>
 <br><br>
 
-TESTER
+CHAT PLAYER 1<br>
+<br>
+<button onclick="connect();">CONNECT</button> <button onclick="disconnect();">DISCONNECT</button><br>
+<br>
+
+<textarea id="chatwindow" rows="20" cols="80">
+Minima Chat..
+</textarea>
 
 <br><br>
-<button onclick="Minima.cmd('random',function(resp){ console.log(JSON.stringify(resp,null,2));});">NOTIFY!</button>
-
-
-<br><br>
-<button onclick="Minima.sql('SELECT * FROM users',function(resp){ console.log(JSON.stringify(resp,null,2));});">SQL</button>
+<input type=text id="sender" size="50"> &nbsp;&nbsp;&nbsp;
+<button onclick="send();">SEND</button>
 
 <br><br>
-FILE:
-<br><br>
-<button onclick="Minima.file.save(jsonobject,'fold/tester.file',function(resp){ console.log(JSON.stringify(resp,null,2));});">SAVE</button>
+<button onclick="start();">START SERVER</button> <button onclick="stop();">STOP SERVER</button> <button onclick="info();">INFO</button>
 
 <br><br>
-<button onclick="Minima.file.load('fold/tester.file',function(resp){ console.log(JSON.stringify(resp,null,2));});">LOAD</button>
+<button onclick="get();">GET GOOGLE</button>
 
-<br><br>
-<button onclick="Minima.file.list('',function(resp){ console.log(JSON.stringify(resp,null,2));});">LIST</button>
+<script type="text/javascript">
+	//Set the chat window
+	chatwindow = document.getElementById("chatwindow");
+</script>
 
-<br><br>
-<button onclick="Minima.file.list('fold',function(resp){ console.log(JSON.stringify(resp,null,2));});">LIST FOLDER</button>
 
-<br><br>
-<button onclick="Minima.file.delete('fold/tester.file',function(resp){ console.log(JSON.stringify(resp,null,2));});">DELETE</button>
 
-<br><br>
-<button onclick="Minima.file.delete('fold',function(resp){ console.log(JSON.stringify(resp,null,2));});">DELETE FOLDER</button>
 
 </center>
 </body>
