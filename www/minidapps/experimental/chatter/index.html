@@ -4,18 +4,22 @@
 	<!--   The MINIMA MiFi Javascript Library -->
 	<script type="text/javascript" src="minima.js"></script>
 	
-	<!--  The Chat Lib  -->
-	<script type="text/javascript" src="chat.js"></script>
-	
 </head>
 
 <body>
 
 <script type="text/javascript">
+
+	/**
+	 * Net channel ID
+	 */
+	var netuid = 0;
 	
-	//Set some Variables
-	chatname = "POPO";
-	
+	/**
+	 * You chat name
+	 */
+	var chatname = "noname";
+
 	//Listen for Minima Events
 	window.addEventListener('MinimaEvent', function(evt) {
 		 	
@@ -23,7 +27,43 @@
  		if(evt.detail.event == "connected"){
 			
 		}else if(evt.detail.event == "network"){
-			networkMessage(evt);
+			Minima.log("Network event "+JSON.stringify(evt.detail.info));
+	
+			//What's happening'
+			var action = evt.detail.info.action;
+				 	
+			if(action == "client_new"){
+			 	if(evt.detail.info.outbound == true){
+				 	//Connect ed to server
+					netuid = evt.detail.info.uid;
+			
+					alert("Connected..");
+				}
+				
+			}else if(action == "server_start"){ 
+				alert("Server started..");
+			
+			}else if(action == "server_start"){ 
+				alert("Server stopped..");
+			
+			}else if(action == "client_shut"){ 
+				netuid = 0;
+				if(evt.detail.info.error){
+					alert(evt.detail.info.error);
+				}
+			
+			}else if(action == "message"){ 
+				//From the server.. ?
+				if(evt.detail.info.message.server){
+					//Message Received
+					var msg = evt.detail.info.message.name+":"+evt.detail.info.message.message; 
+					chatwindow.value = chatwindow.value+msg+"\n";	
+				}else{
+					//Else..
+					braodcastMessage(evt.detail.info.message)	
+				}
+			}
+			
  		}
     });
 	
@@ -40,19 +80,54 @@
 		});
 	}
 	
+	function connect(){
+		Minima.net.connect("127.0.0.1:10000");
+	}
+	
+	function disconnect(){
+		Minima.net.disconnect(netuid);
+	}
+	
+	function start(){
+		Minima.net.listen(10000);
+	}
+	
+	function stop(){
+		Minima.net.stop(10000);
+	}
+	
+	function info(){
+		Minima.net.info(function(json){alert(JSON.stringify(json));});
+	}
+	
+	function SendMessage(msg){
+		chatname = document.getElementById("namer").value;
+		document.getElementById("sender").value = "";
+		
+		Minima.log("Send Attempt : "+msg+" "+netuid);
+		Minima.net.send(netuid, { "name" : chatname , "message" : msg, server : false });
+	}
+	
+	function braodcastMessage(msgjson){
+		Minima.log("Broadcast Attempt : "+JSON.stringify(msgjson));
+		msgjson.server = true;
+		Minima.net.broadcast(10000, msgjson);
+	}
 	
 </script>
 
 <center>
 <br><br>
 
-CHAT PLAYER 1<br>
+CHATTER<br>
+<br>
+Chat Name : <input value="noname" type=text id="namer" size="20"><br>
 <br>
 <button onclick="connect();">CONNECT</button> <button onclick="disconnect();">DISCONNECT</button><br>
 <br>
 
 <textarea id="chatwindow" rows="20" cols="80">
-Minima Chat..
+Chatter area..
 </textarea>
 
 <br><br>
@@ -62,8 +137,9 @@ Minima Chat..
 <br><br>
 <button onclick="start();">START SERVER</button> <button onclick="stop();">STOP SERVER</button> <button onclick="info();">INFO</button>
 
-<br><br>
+<!--  <br><br>
 <button onclick="get();">GET GOOGLE</button>
+-->
 
 <script type="text/javascript">
 	//Set the chat window

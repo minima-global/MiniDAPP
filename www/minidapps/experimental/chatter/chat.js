@@ -26,8 +26,11 @@ function networkMessage(evt){
 			Minima.log("NETUID set : "+netuid);
 		}
  	
+	}else if(action == "server_start"){ 
+	
  	}else if(action == "client_shut"){ 
 		netuid = 0;
+		alert("Client Connection Shut..");
 	
 	}else if(action == "message"){ 
 		//From the server.. ?
