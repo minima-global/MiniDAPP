@@ -12,11 +12,6 @@
 var MINIMA_WEBSOCKET = null;
 
 /**
- * Intra MiniDAPP communication
- */
-var MINIDAPP_FUNCSTORE_LIST = [];
-
-/**
  * Main MINIMA Object for all interaction
  */
 var Minima = {
@@ -347,42 +342,7 @@ function MinimaWebSocketListener(){
 			MinimaPostMessage("newbalance",jmsg.balance);
 		
 		}else if(jmsg.event == "network"){
-			//Forward it..
 			MinimaPostMessage("network",jmsg.details);
-			
-		}else if(jmsg.event == "newmessage"){
-			//Create a nice JSON message
-			var msgdata = { "message":jmsg.message, "replyid":jmsg.functionid, "from":jmsg.from}; 
-			
-			//Post it..
-			MinimaPostMessage("newmessage",msgdata);
-		
-		}else if(jmsg.event == "newreply"){
-			var funclen = MINIDAPP_FUNCSTORE_LIST.length;
-			for(i=0;i<funclen;i++){
-				if(MINIDAPP_FUNCSTORE_LIST[i].functionid == jmsg.functionid){
-					//Get the callback
-					callback = MINIDAPP_FUNCSTORE_LIST[i].callback;
-					
-					//Was there an ERROR
-					if(jmsg.error !== ""){
-						//Log the error
-						Minima.log("Message Error : "+jmsg.error);
-					}else{
-						//call it with the reply message
-						callback(jmsg.message);
-					}
-					
-					//And remove it from the list..
-					MINIDAPP_FUNCSTORE_LIST.splice(i,1);
-					
-					//All done
-					return;
-				}
-			}
-			
-			//Not found..
-			Minima.log("REPLY CALLBACK NOT FOUND "+JSON.stringify(jmsg));
 			
 		}else if(jmsg.event == "txpowstart"){
 			Minima.util.notify("Mining Transaction Started..","#55DD55");	
