@@ -25,6 +25,8 @@
 		 	
 		//Deal with each message type
  		if(evt.detail.event == "connected"){
+			//Set the UID..
+			Minima.comms.setUID("0xFFFF");
 			
 		}else if(evt.detail.event == "network"){
 			Minima.log("Network event "+JSON.stringify(evt.detail.info));
@@ -62,6 +64,14 @@
 					//Else..
 					braodcastMessage(evt.detail.info.message)	
 				}
+			
+			}else if(action == "post"){ 
+				var msg = evt.detail.info.message;
+			
+				Minima.log("REC : posted message.. "+msg);
+			
+				//Now reply..
+				Minima.comms.reply(evt.detail.info.replyid,"this is the reply!");
 			}
 			
  		}
@@ -114,6 +124,13 @@
 		Minima.net.broadcast(10000, msgjson);
 	}
 	
+	
+	function testcomms(){
+		Minima.comms.send('0xFFFF','YOUYOU',function(resp){
+			Minima.log("reply rec : "+resp.response.reply);
+		});
+	}
+	
 </script>
 
 <center>
@@ -141,12 +158,13 @@ Chatter area..
 <button onclick="get();">GET GOOGLE</button>
 -->
 
+<br><br><button onclick="testcomms();">TEST INTRACOMMS</button><br>
+
+
 <script type="text/javascript">
 	//Set the chat window
 	chatwindow = document.getElementById("chatwindow");
 </script>
-
-
 
 
 </center>

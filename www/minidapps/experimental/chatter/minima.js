@@ -152,6 +152,62 @@ var Minima = {
 	},
 	
 	/**
+	 * Form GET / POST parameters..
+	 */
+	form : {
+		
+		//Return the GET parameter..
+		get : function(parameterName){
+			    var result = null,
+		        tmp = [];
+			    var items = location.search.substr(1).split("&");
+			    for (var index = 0; index < items.length; index++) {
+			        tmp = items[index].split("=");
+			        //console.log("TMP:"+tmp);
+				   if (tmp[0] === parameterName) result = decodeURIComponent(tmp[1]);
+			    }
+			    return result;
+		}
+		
+	},
+	
+	/**
+	 * Intra MiniDAPP communication
+	 */
+	comms : {
+		
+		//List the currently installed minidapps
+		list : function(callback){
+			Minima.cmd("minidapp list",callback);
+		},
+		
+		//Send a message to a specific minidapp
+		send : function(minidappid,message, callback){
+			Minima.cmd("minidapp post:"+minidappid+" \""+message+"\"",callback);
+		},
+		
+		//The replyid is in the original message
+		reply : function(replyid,message){
+			//Reply to a POST message.. iuse the mesage
+			replymsg = { "type":"reply", "message": message, "replyid" : replyid };
+			
+			//Send your name.. normally set automagically but can be hard set when debugging
+			MINIMA_WEBSOCKET.send(JSON.stringify(replymsg));
+		},
+		
+		//For debug purposes you can can hard set the MiniDAPP ID
+		setUID : function(uid){
+			//UID JSON Message
+			miniuid = { "type":"uid", "uid": uid };
+			
+			//Send your name.. normally set automagically but can be hard set when debugging
+			MINIMA_WEBSOCKET.send(JSON.stringify(miniuid));
+		}
+		
+	},
+	
+	
+	/**
 	 * UTILITY FUNCTIONS
 	 */
 	util : {
@@ -213,42 +269,6 @@ var Minima = {
 				}else{
 					MinimaCreateNotification(message);	
 				}
-			},
-			
-			send : function(minidappid, message, callback){
-				//Create a random number to track this function call..
-				var funcid = ""+Math.floor(Math.random()*1000000000);
-				
-				//Construct a JSON object
-				msg = { "type":"message", "to":minidappid, "funcid":funcid, "message":message };
-
-				//Add this Funcid and this callback to the list.. when you receive a reply 
-				//you can respond to the correct callback
-				funcstore = { "functionid":funcid, "callback":callback };
-				MINIDAPP_FUNCSTORE_LIST.push(funcstore);
-				
-				//And send it..
-				MINIMA_WEBSOCKET.send(JSON.stringify(msg));
-			},
-			
-			reply : function(evt, message){
-				//Get the reply id
-				var replyid = evt.detail.info.replyid;
-				var replyto = evt.detail.info.from;
-				
-				//Construct a JSON object
-				msg = { "type":"reply", "to":replyto, "replyid":replyid, "message":message };
-
-				//And send it..
-				MINIMA_WEBSOCKET.send(JSON.stringify(msg));
-			},
-			
-			setUID : function(uid){
-				//UID JSON Message
-				uid = { "type":"uid", "location": window.location.href, "uid":uid };
-				
-				//Send your name.. normally set automagically but can be hard set when debugging
-				MINIMA_WEBSOCKET.send(JSON.stringify(uid));
 			}
 				
 	}
@@ -291,6 +311,12 @@ function MinimaWebSocketListener(){
 	MINIMA_WEBSOCKET.onopen = function() {
 		//Connected
 		Minima.log("Minima WS Listener Connection opened..");	
+		
+		//Now set the MiniDAPPID
+		uid = { "type":"uid", "uid": window.location.href };
+		
+		//Send your name.. set automagically but can be hard set when debugging
+		MINIMA_WEBSOCKET.send(JSON.stringify(uid));
 		
 	    //Send a message
 	    MinimaPostMessage("connected", "success");
