@@ -70,6 +70,21 @@ var Minima = {
 	},
 	
 	/**
+	 * Notify the user with a Pop up message
+	 */
+	notify : function(message,bgcolor){
+		//Log it..
+		Minima.log("Notify : "+message);
+		
+		//Show a little popup across the screen..
+		if(bgcolor){
+			MinimaCreateNotification(message,bgcolor);
+		}else{
+			MinimaCreateNotification(message);	
+		}
+	},
+	
+	/**
 	 * Runs a function on the Minima Command Line
 	 */
 	cmd : function(minifunc, callback){
@@ -183,10 +198,8 @@ var Minima = {
 		
 		//The replyid is in the original message
 		reply : function(replyid,message){
-			//Reply to a POST message.. iuse the mesage
+			//Reply to a POST message..
 			replymsg = { "type":"reply", "message": message, "replyid" : replyid };
-			
-			//Send your name.. normally set automagically but can be hard set when debugging
 			MINIMA_WEBSOCKET.send(JSON.stringify(replymsg));
 		},
 		
@@ -252,18 +265,6 @@ var Minima = {
 				
 				//Not found
 				return null;
-			},
-			
-			notify : function(message,bgcolor){
-				//Log it..
-				Minima.log("Notify : "+message);
-				
-				//Show a little popup across the screen..
-				if(bgcolor){
-					MinimaCreateNotification(message,bgcolor);
-				}else{
-					MinimaCreateNotification(message);	
-				}
 			}
 				
 	}
@@ -345,10 +346,10 @@ function MinimaWebSocketListener(){
 			MinimaPostMessage("network",jmsg.details);
 			
 		}else if(jmsg.event == "txpowstart"){
-			Minima.util.notify("Mining Transaction Started..","#55DD55");	
+			Minima.notify("Mining Transaction Started..","#55DD55");	
 			
 		}else if(jmsg.event == "txpowend"){
-			Minima.util.notify("Mining Transaction Finished","#DD5555");
+			Minima.notify("Mining Transaction Finished","#DD5555");
 		}
 	};
 		

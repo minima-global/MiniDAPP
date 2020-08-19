@@ -1,0 +1,31 @@
+/*
+   DEXXED Swap Contract
+
+   Very simple contract that lets anyone 
+   spend it as long as the correct amount 
+   of the correct token is sent to the 
+   correct address
+   
+   Owner can cancel
+   
+   All or Nothing. 
+*/
+
+/* The owner can obviously cancel the contract */
+LET owner = PREVSTATE ( 0 ) 
+
+IF SIGNEDBY ( owner ) THEN 
+   RETURN TRUE 
+ENDIF 
+
+/* The address that requires the payout */
+LET address = PREVSTATE ( 1 ) 
+
+/* The required Token */
+LET token = PREVSTATE ( 2 ) 
+
+/* The Required Amount */
+LET amount = PREVSTATE ( 3 ) 
+
+/* Check the opposite output is correct */
+RETURN VERIFYOUT ( @INPUT address amount token )
