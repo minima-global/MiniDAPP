@@ -5,6 +5,7 @@
 	<script type="text/javascript" src="./js/minima.js"></script>
 	
 	<!--   DEX -->
+	<script type="text/javascript" src="./js/decimal.js"></script>
 	<script type="text/javascript" src="./js/dex.js"></script>
 	
 	<!--  STYLE -->
@@ -15,33 +16,23 @@
 <body style="background-image: url(./images/trader.jpg);">
 
 <script type="text/javascript">
+	
 	//Wait for the page to load..
 	window.addEventListener("load", function(){
 		
-		//Listen for Minima Events
-		window.addEventListener('MinimaEvent', function(evt) {
-			//Deal with each message type
-	 		if(evt.detail.event == "connected"){
+		//Initialise MiFi
+		Minima.init(function(msg){
+			if(msg.event == "connected"){
 	 			dex_init();
 	 			
-	 		}else if(evt.detail.event == "newblock"){
+	 		}else if(msg.event == "newblock"){
 		 		//Call the Poll Function.. no need for a new thread polling.. 
 		 		dexPollFunction();
 		 		
-	 		}else if(evt.detail.event == "newbalance"){
+	 		}else if(msg.event == "newbalance"){
 		 		UpdateBalance();
 	 		}
-	    });
-		
-		//Too many logs..
-		Minima.logging = false;
-		
-		//Initialise MiFi
-		Minima.init();
-		
-		//Scroll the order book..
-		//var elem = document.getElementById("center_orderbook");  
-		//elem.scrollIntoView(true); 
+		});	
 	});
 	
 </script>

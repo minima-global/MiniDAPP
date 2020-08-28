@@ -101,30 +101,21 @@
         
     }, false); 
 
-	//Wait for the page to load..
-	window.addEventListener("load", function(){
-	    
-		//Listen for Minima Events
-		window.addEventListener('MinimaEvent', function(evt) {
-			
-			//Deal with each message type
-	 		if(evt.detail.event == "connected"){
-	 			//Lets get started
-	 			addText("**********************************************\n");
-	 			addText("*  __  __  ____  _  _  ____  __  __    __    *\n");
-	 			addText("* (  \\/  )(_  _)( \\( )(_  _)(  \\/  )  /__\\   *\n");
-	 			addText("*  )    (  _)(_  )  (  _)(_  )    (  /(__)\\  *\n");
-	 			addText("* (_/\\/\\_)(____)(_)\\_)(____)(_/\\/\\_)(__)(__) *\n");
-	 			addText("*                                            *\n");
-	 			addText("**********************************************\n");
-				addText("Welcome to Minima. For assistance type help. Then press enter.\n");
-	 		}
-	    });
-		
-		//Initialise MiFi
-		Minima.init();
+	//Initialise MiFi
+	Minima.init(function(msg){
+		if(msg.event == "connected"){
+			//Lets get started
+ 			addText("**********************************************\n");
+ 			addText("*  __  __  ____  _  _  ____  __  __    __    *\n");
+ 			addText("* (  \\/  )(_  _)( \\( )(_  _)(  \\/  )  /__\\   *\n");
+ 			addText("*  )    (  _)(_  )  (  _)(_  )    (  /(__)\\  *\n");
+ 			addText("* (_/\\/\\_)(____)(_)\\_)(____)(_/\\/\\_)(__)(__) *\n");
+ 			addText("*                                            *\n");
+ 			addText("**********************************************\n");
+			addText("Welcome to Minima. For assistance type help. Then press enter.\n");
+		}
 	});
-	
+
 </script>
 
 <center>

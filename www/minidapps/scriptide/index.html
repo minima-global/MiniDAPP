@@ -19,17 +19,6 @@
 	
 	//Wait for the page to load..
 	window.addEventListener("load", function(){
-		//Listen for Minima Events
-		window.addEventListener('MinimaEvent', function(evt) {
-			//Deal with each message type
-	 		if(evt.detail.event == "connected"){
-		 		//Connected..	
-	 		}
-	    });
-		
-		//Initialise MiFi
-		Minima.init();
-		
 		//Load cached if available..
 		loadScript();
 		
@@ -41,6 +30,9 @@
 		tabOverride.tabSize(4);
 	});
 	
+	//Initialise MiFi
+	Minima.init();
+		
 </script>
 
 <center>

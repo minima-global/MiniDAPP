@@ -7,14 +7,30 @@
 */
 
 /**
+ * The MAIN Minima Callback function 
+ */
+var MINIMA_MAIN_CALLBACK = null;
+
+/**
+ * The MiniDAPP interfce Callback function 
+ */
+var MINIMA_MINIDAPP_CALLBACK = null;
+
+/**
  * The Web Socket Host for PUSH messages
  */
 var MINIMA_WEBSOCKET = null;
 
 /**
- * Intra MiniDAPP communication
+ * GET or POST request parameters
  */
-var MINIDAPP_FUNCSTORE_LIST = [];
+var MINIMA_PARAMS = {};
+
+/**
+ * NET socket port and functions
+ */
+var MINIMA_SERVER_LISTEN = [];
+var MINIMA_USER_LISTEN   = [];
 
 /**
  * Main MINIMA Object for all interaction
@@ -25,6 +41,9 @@ var Minima = {
 	
 	//TxPoWID of the current top block
 	txpowid : "0x00",
+	
+	//The HOST 
+	host : "",
 	
 	//RPC Host for Minima
 	rpchost : "http://127.0.0.1:9002",
@@ -46,11 +65,33 @@ var Minima = {
 	logging : false,
 	
 	/**
-	 * Minima Startup
+	 * Minima Startup - with the callback function used for all Minima messages
 	 */
-	init : function(){
+	init : function(callback){
 		//Log a little..
 		Minima.log("Initialisation..");
+		
+		//Store the callback
+		MINIMA_MAIN_CALLBACK = callback;
+		
+		//Are we running via a server - otherwise leave as is
+		if(window.location.protocol.startsWith("http")){
+			Minima.host = window.location.hostname;
+			
+			//The Port determives the WebSocket and RPC port..
+			Minima.rpchost = "http://"+Minima.host+":"+(window.location.port-2);
+			Minima.wshost = "ws://"+Minima.host+":"+(window.location.port-1);	
+		}
+		
+		Minima.log("RPCHOST : "+Minima.rpchost);
+		Minima.log("WCHOST  : "+Minima.wshost);
+		
+		//Any Parameters..
+		var paramstring = Minima.rpchost+"/params";
+		httpGetAsync(paramstring, function(jsonresp){
+			//Set it..
+			MINIMA_PARAMS = jsonresp;	
+		});
 		
 		//Do the first call..
 		Minima.cmd("status;balance", function(json){
@@ -75,6 +116,21 @@ var Minima = {
 	},
 	
 	/**
+	 * Notify the user with a Pop up message
+	 */
+	notify : function(message,bgcolor){
+		//Log it..
+		Minima.log("Notify : "+message);
+		
+		//Show a little popup across the screen..
+		if(bgcolor){
+			MinimaCreateNotification(message,bgcolor);
+		}else{
+			MinimaCreateNotification(message);	
+		}
+	},
+	
+	/**
 	 * Runs a function on the Minima Command Line
 	 */
 	cmd : function(minifunc, callback){
@@ -93,7 +149,12 @@ var Minima = {
 	 */
 	net : {
 		
-		listen : function(port){
+		//SERVER FUNCTIONS
+		onInbound : function(port, onReceiveCallback){
+			MINIMA_SERVER_LISTEN.push({ "port":port, "callback":onReceiveCallback });
+		},
+		
+		start : function(port){
 			MinimaRPC("net","listen "+port,null);
 		},
 		
@@ -101,8 +162,13 @@ var Minima = {
 			MinimaRPC("net","stop "+port,null);
 		},
 		
-		broadcast : function(port,jsonobject){
-			MinimaRPC("net","broadcast "+port+" "+JSON.stringify(jsonobject),null);
+		broadcast : function(port,text){
+			MinimaRPC("net","broadcast "+port+" "+text,null);
+		},
+		
+		//USER FUNCTIONS 
+		onOutbound : function(hostport, onReceiveCallback){
+			MINIMA_USER_LISTEN.push({ "port":hostport, "callback":onReceiveCallback });
 		},
 		
 		connect : function(hostport){
@@ -113,14 +179,21 @@ var Minima = {
 			MinimaRPC("net","disconnect "+UID,null);
 		},
 		
-		send : function(UID, jsonobject){
-			MinimaRPC("net","send "+UID+" "+JSON.stringify(jsonobject),null);
+		send : function(UID, text){
+			MinimaRPC("net","send "+UID+" "+text,null);
 		},
 		
-		info : function(callback){
-			MinimaRPC("net","info",callback);
+		//Resend all the connection information
+		info : function(){
+			MinimaRPC("net","info", null);
 		},
-		
+
+		//Receive all info in the callback
+		stats : function(callback){
+			MinimaRPC("net","stats",callback);
+		},
+				
+		//GET an URL resource
 		get : function(url, callback){
 			MinimaRPC("net","get "+url,callback);
 		}
@@ -129,26 +202,111 @@ var Minima = {
 	
 	
 	/**
-	 * FILE Functions
+	 * FILE Functions - no spaces allowed in filenames
 	 */ 
 	file : {
 		
-		save : function(jsonobject, file,  callback) {
-			MinimaRPC("file","save "+file+" "+JSON.stringify(jsonobject),callback);
+		//Save & Load Text to a file 
+		save : function(text, file,  callback) {
+			MinimaRPC("file","save "+file+" "+text,callback);
 		},
 		
 		load : function(file, callback) {
 			MinimaRPC("file","load "+file,callback);
 		},
 		
+		//Save and Load as HEX.. Strings with 0x..
+		saveHEX : function(hextext, file,  callback) {
+			MinimaRPC("file","savehex "+file+" "+hextext,callback);
+		},
+		
+		loadHEX : function(file, callback) {
+			MinimaRPC("file","loadhex "+file,callback);
+		},
+		
+		//Copy file..
+		copy : function(file, newfile, callback) {
+			MinimaRPC("file","copy "+file+" "+newfile,callback);
+		},
+		
+		//Rename a file in your folder
+		move : function(file, newfile, callback) {
+			MinimaRPC("file","move "+file+" "+newfile,callback);
+		},
+		
+		//Move a file INTO the TEMP directory - all MiniDAPPs can access this
+		moveToTemp : function(file, tempfile, callback) {
+			MinimaRPC("file","movetotemp "+file+" "+tempfile,callback);
+		},
+		
+		//Move a file FROM the TEMP directory - all MiniDAPPs can access this
+		moveFromTemp : function(file, tempfile, callback) {
+			MinimaRPC("file","movefromtemp "+file+" "+tempfile,callback);
+		},
+		
+		//List the files in a directory
 		list : function(file, callback) {
 			MinimaRPC("file","list "+file,callback);
 		},
 		
+		//Delete a File
 		delete : function(file, callback) {
 			MinimaRPC("file","delete "+file,callback);
 		}
 			
+	},
+	
+	/**
+	 * Form GET / POST parameters..
+	 */
+	form : {
+		
+		//BOTH POST and GET parameters.. and any files are uploaded to /upload folder
+		//must set POST form to multipart/form-data to work.. 
+		params : function(paramname){
+			return MINIMA_PARAMS[paramname];
+		},
+		
+		//Return the GET parameter by scraping the location..
+		getParams : function(parameterName){
+			    var result = null,
+		        tmp = [];
+			    var items = location.search.substr(1).split("&");
+			    for (var index = 0; index < items.length; index++) {
+			        tmp = items[index].split("=");
+			        //console.log("TMP:"+tmp);
+				   if (tmp[0] === parameterName) result = decodeURIComponent(tmp[1]);
+			    }
+			    return result;
+		}		
+	},
+	
+	/**
+	 * Intra MiniDAPP communication
+	 */
+	minidapps : {
+		//List the currently installed minidapps
+		list : function(callback){
+			Minima.cmd("minidapps list",callback);
+		},
+		
+		//Function to call when an Intra-MiniDAPP message is received
+		listen : function(onReceiveCallback){
+			MINIMA_MINIDAPP_CALLBACK = onReceiveCallback;
+		},
+		
+		//Send a message to a specific minidapp
+		send : function(minidappid,message, callback){
+			Minima.cmd("minidapps post:"+minidappid+" \""+message+"\"",callback);
+		},
+		
+		//The replyid is in the original message
+		reply : function(replyid,message){
+			//Reply to a POST message..
+			replymsg = { "type":"reply", "message": message, "replyid" : replyid };
+			MINIMA_WEBSOCKET.send(JSON.stringify(replymsg));
+		}
+
 	},
 	
 	/**
@@ -201,54 +359,6 @@ var Minima = {
 				
 				//Not found
 				return null;
-			},
-			
-			notify : function(message,bgcolor){
-				//Log it..
-				Minima.log("Notify : "+message);
-				
-				//Show a little popup across the screen..
-				if(bgcolor){
-					MinimaCreateNotification(message,bgcolor);
-				}else{
-					MinimaCreateNotification(message);	
-				}
-			},
-			
-			send : function(minidappid, message, callback){
-				//Create a random number to track this function call..
-				var funcid = ""+Math.floor(Math.random()*1000000000);
-				
-				//Construct a JSON object
-				msg = { "type":"message", "to":minidappid, "funcid":funcid, "message":message };
-
-				//Add this Funcid and this callback to the list.. when you receive a reply 
-				//you can respond to the correct callback
-				funcstore = { "functionid":funcid, "callback":callback };
-				MINIDAPP_FUNCSTORE_LIST.push(funcstore);
-				
-				//And send it..
-				MINIMA_WEBSOCKET.send(JSON.stringify(msg));
-			},
-			
-			reply : function(evt, message){
-				//Get the reply id
-				var replyid = evt.detail.info.replyid;
-				var replyto = evt.detail.info.from;
-				
-				//Construct a JSON object
-				msg = { "type":"reply", "to":replyto, "replyid":replyid, "message":message };
-
-				//And send it..
-				MINIMA_WEBSOCKET.send(JSON.stringify(msg));
-			},
-			
-			setUID : function(uid){
-				//UID JSON Message
-				uid = { "type":"uid", "location": window.location.href, "uid":uid };
-				
-				//Send your name.. normally set automagically but can be hard set when debugging
-				MINIMA_WEBSOCKET.send(JSON.stringify(uid));
 			}
 				
 	}
@@ -271,7 +381,7 @@ function MinimaPostMessage(event, info){
    var data = { "event": event, "info" : info };
 
    //And dispatch
-   window.dispatchEvent(new CustomEvent("MinimaEvent", {detail:data} ));
+   MINIMA_MAIN_CALLBACK(data);   
 }
 
 /**
@@ -292,6 +402,12 @@ function MinimaWebSocketListener(){
 		//Connected
 		Minima.log("Minima WS Listener Connection opened..");	
 		
+		//Now set the MiniDAPPID
+		uid = { "type":"uid", "uid": window.location.href };
+		
+		//Send your name.. set automagically but can be hard set when debugging
+		MINIMA_WEBSOCKET.send(JSON.stringify(uid));
+			
 	    //Send a message
 	    MinimaPostMessage("connected", "success");
 	};
@@ -321,48 +437,39 @@ function MinimaWebSocketListener(){
 			MinimaPostMessage("newbalance",jmsg.balance);
 		
 		}else if(jmsg.event == "network"){
-			//Forward it..
-			MinimaPostMessage("network",jmsg.details);
-			
-		}else if(jmsg.event == "newmessage"){
-			//Create a nice JSON message
-			var msgdata = { "message":jmsg.message, "replyid":jmsg.functionid, "from":jmsg.from}; 
-			
-			//Post it..
-			MinimaPostMessage("newmessage",msgdata);
-		
-		}else if(jmsg.event == "newreply"){
-			var funclen = MINIDAPP_FUNCSTORE_LIST.length;
-			for(i=0;i<funclen;i++){
-				if(MINIDAPP_FUNCSTORE_LIST[i].functionid == jmsg.functionid){
-					//Get the callback
-					callback = MINIDAPP_FUNCSTORE_LIST[i].callback;
+			//What type of message is it..
+			if( jmsg.details.action == "server_start" || 
+				jmsg.details.action == "server_stop"  || 
+				jmsg.details.action == "server_error"){
 					
-					//Was there an ERROR
-					if(jmsg.error !== ""){
-						//Log the error
-						Minima.log("Message Error : "+jmsg.error);
-					}else{
-						//call it with the reply message
-						callback(jmsg.message);
-					}
-					
-					//And remove it from the list..
-					MINIDAPP_FUNCSTORE_LIST.splice(i,1);
-					
-					//All done
-					return;
+				sendCallback(MINIMA_SERVER_LISTEN, jmsg.details.port, jmsg.details);
+				
+			}else if( jmsg.details.action == "client_new"  || 
+					  jmsg.details.action == "client_shut" || 
+					  jmsg.details.action == "message"){
+						
+				if(!jmsg.details.outbound){
+					sendCallback(MINIMA_SERVER_LISTEN, jmsg.details.port, jmsg.details);
+				}else{
+					sendCallback(MINIMA_USER_LISTEN, jmsg.details.hostport, jmsg.details);
 				}
+			}else if( jmsg.details.action == "post"){ 
+				//Call the MiniDAPP function..
+				if(MINIMA_MINIDAPP_CALLBACK){
+					MINIMA_MINIDAPP_CALLBACK(jmsg.details);	
+				}else{
+					Minima.minidapps.reply(jmsg.details.replyid, "ERROR - no minidapp interface found");
+				}
+				
+			}else{
+				Minima.log("UNKNOWN NETWORK EVENT : "+evt.data);
 			}
-			
-			//Not found..
-			Minima.log("REPLY CALLBACK NOT FOUND "+JSON.stringify(jmsg));
-			
+							
 		}else if(jmsg.event == "txpowstart"){
-			Minima.util.notify("Mining Transaction Started..","#55DD55");	
+			Minima.notify("Mining Transaction Started..","#55DD55");	
 			
 		}else if(jmsg.event == "txpowend"){
-			Minima.util.notify("Mining Transaction Finished","#DD5555");
+			Minima.notify("Mining Transaction Finished","#DD5555");
 		}
 	};
 		
@@ -380,6 +487,16 @@ function MinimaWebSocketListener(){
 		// websocket is closed.
 	    Minima.log("Minima WS Listener Error ... "+err); 
 	};
+}
+
+function sendCallback(list, port, msg){
+	var funclen = list.length;
+	for(i=0;i<funclen;i++){
+		if(list[i].port == port){
+			list[i].callback(msg);
+			return;
+		}
+	}
 }
 
 /**
@@ -511,4 +628,3 @@ function httpGetAsync(theUrl, callback, logenabled)
     xmlHttp.open("GET", theUrl, true); // true for asynchronous 
     xmlHttp.send(null);
 }
-

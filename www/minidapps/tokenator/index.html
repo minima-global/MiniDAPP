@@ -16,16 +16,16 @@
 <script type="text/javascript">
 	//Listen for Minima Events
 	window.addEventListener('MinimaEvent', function(evt) {
-		//Deal with each message type
- 		if(evt.detail.event == "connected"){
- 			//Initialise the SQL
- 			//initTokenator();
- 			setMyTokens();
-	 	}
+		//Initialise MiFi
+		Minima.init(function(msg){
+			if(msg.event == "connected"){
+	 			//Initialise the SQL
+	 			initTokenator();
+	 			//setMyTokens();
+		 	}
+		});
     });
 	
-	//Initialise MiFi
-	Minima.init();
 	
 </script>
 
