@@ -1,0 +1,72 @@
+MINIDAPP v2
+
+-------------
+- MINIMA.JS -
+-------------
+
+//Some Variables that come in Handy..
+Minima.block - Head Block Number 
+Minima.txpowid - of the Head Block
+Minima.status - of the network
+Minima.balance - Your Balance
+
+//Initialise with a function - can be blank if not interested in messsges when : connected, newblock, newtransacton and newbalance. (eg.. Terminal / Script IDE)
+Minima.init(function(msg){}); 
+
+//Log a message in a consistent manner
+Minima.log("message");
+
+//Notify with a popup in the browser and ( soon ) a notification on the phone 
+Minima.notify("message");
+
+//Run a command on the Minima command line, can be ; separated
+Minima.cmd("status;balance");
+
+//Run a SQL statement on the Minima SQL database for each minidapp
+Minima.sql("SELECT * FROM tablename");
+
+//Network functions for communication
+Minima.net.onInbound(port, function(netmsg){})
+Minima.net.start(port)
+Minima.net.stop(port)
+Minima.net.broadcast(port,textmsg)
+Minima.net.onOutbound(hostport, function(netmsg){})
+Minima.net.connect(hostport);
+Minima.net.disconnect(UID);
+Minima.net.send(UID,text);
+Minima.net.info();
+Minima.net.stats(function(data){});
+Minima.net.get(url, function(data){});
+
+//File Functions..
+Minima.file.save(text, filename, callback);
+Minima.file.load(filename, callback);
+Minima.file.saveHEX(text, filename, callback);
+Minima.file.loadHEX(filename, callback);
+Minima.file.copy(file, newfile, callback);
+Minima.file.move(file, newfile, callback);
+Minima.file.list(file, callback);
+Minima.file.delete(file, callback);
+
+//FORM parameter values - can do a GET or POST form - must set POST form to multipart/form-data to work. Files uploaded to the upload folder
+Minima.form.params(name);
+
+//Intra-MiniDAPP comms
+Minima.minidapps.list(function(data){});
+Minima.minidapps.listen(function(msg){});
+Minima.minidapps.send(minidappid, text, function(msg){});
+Minima.minidapps.reply(replyid, text);
+
+..and there is a new 'minidapps' command function so you can interact with MiniDAPPs from the command line ( say you run a Chat server on line and want to start or stop it )
+
+//Some Utility Functions..
+Minima.util.getBalance(tokenid);
+Minima.util.checkAllResponses(responses);
+Minima.util.getStateVariablke(statelist, port);
+
+MiniDAPPs also get a service.js javascript file - that is run in the background. You don't need to have the webpage open now. It uses exactly the same minima.js code. Minima.init works from there and you get a message at newblock, newtransaction etc.. 
+
+It's effectively a complete LAMP setup. Running on every single phone, for MiniDAPPs to use.
+
+Enjoy.
+ 

@@ -240,16 +240,6 @@ var Minima = {
 			MinimaRPC("file","move "+file+" "+newfile,callback);
 		},
 		
-		//Move a file INTO the TEMP directory - all MiniDAPPs can access this
-		moveToTemp : function(file, tempfile, callback) {
-			MinimaRPC("file","movetotemp "+file+" "+tempfile,callback);
-		},
-		
-		//Move a file FROM the TEMP directory - all MiniDAPPs can access this
-		moveFromTemp : function(file, tempfile, callback) {
-			MinimaRPC("file","movefromtemp "+file+" "+tempfile,callback);
-		},
-		
 		//List the files in a directory
 		list : function(file, callback) {
 			MinimaRPC("file","list "+file,callback);
@@ -387,9 +377,9 @@ function MinimaPostMessage(event, info){
    var data = { "event": event, "info" : info };
 
    //And dispatch
-	if(MINIMA_MAIN_CALLBACK){
-		MINIMA_MAIN_CALLBACK(data);	
-	}   
+   if(MINIMA_MAIN_CALLBACK){
+	  MINIMA_MAIN_CALLBACK(data);	
+   }   
 }
 
 /**
