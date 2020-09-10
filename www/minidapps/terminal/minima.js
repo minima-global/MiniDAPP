@@ -42,8 +42,8 @@ var Minima = {
 	//TxPoWID of the current top block
 	txpowid : "0x00",
 	
-	//The HOST 
-	host : "",
+	//Web Host for Minima
+	webhost : "http://127.0.0.1:9004",
 	
 	//RPC Host for Minima
 	rpchost : "http://127.0.0.1:9002",
@@ -69,25 +69,31 @@ var Minima = {
 	 */
 	init : function(callback){
 		//Log a little..
-		Minima.log("Initialisation..");
+		Minima.log("Initialising..");
 		
 		//Store the callback
-		MINIMA_MAIN_CALLBACK = callback;
+		if(callback){
+			MINIMA_MAIN_CALLBACK = callback;	
+		}else{
+			Minima.log("No Main Minima Callback specified..");
+		}
 		
 		//Are we running via a server - otherwise leave as is
 		if(window.location.protocol.startsWith("http")){
 			Minima.host = window.location.hostname;
 			
 			//The Port determives the WebSocket and RPC port..
+			Minima.webhost = "http://"+Minima.host+":"+(window.location.port);
 			Minima.rpchost = "http://"+Minima.host+":"+(window.location.port-2);
 			Minima.wshost = "ws://"+Minima.host+":"+(window.location.port-1);	
 		}
 		
+		Minima.log("WEBHOST : "+Minima.webhost);
 		Minima.log("RPCHOST : "+Minima.rpchost);
 		Minima.log("WCHOST  : "+Minima.wshost);
 		
 		//Any Parameters..
-		var paramstring = Minima.rpchost+"/params";
+		var paramstring = Minima.webhost+"/params";
 		httpGetAsync(paramstring, function(jsonresp){
 			//Set it..
 			MINIMA_PARAMS = jsonresp;	
@@ -193,9 +199,14 @@ var Minima = {
 			MinimaRPC("net","stats",callback);
 		},
 				
-		//GET an URL resource
-		get : function(url, callback){
+		//GET an URL
+		GET : function(url, callback){
 			MinimaRPC("net","get "+url,callback);
+		},
+		
+		//POST params to an URL 
+		POST : function(url, params, callback){
+			MinimaRPC("net","post "+url+" "+params,callback);
 		}
 		
 	},
@@ -232,16 +243,6 @@ var Minima = {
 		//Rename a file in your folder
 		move : function(file, newfile, callback) {
 			MinimaRPC("file","move "+file+" "+newfile,callback);
-		},
-		
-		//Move a file INTO the TEMP directory - all MiniDAPPs can access this
-		moveToTemp : function(file, tempfile, callback) {
-			MinimaRPC("file","movetotemp "+file+" "+tempfile,callback);
-		},
-		
-		//Move a file FROM the TEMP directory - all MiniDAPPs can access this
-		moveFromTemp : function(file, tempfile, callback) {
-			MinimaRPC("file","movefromtemp "+file+" "+tempfile,callback);
 		},
 		
 		//List the files in a directory
@@ -381,7 +382,9 @@ function MinimaPostMessage(event, info){
    var data = { "event": event, "info" : info };
 
    //And dispatch
-   MINIMA_MAIN_CALLBACK(data);   
+   if(MINIMA_MAIN_CALLBACK){
+		MINIMA_MAIN_CALLBACK(data);	
+   }      
 }
 
 /**
