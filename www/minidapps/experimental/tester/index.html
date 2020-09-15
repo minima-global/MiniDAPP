@@ -15,8 +15,14 @@
 		
 		//Deal with each message type
  		if(msg.event == "connected"){
-			Minima.log("WE CONNECTED");	
-		}
+			Minima.log("WE CONNECTED");
+				
+		}else if(msg.event == "newtransaction"){
+			console.log("MINIMAEVENT : "+JSON.stringify(msg));
+		
+		}else if(msg.event == "newtransaction"){
+			
+		}	
 	
 	});
 	

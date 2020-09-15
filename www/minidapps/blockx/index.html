@@ -15,15 +15,12 @@
 		//Set the Title
 		document.getElementById("infodiv").innerHTML = 
 			"CURRENT BLOCK <b>"+txpow.header.block+"</b> @ "+txpow.header.date+"<br><br>"
-			+"<a style='font-family:monospace;font-size:10;' href='#' onmousedown='setFullTxPoW(\""+txpow.txpowid+"\");return false;'>"+txpow.txpowid+"</a>";
+			+"<a style='font-family:monospace;font-size:10;' href='#' onmousedown='setFullTxPoW();return false;'>"+txpow.txpowid+"</a>";
 	}
 	
-	function setFullTxPoW(txpowid){
+	function setFullTxPoW(){
 		//Run a command on minima to get info about this txpow
-		Minima.cmd("txpowinfo "+txpowid,function(resp){
-			//Run a command on minima to get info about this txpow
-			document.getElementById("txpowinfo").value = JSON.stringify(resp.response.txpow,null,2);
-		});
+		document.getElementById("txpowinfo").value = JSON.stringify(Minima.txpow,null,2);
 	}
 	
 	//Wait for the page to load..
@@ -35,14 +32,14 @@
 	 		if(msg.event == "connected"){
 	 			//Set the Title
 	 			document.getElementById("infodiv").innerHTML = 
-	 				"CURRENT BLOCK <b>"+Minima.block+"</b><br><br><span style='font-size:12;'>"+Minima.txpowid+"</span>";
+	 				"CURRENT BLOCK <b>"+Minima.block+"</b><br><br><span style='font-size:12;'>"+Minima.txpow.txpowid+"</span>";
 	 				
 	 			//And set the initial 
-	 			setFullTxPoW(Minima.txpowid);
+	 			setFullTxPoW();
 	 		
 	 		}else if(msg.event == "newblock"){
 	 			//Print some data
-	 			updateTxPowDetails(msg.info);
+	 			updateTxPowDetails(msg.info.txpow);
 	 		
 	 		}else if(msg.event == "newbalance"){
 		 		//Nothing yet.. just print something in the console.. using the util function
