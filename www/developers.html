@@ -18,7 +18,6 @@
 <tr>
 	<td style="text-align:left"> <img src="./images/icon.png" height=80></td>
 	<td class="mainlinkstable"><button onclick="window.location.href='index.html';" class="menubutton">&nbsp;HOME&nbsp;</button></td>
-	<td class="mainlinkstable"><button onclick="window.location.href='mifi.html';" class="menubutton">&nbsp;MIFI&nbsp;</button></td>
 	<td class="mainlinkstable"><button onclick="window.location.href='minidapps.html';" class="menubutton">&nbsp;MINIDAPPS&nbsp;</button></td>
 	<td class="mainlinkstable"><button onclick="window.location.href='developers.html';" class="menubutton">&nbsp;DEVELOPERS&nbsp;</button></td>
 	<td style="text-align:right"> <img src="./images/icon.png" height=80></td>
@@ -29,21 +28,16 @@
 
 Creating a MiniDAPP is simple.<br>
 <br>
-They are standalone HTML5 sites, that run in full from any folder - not a website, using normal HTML, JavaScript and CSS and communicate 
+They are standalone HTML5 sites, that run in full from the Minima application - not a website, using normal HTML, JavaScript and CSS and communicate 
 with the Minima application over simple JSON RPC calls.<br>
 <br>
-All the Minima logic to use the RPC is in a sinlge JS file.. minima.js.<br>
+All the Minima logic to use the RPC is in a sinlge JS file.. <a href="./js/minima.js" download>minima.js</a>.<br>
 <br>
 A MiniDAPP is the folder with your html app, a minidapp.conf file and a couple of images for the 'Menu'.. all zipped up and renamed *.minidapp. 
 You can open and inspect any MiniDAPP by using any regular archive program or unzip directly from the command line.<br>
 <br>
-The MiFi demo shows how to integrate Minima into a normal website. The code is exactly the same as a MiniDAPP - and all you need to do is log 
-into the Minima Pop Up that appears. Obviously - Users must be running Minima. We don't want another MetaMask on our hands..<br> 
 <br>
-The only change between using the MiniDAPP and MiFi minima.js file is MINIMA_IS_MINIDAPP variable. This stops the Minima 
-PopUp from appearing.. and minima.js is served and editted automatically from the Minima app when using the MiniDAPP Hub.<br> 
-<br>
-The minima.js lib also come with the Decimal JS class for high precision mathematics built in - a MUST when using numbers in Minima as JavaScript default number handling is frankly embarrassing. Also a QR Code generator lib. Check the demos to see usage or look at the full versions in the js folder.<br>
+We recommend using the excellent <a href="./js/decimal.js" download>decimal.js</a> class for high precision mathematics built in - a MUST when using numbers in Minima as JavaScript default number handling is frankly embarrassing. Check the demos to see usage or look at the full versions in the js folder.<br>
 <br>
 This entire site with all the MiniDAPPs can be downloaded from github<br>
 <br>
@@ -56,11 +50,11 @@ The main Minima application can be downloaded from<br>
 <br>
 The Main MINIDAPP Hub is accessed as a website hosted directly in the Minima application..<br>
 <br>
-Use <a target="_blank" href="http://127.0.0.1:21000/">http://127.0.0.1:21000/</a> if you are running the java locally or use the Phones' IP instead to browse from your desktop.<br>
+Use <a target="_blank" href="http://127.0.0.1:9004/">http://127.0.0.1:9004/</a> if you are running the java locally or use the Phones' IP instead to browse from your desktop.<br>
 <br>
 ( SSL support coming.. everything still very much pre-ALPHA )<br>
 <br>
-Running a node on testnet..<br>
+Running a node on the main testnet..<br>
 <br>
 <b>java -jar minima.jar</b><br>
 <br>
@@ -68,20 +62,14 @@ Running a private testnet is very simple. Use -clean to reset.<br>
 <br>
 <b>java -jar minima.jar -private -clean</b><br>
 <br>
-All the help..<br>
-<br>
-<b>java -jar minima.jar -help</b><br>
-<br>
 <br>
 The SIMPLEST dapp is <b>Block-X</b>. Start from there..<br>
-<br> 
-The MiFi demos take you through a time-lock contract and basic wallet.<br>
 <br> 
 The next dapp to chew on is <b>FUTURE CASH</b>. Shows how to create a complete MiniDAPP.<br>
 <br> 
 The most USEFUL dapps are <b>TERMINAL</b> and <b>SCRIPT IDE</b>. I use both constantly.<br>
 <br>
-The most COMPLICATED Minima script back-ends "so far" are <a href="./minidapps/coinflip/js/miniscript.txt">COIN FLIP</a> and <a href="./mifi/vault.txt">THE VAULT</a>..<br>
+The most COMPLICATED Minima script back-end "so far" is <a href="./minidapps/coinflip/js/miniscript.txt">COIN FLIP</a><br>
 <br>
 The most FINANCIAL dapp is <b>DEXXED</b>.. an old classic. ( simple <a href="./minidapps/dexxed/js/dexxed.txt">Script</a> tricky front-end )<br>
 <br>

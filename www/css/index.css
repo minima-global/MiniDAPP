@@ -30,6 +30,7 @@
   height:50;
   outline:none;
   font-family:monospace;
+  cursor: pointer;
 }
 
 .minidapptitle{
