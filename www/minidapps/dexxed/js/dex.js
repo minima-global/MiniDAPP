@@ -5,7 +5,7 @@
 //Some Global variables..
 var currentToken = {};
 var dexcontract  = "LET owner = PREVSTATE ( 0 ) IF SIGNEDBY ( owner ) THEN RETURN TRUE ENDIF LET address = PREVSTATE ( 1 ) LET token = PREVSTATE ( 2 ) LET amount = PREVSTATE ( 3 ) RETURN VERIFYOUT ( @INPUT address amount token )";
-var dexaddress   = "0xB68787A65D917793643F1F2E7D9E3DFA020767AA85CE38640135297A0A553C8C";
+var dexaddress   = "";
 
 //Cascade and Confirm depth..
 var MAX_ORDER_AGE = 8000;
@@ -23,6 +23,10 @@ var alltokens = {};
 function dex_init(){
 	//Tell Minima about this contract.. This allows you to spend it when the time comes
 	Minima.cmd("extrascript \""+dexcontract+"\";tokens",function(resp){
+		//Get the DEX ADDRESS..
+		dexaddress = resp[0].response.address.hexaddress;
+		console.log("DEXADDRESS : "+dexaddress);
+		
 		//Sort tokens..
 		alltokens = resp[1].response.tokens;
 		var len = alltokens.length;

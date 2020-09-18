@@ -7,6 +7,8 @@
 	
 	<!--  STYLE -->
 	<link rel="stylesheet" type="text/css" href="future.css">
+	
+	<title>FUTURE CASH</title>
 </head>
 
 <body class=mainbody>
@@ -16,7 +18,7 @@
 	
 		//Global Variables - used Script IDE..
 		var timescript  = "LET owner = PREVSTATE ( 0 ) LET time = PREVSTATE ( 1 ) RETURN SIGNEDBY ( owner ) AND @BLKNUM GTE time";
- 		var timeaddress = "0x142A1F523C222BA9B64DBF77F596D9BA0C71BF12783B9D8E0BD0786C9A8276A6";
+ 		var timeaddress = "";
  			
 		function setTime(){
 			//Set the right time
@@ -170,12 +172,17 @@
 		 		if(msg.event == "connected"){
 			 		setTime();
 			 		setBalance();
-			 		cashFunction();
-		 			
+			 		
 			 		// Tell Minima about the timescript! Now you can spend it when required 
 			 		// Minima listens for any scripts with your PUBLIC KEYS in the STATE or PREVSTATE and 
 			 		// tracks those outputs automagically..
-			 		Minima.cmd("extrascript \""+timescript+"\"");
+			 		Minima.cmd("extrascript \""+timescript+"\"", function(resp){
+					 	//Set the time address
+				 		timeaddress = resp.response.address.hexaddress;
+				 		
+				 		//Run it once..
+				 		cashFunction();
+			 		});
 			 				
 			 	}else if(msg.event == "newblock"){
 		 			setTime();
