@@ -116,6 +116,8 @@ var Minima = {
 					//Status is first..
 					Minima.balance = json[1].response.balance;
 				}	
+			}else{
+				Minima.log("Initial CMD calls failed.. Minima still starting up / busy ? Refresh..");
 			}
 			
 		    //Start Listening for messages..
