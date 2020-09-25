@@ -1,0 +1,147 @@
+.maintitle {
+  background-color: #ccc;
+  border-radius: 10px;
+  font-size:48px;
+  font-family:monospace;
+  text-align:center;
+  vertical-align:middle
+}
+
+.minidapplist {
+  background-color: #ccc;
+  border-radius: 10px;
+  font-size:48px;
+  font-family:monospace;
+  text-align:center;
+  vertical-align:top
+}
+
+.minidapptitle {
+  background-color: #fff;
+  border-radius: 5px;
+  font-size:28px;
+  font-family:monospace;
+  text-align:left;
+  vertical-align:top
+}
+
+.minidappdescription {
+  background-color: #fff;
+  opacity: 0.9;
+  border-radius: 10px;
+  font-size:14px;
+  font-family:monospace;
+  text-align:left;
+  vertical-align:top;
+  padding-left:10;
+}
+
+.mainbody {
+  background-color: #ccc;
+  border-radius: 10px;
+  font-size:32px;
+  font-weight:bold;
+  font-family:monospace;
+}
+
+.mainfooter {
+  background-color: #ccc;
+  border-radius: 10px;
+  font-size:20px;
+  font-family:monospace;
+}
+
+.minidapp {
+  background-color: #ddf;
+  border-radius: 10px;
+  font-size:32px;
+  font-family:monospace;
+}
+
+.installdapp{
+  background-color: #ddf;
+  border-radius: 10px;
+  font-size:20px;
+  font-weight:bold;
+  width:150;
+  height:75;
+  font-family:monospace;
+  outline: none;
+}
+
+.categoryselect{
+	font-size:20px;
+}
+
+.helptext {
+  background-color: #ccc;
+  border-radius: 10px;
+  font-size:14px;
+  font-family:monospace;
+  text-align:left;
+  vertical-align:top;
+  font-weight:plain;
+}
+
+.loader {
+  border: 16px solid #f3f3f3; /* Light grey */
+  border-top: 16px solid #3498db; /* Blue */
+  border-radius: 50%;
+  width: 120px;
+  height: 120px;
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.collapsible {
+  border-radius: 5px;
+  font-size:28px;
+  font-family:monospace;
+  vertical-align:top;
+    
+  background-color: #aaa;
+  color: white;
+  cursor: pointer;
+  padding: 18px;
+  width: 100%;
+  margin-bottom:5px;
+  border: none;
+  text-align: left;
+  outline: none;
+  font-size: 48px;
+}
+
+.active, .collapsible:hover {
+  background-color: #666;
+}
+
+.collapsible:hover {
+  background-color: #888;
+}
+
+.collapsible:after {
+  content: '\002B';
+  color: white;
+  font-weight: bold;
+  float: right;
+  margin-left: 5px;
+}
+
+.active:after {
+  content: "\2212";
+}
+
+.content {
+  font-size: 15px;
+  padding: 0 0px;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.2s ease-out;
+  background-color: #ccc;
+}
+
+
