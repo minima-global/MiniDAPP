@@ -3,11 +3,14 @@
 <head>
 	<!--   The MINIMA MiFi Javascript Library -->
 	<script type="text/javascript" src="./js/minima.js"></script>
+	<script type="text/javascript" src="./js/decimal.js"></script>
 	
 	<!--  STYLE -->
 	<link rel="stylesheet" type="text/css" href="./css/coinflip.css">
 	
 	<script type="text/javascript" src="./js/coinflip.js"></script>
+	
+	<title>COIN FLIP</title>
 	
 </head>
 
@@ -16,25 +19,20 @@
 	<script type="text/javascript">
 		//Wait for the page to load..
 		window.addEventListener("load", function(){
-			//Listen for Minima Events
-			window.addEventListener('MinimaEvent', function(evt) {
-				//Deal with each message type
-		 		if(evt.detail.event == "connected"){
+			
+			//Initialise MiFi
+			Minima.init(function(msg){
+				if(msg.event == "connected"){
 		 			coinFlipInit();
 		 			
-			 	}else if(evt.detail.event == "newblock"){
+			 	}else if(msg.event == "newblock"){
 		 			coinflipPollFunction();
 			 		
-		 		}else if(evt.detail.event == "newbalance"){
+		 		}else if(msg.event == "newbalance"){
 		 			//Set the Balance..
 			 		setBalance();
 		 		}
-		    });
-			
-			//Initialise MiFi
-			Minima.init();
-			
-			Minima.logging = false;
+			});
 		});
 		
 	</script>
