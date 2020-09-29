@@ -18,7 +18,7 @@
 			Minima.log("WE CONNECTED");
 				
 		}else if(msg.event == "newtransaction"){
-			console.log("MINIMAEVENT : "+JSON.stringify(msg));
+			//console.log("MINIMAEVENT : "+JSON.stringify(msg));
 		
 		}else if(msg.event == "newtransaction"){
 			
@@ -26,6 +26,10 @@
 	
 	});
 	
+	
+	function checker(){
+		Minima.cmd("help");
+	}
 	
 	function get(){
 		Minima.net.GET("http://www.google.com",function(resp){

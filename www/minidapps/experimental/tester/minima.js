@@ -42,11 +42,6 @@ var Minima = {
 	block : 0,
 	
 	/** 
-	 * The TxPoWID of the current top block
-	 */
-	txpowid : "0x00",
-
-	/** 
 	 * The Full TxPoW Top Block
 	 */
 	txpow : {},
@@ -70,6 +65,9 @@ var Minima = {
 	
 	//Are we in DEBUG mode - if so don't touch the host settings..
 	debug : false,
+	
+	//Show mining messages
+	showmining : true,
 	
 	/**
 	 * Minima Startup - with the callback function used for all Minima messages
@@ -109,12 +107,18 @@ var Minima = {
 		
 		//Do the first call..
 		Minima.cmd("topblock;balance", function(json){
-			//Store this..
-		    Minima.block  = parseInt(json[0].response.txpow.header.block,10);
-		    Minima.txpow  = json[0].response.txpow;
+			if(json[0].status){
+				//Store this..
+			    Minima.block  = parseInt(json[0].response.txpow.header.block,10);
+			    Minima.txpow  = json[0].response.txpow;
 		    
-			//Status is first..
-			Minima.balance = json[1].response.balance;
+				if(json[1].status){
+					//Status is first..
+					Minima.balance = json[1].response.balance;
+				}	
+			}else{
+				Minima.log("Initial CMD calls failed.. Minima still starting up / busy ? Refresh may be required..");
+			}
 			
 		    //Start Listening for messages..
 			MinimaWebSocketListener();
@@ -151,9 +155,9 @@ var Minima = {
 	},
 	
 	/**
-	 * Run SQL in the Database created for this MiniDAPP
+	 * Run SQL
 	 */
-	sql : function(query, callback){
+	sql : function(database, query, callback){
 		MinimaRPC("sql",query,callback);
 	},
 	
@@ -161,7 +165,6 @@ var Minima = {
 	 * NETWORK Functions
 	 */
 	net : {
-		
 		//SERVER FUNCTIONS
 		onInbound : function(port, onReceiveCallback){
 			MINIMA_SERVER_LISTEN.push({ "port":port, "callback":onReceiveCallback });
@@ -439,10 +442,17 @@ function MinimaWebSocketListener(){
 			
 		}else if(jmsg.event == "newtransaction"){
 			//What is the info message
-			var info = { "txpow" : jmsg.txpow };
+			var info = { "txpow" : jmsg.txpow, "relevant" : jmsg.relevant };
 			
 			//New Transaction
 			MinimaPostMessage("newtransaction", info);
+		
+		}else if(jmsg.event == "newtxpow"){
+			//What is the info message
+			var info = { "txpow" : jmsg.txpow };
+			
+			//New TxPoW
+			MinimaPostMessage("newtxpow", info);
 			
 		}else if(jmsg.event == "newbalance"){
 			//Set the New Balance
@@ -484,10 +494,20 @@ function MinimaWebSocketListener(){
 			}
 							
 		}else if(jmsg.event == "txpowstart"){
-			Minima.notify("Mining Transaction Started..","#55DD55");	
-			
+			var info = { "transaction" : jmsg.transaction };
+			MinimaPostMessage("miningstart", info);
+		
+			if(Minima.showmining){
+				Minima.notify("Mining Transaction Started..","#55DD55");	
+			}
+				
 		}else if(jmsg.event == "txpowend"){
-			Minima.notify("Mining Transaction Finished","#DD5555");
+			var info = { "transaction" : jmsg.transaction };
+			MinimaPostMessage("miningstop", info);
+		
+			if(Minima.showmining){
+				Minima.notify("Mining Transaction Finished","#DD5555");
+			}
 		}
 	};
 		
