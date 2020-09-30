@@ -82,14 +82,14 @@ var Minima = {
 		Minima.log("Initialising..");
 		
 		//Calculate MiniDAPP ID given HREF location
-		var startid = window.location.href.indexOf("/minidapps")+11;
-		var endid   = window.location.href.indexOf("/",startid);
-		if(startid!=-1 && endid!=-1){
+		var startid = window.location.href.indexOf("/minidapps");
+		var endid   = window.location.href.indexOf("/",startid+11);
+		if(false && startid!=-1 && endid!=-1){
 			//Get it..
-			minidappid = window.location.href.substring(startid,endid);
-			Minima.log("MiniDAPP ID set : "+minidappid);
+			Minima.minidappid = window.location.href.substring(startid+11,endid);
+			Minima.log("MiniDAPP ID set : "+Minima.minidappid);
 		}else{
-			Minima.log("Not running on /minidapps URL.. MiniDAPP ID remains unchanged : "+minidappid);	
+			Minima.log("Not running on /minidapps URL.. MiniDAPP ID remains unchanged : "+Minima.minidappid);	
 		}
 		
 		//Store the callback
@@ -397,8 +397,7 @@ var Minima = {
  */
 function MinimaRPC(type, data, callback){
 	//And now fire off a call saving it 
-	//httpPostAsync(Minima.rpchost+"/"+type+"/"+minidappid, encodeURIComponent(data), callback);
-	httpPostAsync(Minima.rpchost+"/"+type, encodeURIComponent(data), callback);
+	httpPostAsync(Minima.rpchost+"/"+type+"/"+Minima.minidappid, encodeURIComponent(data), callback);
 }
 
 /**
@@ -433,7 +432,7 @@ function MinimaWebSocketListener(){
 		Minima.log("Minima WS Listener Connection opened..");	
 		
 		//Now set the MiniDAPPID
-		uid = { "type":"minidappid", "minidappid": minidappid };
+		uid = { "type":"minidappid", "minidappid": Minima.minidappid };
 		
 		//Send your name.. set automagically but can be hard set when debugging
 		MINIMA_WEBSOCKET.send(JSON.stringify(uid));
