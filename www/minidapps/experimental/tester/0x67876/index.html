@@ -1,0 +1,80 @@
+<html>
+
+<head>
+	<!--   The MINIMA MiFi Javascript Library -->
+	<script type="text/javascript" src="minima.js"></script>
+	
+</head>
+
+<body>
+
+<script type="text/javascript">
+	
+	//Get the current location
+	/*var loc = window.location.href;
+	console.log("location : "+loc);
+	//Find the first occurrence of minidapps..
+	var start = loc.indexOf("/tester");
+	var end   = loc.indexOf("/",start+8);
+	console.log("start:"+start+" end:"+end);
+	
+	var id = "0x00";
+	if(end != -1){
+		id = loc.substring(start+8,end);
+	}else{
+		id = loc.substring(start+8);	
+	}
+	
+	console.log("id : "+id);
+	*/
+	
+	Minima.init(function(msg){
+		
+		//Deal with each message type
+ 		if(msg.event == "connected"){
+ 			Minima.log("WE CONNECTED");
+			
+ 			Minima.cmd("help",function(resp){
+ 				console.log(JSON.stringify(resp));
+ 			});
+ 			
+ 				
+		}else if(msg.event == "newtransaction"){
+			
+		}	
+	
+	});
+	
+	
+	function checker(){
+		Minima.cmd("help");
+	}
+	
+	function get(){
+		Minima.net.GET("http://www.google.com",function(resp){
+			Minima.log("gooogle : "+decodeURIComponent(resp.result));
+		});
+	}
+	
+	function post(){
+		Minima.net.POST("http://127.0.0.1:9002/cmd","status",function(resp){
+			Minima.log("status : "+decodeURIComponent(resp.result));
+		});
+	}
+	
+	
+</script>
+
+<center>
+<br><br>
+
+CHAT PLAYER 1 xx<br>
+<br>
+<button onclick="get();">GET</button> <button onclick="post();">POST</button><br>
+<br>
+
+
+
+</center>
+</body>
+</html>
