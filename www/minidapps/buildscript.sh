@@ -18,6 +18,6 @@ zip -r ./bin/blockx.minidapp blockx
 
 zip -r ./bin/cowsay.minidapp cowsay
 
-#cp ./miniwallet/walletv98.05.minidapp ./bin/
-#cp ./block/block1.3.9.minidapp ./bin/
+cp ./miniwallet/walletv98.06.minidapp ./bin/
+cp ./block/blockv1.3.17.minidapp ./bin/
 

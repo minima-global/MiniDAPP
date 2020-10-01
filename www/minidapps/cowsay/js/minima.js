@@ -105,7 +105,7 @@ var Minima = {
 				//The Port determives the WebSocket and RPC port..
 				Minima.webhost = "http://"+window.location.hostname+":"+(window.location.port);
 				Minima.rpchost = "http://"+window.location.hostname+":"+(window.location.port-2);
-				Minima.wshost = "ws://"+window.location.hostname+":"+(window.location.port-1);	
+				Minima.wshost  = "ws://"+window.location.hostname+":"+(window.location.port-1);	
 			}	
 		}
 		
@@ -173,7 +173,7 @@ var Minima = {
 	/**
 	 * Run SQL
 	 */
-	sql : function(database, query, callback){
+	sql : function(query, callback){
 		MinimaRPC("sql",query,callback);
 	},
 	
