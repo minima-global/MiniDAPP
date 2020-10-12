@@ -18,7 +18,7 @@ class Remote {
     static readonly insecure = 'http://'
 
     static readonly server = 'localhost'
-    static readonly port = '21000'
+    static readonly port = '9004'
 }
 
 export { Local, Remote }

@@ -48,50 +48,54 @@ export const addFile = (props: FileProps) => {
   return async (dispatch: AppDispatch) => {
 
         const txnId = Math.floor(Math.random()*1000000000)
-        const time = new Date(Date.now()).toString()
+        let txData = {
+            key: 0,
+            summary: Transaction.pending,
+            time: new Date(Date.now()).toString()
+        }
 
-        Minima.cmd("keys", function( json: any ) {
+        Minima.cmd( "keys new;newaddress;" , function(keysJSON: any){
 
-            if( json.status ) {
+            if( !Minima.util.checkAllResponses(keysJSON) ) {
 
-                //console.log(json)
-                const key = json.response.publickeys[0].publickey
-                //console.log(key)
+                txData.summary = Transaction.failure
+                dispatch(write({data: txData})(TransactionActionTypes.TRANSACTION_FAILURE))
 
-                let txData = {
-                    key: key,
-                    summary: Transaction.pending,
-                    time: time
-                }
+            } else {
+
+                const pubKey  = keysJSON[0].response.key.publickey
+        		const address = keysJSON[1].response.address.hexaddress
+        		const txnId = Math.floor(Math.random()*1000000000)
+
+        		//Script to create transaction..
+        		//TXNAUTO automatically scales the values..
+        		const addFileScript =
+        			"txncreate "+txnId+";"+
+        			"txnstate " + txnId + " 0 " + pubKey + ";" +
+        			"txnstate " + txnId + " 1 " + address + ";" +
+                    "txnstate " + txnId + " 0 "  + props.fileHash + ";" +
+                    "txnsign " + txnId + " " + pubKey + ";" +
+                    "txnpost " + txnId + ";" +
+        			"txndelete " + txnId + ";";
+
                 dispatch(write({data: txData})(TransactionActionTypes.TRANSACTION_PENDING))
 
-                const addFileScript = "txncreate " +txnId+ ";" +
-                                      "txnstate " + txnId + " 0 "  + props.fileHash + ";" +
-                                      "txnstate " + txnId +" 1 " + time + ";" +
-                                      "txnsign " + txnId + " " + key + ";" +
-                                      "txnpost " + txnId + ";" +
-                                      "txndelete " + txnId + ";"
+        		//And Run it..
+        		Minima.cmd( addFileScript , function(respJSON: any) {
 
-                Minima.cmd( addFileScript , function( resp: any ) {
+                    console.log(respJSON)
+                    if( !Minima.util.checkAllResponses(keysJSON) ) {
 
-                    console.log(resp)
-                    let len = resp.length;
-    				for( var i=0; i < resp.length; i++) {
+                        txData.summary = Transaction.failure
+                        dispatch(write({data: txData})(TransactionActionTypes.TRANSACTION_FAILURE))
 
-                        if(resp[i].status != true) {
+                    } else {
 
-    						console.log(resp[i].message)
-                            txData.summary = Transaction.failure
-                            dispatch(write({data: txData})(TransactionActionTypes.TRANSACTION_FAILURE))
-
-    					} else {
-
-                            txData.summary = Transaction.success
-                            dispatch(write({data: txData})(TransactionActionTypes.TRANSACTION_SUCCESS))
-                        }
+                        txData.summary = Transaction.success
+                        dispatch(write({data: txData})(TransactionActionTypes.TRANSACTION_SUCCESS))
     				}
         		})
             }
-        })
+    	})
   }
 }
