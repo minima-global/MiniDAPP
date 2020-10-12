@@ -2,13 +2,7 @@
 
 function makeMenu(minidapps){
 
-	int dapplen = minidapps.length;
 	
-	
-
-	
-
-
 
 
 }
