@@ -12,7 +12,7 @@ Then do the same with the [Minima](https://github.com/spartacusrex99/Minima) rep
 java -jar ./jar/minima.jar
 ````
 
-Importantly, for our purposes, that command fires up a MiniDapp Server on port [21000](http://localhost:2100) of your local machine. We'll use that, later.
+Importantly, for our purposes, that command fires up a MiniDapp Server on port [9004](http://localhost:9004) of your local machine. We'll use that, later.
 
 As a brief aside, you could also start the MiniDapp Server via:
 
@@ -136,7 +136,7 @@ Now drop out of your favourite editor (if it's not [atom](https://atom.io/), why
 
 ## Hello World!
 
-[Earlier](#prerequisites), we fired up a MiniDapp Server on port 21000 - we're going to connect to that now. Start your favourite browser ([Firefox](https://www.mozilla.org/en-GB/firefox/new/)), and load [http://localhost:21000](http://localhost:21000). If all has gone well, you should see something like this:
+[Earlier](#prerequisites), we fired up a MiniDapp Server on port 9004 - we're going to connect to that now. Start your favourite browser ([Firefox](https://www.mozilla.org/en-GB/firefox/new/)), and load [http://localhost:9004](http://localhost:9004). If all has gone well, you should see something like this:
 
 ![](./images/miniDappServer.png)
 
