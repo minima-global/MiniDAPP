@@ -17,7 +17,7 @@ export const init = () => {
             }
           }
 
-          console.log(chainData)
+          //console.log(chainData)
 
           dispatch(write({data: chainData.data})(ChainDataActionTypes.ADD_DATA))
 
@@ -58,7 +58,7 @@ export const addFile = (props: FileProps) => {
           			"txnstate " + txnId + " 0 " + pubKey + ";" +
           			"txnstate " + txnId + " 1 " + address + ";" +
                 "txnstate " + txnId + " 2 "  + props.fileHash + ";" +
-                "txnauto " + txnId + " " + 10 + " " + contract + ";" +
+                "txnauto " + txnId + " " + 1 + " " + contract + ";" +
                 "txnpost " + txnId + ";" +
           			"txndelete " + txnId + ";";
 
