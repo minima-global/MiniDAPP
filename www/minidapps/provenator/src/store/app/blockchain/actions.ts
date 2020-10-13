@@ -1,51 +1,37 @@
 import { write } from '../../actions'
 import { AppDispatch, ChainDataProps, ChainDataActionTypes, TransactionActionTypes, FileProps } from '../../types'
 
-import { Transaction } from '../../../config'
+import { Transaction, Scripts } from '../../../config'
 
 // @ts-ignore
 import { Minima } from './minima'
 
-// Test Minima
-//Listen for Minima Events
-/*window.addEventListener('MinimaEvent', function(evt) {})
-Minima.cmd("random", function(json: any) {
-    console.log("Minima random: ", json.response.random)
-})*/
-
 export const init = () => {
     return async (dispatch: AppDispatch) => {
+
+      Minima.cmd("extrascript \"" + Scripts.fileContract + "\"; keys new; newaddress", function(respJSON: any) {
+
+          let chainData:  ChainDataProps = {
+            data: {
+              fileContractAddress: respJSON[0].response.address.hexaddress
+            }
+          }
+
+          console.log(chainData)
+
+          dispatch(write({data: chainData.data})(ChainDataActionTypes.ADD_DATA))
+
+      })
+
        Minima.init()
     }
 }
 
-export const addAddress = () => {
-    return async (dispatch: AppDispatch) => {
-
-        let chainData:  ChainDataProps = {
-          data: {
-            hexAccount: '',
-            account: ''
-          }
-        }
-
-        Minima.cmd("newaddress" , function( json: any ) {
-            //console.log(json)
-        	//Double check this.. otherwise may LOSE funds..
-        	if( json.status ) {
-                //console.log(json, json.response.address.hexaddress, json.response.address.miniaddress)
-        		//Get the address
-        		chainData.data.hexAccount = json.response.address.hexaddress
-                chainData.data.account = json.response.address.miniaddress
-            }
-        })
-
-        dispatch(write({data: chainData.data})(ChainDataActionTypes.ADD_DATA))
-    }
-}
-
 export const addFile = (props: FileProps) => {
-  return async (dispatch: AppDispatch) => {
+  return async (dispatch: AppDispatch, getState: Function) => {
+
+        const state = getState()
+        const contract = state.chainInfo.data.fileContractAddress
 
         const txnId = Math.floor(Math.random()*1000000000)
         let txData = {
@@ -54,7 +40,7 @@ export const addFile = (props: FileProps) => {
             time: new Date(Date.now()).toString()
         }
 
-        Minima.cmd( "keys new;newaddress;" , function(keysJSON: any){
+        Minima.cmd("keys new; newaddress;" , function(keysJSON: any) {
 
             if( !Minima.util.checkAllResponses(keysJSON) ) {
 
@@ -63,38 +49,37 @@ export const addFile = (props: FileProps) => {
 
             } else {
 
-                const pubKey  = keysJSON[0].response.key.publickey
-        		const address = keysJSON[1].response.address.hexaddress
-        		const txnId = Math.floor(Math.random()*1000000000)
+              const pubKey  = keysJSON[0].response.key.publickey;
+        		  const address = keysJSON[1].response.address.hexaddress;
+          		const txnId = Math.floor(Math.random()*1000000000)
 
-        		//Script to create transaction..
-        		//TXNAUTO automatically scales the values..
-        		const addFileScript =
-        			"txncreate "+txnId+";"+
-        			"txnstate " + txnId + " 0 " + pubKey + ";" +
-        			"txnstate " + txnId + " 1 " + address + ";" +
-                    "txnstate " + txnId + " 0 "  + props.fileHash + ";" +
-                    "txnsign " + txnId + " " + pubKey + ";" +
-                    "txnpost " + txnId + ";" +
-        			"txndelete " + txnId + ";";
+          		const addFileScript =
+          			"txncreate "+txnId+";"+
+          			"txnstate " + txnId + " 0 " + pubKey + ";" +
+          			"txnstate " + txnId + " 1 " + address + ";" +
+                "txnstate " + txnId + " 2 "  + props.fileHash + ";" +
+                "txnauto " + txnId + " " + 10 + " " + contract + ";" +
+                "txnpost " + txnId + ";" +
+          			"txndelete " + txnId + ";";
 
                 dispatch(write({data: txData})(TransactionActionTypes.TRANSACTION_PENDING))
 
-        		//And Run it..
-        		Minima.cmd( addFileScript , function(respJSON: any) {
+            		Minima.cmd( addFileScript , function(respJSON: any) {
 
-                    console.log(respJSON)
-                    if( !Minima.util.checkAllResponses(keysJSON) ) {
+                      console.log(respJSON)
 
-                        txData.summary = Transaction.failure
-                        dispatch(write({data: txData})(TransactionActionTypes.TRANSACTION_FAILURE))
+                      txData.key = pubKey
+                      if( !Minima.util.checkAllResponses(respJSON) ) {
 
-                    } else {
+                          txData.summary = Transaction.failure
+                          dispatch(write({data: txData})(TransactionActionTypes.TRANSACTION_FAILURE))
 
-                        txData.summary = Transaction.success
-                        dispatch(write({data: txData})(TransactionActionTypes.TRANSACTION_SUCCESS))
-    				}
-        		})
+                      } else {
+
+                          txData.summary = Transaction.success
+                          dispatch(write({data: txData})(TransactionActionTypes.TRANSACTION_SUCCESS))
+      				        }
+          		  })
             }
     	})
   }

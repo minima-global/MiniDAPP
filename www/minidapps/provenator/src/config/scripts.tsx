@@ -1,7 +1,7 @@
 
 class Scripts {
 
-    static readonly addFile = "ASSERT FLOOR ( @AMOUNT ) EQ @AMOUNT LET checkout = 0 WHILE ( checkout LT @TOTOUT ) DO IF GETOUTTOK ( checkout ) EQ @TOKENID THEN LET outamt = GETOUTAMT ( checkout ) ASSERT FLOOR ( outamt ) EQ outamt ENDIF LET checkout = INC ( checkout ) ENDWHILE RETURN TRUE"
+    static readonly fileContract  = "LET owner = STATE ( 0 ) LET address = STATE ( 1 ) LET file = STATE ( 2 ) RETURN VERIFYOUT ( @INPUT address file )"
 
 }
 

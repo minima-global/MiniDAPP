@@ -2,8 +2,7 @@ import { ActionProps, ChainDataActionTypes, ChainDataProps } from '../../../../t
 
 const initialInfoState: ChainDataProps = {
   data: {
-      hexAccount: '',
-      account: ''
+      fileContractAddress: ''
   }
 }
 

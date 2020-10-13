@@ -102,7 +102,9 @@ export const getFile = (props: Props) => {
                 loadNext()
             } else {
                 // Compute hash
-                setHash(spark.end())
+                //const hash = '0x' + spark.end()
+                const hash = spark.end()
+                setHash(hash)
                 setIsLoading(false)
             }
         }
