@@ -18,9 +18,9 @@ const info = (props: InfoProps) => {
   return (
       <div>
         <h2>{Blockchain.heading}</h2>
-        <div>
+        <p>
             <Markdown escapeHtml={false} source={props.status} />
-        </div>
+        </p>
       </div>
   )
 }
