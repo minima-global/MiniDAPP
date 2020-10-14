@@ -23,6 +23,7 @@ export type AppDispatch = ThunkDispatch<ApplicationState, any, ActionProps>
 // Blockchain info
 export interface ChainDataProps extends PayloadProps {
   data: {
+    scriptAddress: string
     status: string
   }
 }
@@ -93,7 +94,7 @@ export const enum TransactionActionTypes {
 }
 
 export const enum ChainDataActionTypes {
-  ADD_DATA = '@@ChainInfoAction/ADD_DATA'
+  ADD_DATA = '@@ChainDataActionTypes/ADD_DATA'
 }
 
 export const enum GetActionTypes {
