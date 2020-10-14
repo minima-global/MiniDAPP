@@ -16,6 +16,24 @@ import indigo from '@material-ui/core/colors/indigo'
 import orange from '@material-ui/core/colors/orange'
 import yellow from '@material-ui/core/colors/yellow'
 
+import GoogleFontLoader from 'react-google-font-loader'
+
+//load this first
+const fontLoader = () =>
+    <GoogleFontLoader
+      fonts={[
+        {
+          font: 'Barlow',
+          weights: [400, '400i'],
+        },
+        {
+          font: 'Lato',
+          weights: [400, 500],
+        },
+      ]}
+      subsets={['cyrillic-ext', 'greek']}
+    />
+
 let theme = createMuiTheme ({
   spacing: 8,
   typography: {
@@ -193,6 +211,14 @@ const themeStyles = makeStyles({
     background: 'linear-gradient(#27737e, #27737e)',
     width: "100%"
   },
+  home: {
+    background: 'linear-gradient(#FFFFFF, #FFFFFF)',
+    textAlign: 'center'
+  },
+  homeLink: {
+    color: theme.palette.text.primary,
+    textDecoration: 'none'
+  },
   button: {
     padding: theme.spacing(1),
     margin: theme.spacing(1),
@@ -209,6 +235,12 @@ const themeStyles = makeStyles({
     textAlign: 'left',
     background: 'linear-gradient(#ff671e, #ff671e)'
   },
+  spinner: {
+     position: 'absolute',
+     left: '50%',
+     top: '50%',
+     transform: 'translate(-50%, -50%)'
+  }
 })
 
-export { theme, themeStyles }
+export { fontLoader, theme, themeStyles }

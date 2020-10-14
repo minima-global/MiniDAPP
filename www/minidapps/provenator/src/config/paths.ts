@@ -1,7 +1,6 @@
 class Local {
 
   static readonly home = '/'
-  static readonly addFile = '/add-file'
   static readonly blockchain = '/blockchain'
   static readonly about = '/about'
   static readonly help = '/help'
@@ -9,7 +8,8 @@ class Local {
   static readonly blog = '/blog'
   static readonly contact = '/contact'
 
-  static readonly file = '/file'
+  static readonly listFiles = '/list-files'
+  static readonly addFile = '/add-file'
 }
 
 class Remote {

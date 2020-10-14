@@ -11,14 +11,14 @@ class Paths {
 
   // AppBar
   static readonly home = 'Home'
-  static readonly addFile = 'Hash File'
   static readonly blockchain = 'Blockchain'
   static readonly about = 'About'
   static readonly help = 'Help'
   static readonly faq = 'FAQ'
   static readonly contact = 'Contact'
 
-  static readonly file = 'File'
+  static readonly listFiles = 'List File Hashes'
+  static readonly addFile = `Add the File Hash to ${App.title}`
 }
 
 
@@ -90,6 +90,11 @@ class File {
     static readonly addFileButton = "Submit to Minima"
 }
 
+class Files {
+
+    static readonly heading = "My Files"
+}
+
 export { App,
          Paths,
          Blockchain,
@@ -100,5 +105,6 @@ export { App,
          Help,
          Faq,
          Contact,
-         File
+         File,
+         Files
        }
