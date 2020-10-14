@@ -8,7 +8,8 @@ import { getFiles } from '../../store/app/blockchain/actions'
 
 import {
     ApplicationState,
-    AppDispatch
+    AppDispatch,
+    GetProps
 } from '../../store/types'
 
 import { FormHelpers, Files, GeneralError, Remote } from '../../config'
@@ -29,7 +30,7 @@ const filesReader = (props: Props) => {
 
     const [isLoading, setLoading] = useState(true)
     let isFirstRun = useRef(true)
-    let [filesInfo, setFilesInfo] = useState([] as any[])
+    let [filesInfo, setFilesInfo] = useState([])
 
     const themeClasses = themeStyles()
 
@@ -62,7 +63,7 @@ const filesReader = (props: Props) => {
 const mapStateToProps = (state: ApplicationState): FilesProps => {
   //console.log(state.orgReader)
   return {
-    files: state.data
+    files: state.data.data as []
   }
 }
 

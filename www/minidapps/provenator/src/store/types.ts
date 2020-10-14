@@ -1,12 +1,12 @@
 import { Action } from 'redux'
 import { ThunkDispatch } from 'redux-thunk'
-import { NavLink } from 'react-router-dom'
 
 // Store stuff
 export interface ApplicationState {
   chainInfo: ChainDataProps,
   info: InfoPageProps
   tx: TransactionProps
+  data: GetProps
 }
 
 export interface PayloadProps {
@@ -53,6 +53,16 @@ export interface InfoData {
   contact: InfoProps
 }
 
+// Get stuff
+export interface FileHashes {
+  data: string
+}
+
+export type DataProps = FileHashes
+
+export interface GetProps extends PayloadProps {
+    data: Array<DataProps>
+}
 
 //Tx stuff
 export interface TxData {
@@ -84,4 +94,10 @@ export const enum TransactionActionTypes {
 
 export const enum ChainDataActionTypes {
   ADD_DATA = '@@ChainInfoAction/ADD_DATA'
+}
+
+export const enum GetActionTypes {
+  GET_INIT = '@@GetActionTypes/GET_INIT',
+  GET_SUCCESS = '@@GetActionTypes/GET_SUCCESS',
+  GET_FAILURE = '@@GetActionTypes/GET_FAILURE'
 }
