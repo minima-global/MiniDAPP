@@ -1,9 +1,10 @@
 import React, { useRef, useState, useEffect } from 'react'
 import { connect } from 'react-redux'
 
-import Spinner from 'react-spinner-material'
+import Markdown from 'react-markdown'
 import { SimpleArrayRenderer } from '../simpleRenderer'
 
+//import { getList }  from '../../utils'
 import { getFiles } from '../../store/app/blockchain/actions'
 
 import {
@@ -28,34 +29,43 @@ type Props =  FilesProps & FilesDispatchProps
 
 const filesReader = (props: Props) => {
 
-    const [isLoading, setLoading] = useState(true)
-    let isFirstRun = useRef(true)
-    let [filesInfo, setFilesInfo] = useState([])
+    //let isFirstRun = useRef(true)
+    let [hashes, setHashes] = useState('')
 
     const themeClasses = themeStyles()
 
     useEffect(() => {
 
-        if ( isFirstRun.current ) {
+        /*if ( isFirstRun.current ) {
 
-            isFirstRun.current = false
+            isFirstRun.current = false*/
             props.getFiles()
 
-        } else {
+          /* }
 
-            setFilesInfo(props.files)
-            setLoading(false)
+      else {
+
+            /*console.log(props.files, props.files.length)
+            let hashFiles = ""
+            for ( let i = 0; i < props.files.length; i++ ) {
+                console.log("oi: ", props.files[i])
+                hashFiles += props.files[i] + "<br/>"
+            }
+            console.log(hashFiles)
+            setHashes(hashFiles)
+
         }
 
-    }, [props.files])
+    }, [props.files])*/
+    },[])
 
     return (
       <div>
         <h2>{Files.heading}</h2>
         <hr />
-        <div>
-            {isLoading ? <div className={themeClasses.spinner}><Spinner radius={40} color={"#38348B"} stroke={5} visible={isLoading} /></div> : <SimpleArrayRenderer data={filesInfo} /> }
-        </div>
+        <p>
+          <SimpleArrayRenderer data={props.files} />
+        </p>
       </div>
     )
 }

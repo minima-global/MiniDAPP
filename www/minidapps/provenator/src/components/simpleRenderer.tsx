@@ -8,6 +8,8 @@ type Props = ArrayRenderProps
 
 export const SimpleArrayRenderer = (props: Props) => {
 
+    console.log("rendering: ", props.data)
+
     return (
         <>
             {props.data}

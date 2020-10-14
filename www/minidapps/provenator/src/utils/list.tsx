@@ -13,5 +13,5 @@ export const getKeyedList = (props: Object): string[] =>
     `${entry[0]}: ${entry[1]}<br/>`
   )
 
-  // // compose = (f, g) => x => f(g(x))
+  // compose = (f, g) => x => f(g(x))
   export const get = compose(getList, getKeyedList)

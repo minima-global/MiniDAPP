@@ -45,7 +45,7 @@ const status = (props: Props) => {
       <div>
         <h2>{Blockchain.heading}</h2>
         <p>
-            <Markdown escapeHtml={false} source={props.status} />
+            <Markdown escapeHtml={false} source={status} />
         </p>
       </div>
   )

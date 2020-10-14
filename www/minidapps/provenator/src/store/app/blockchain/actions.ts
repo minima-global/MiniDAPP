@@ -4,7 +4,9 @@ import {
   ChainDataProps,
   ChainDataActionTypes,
   TransactionActionTypes,
-  FileProps
+  GetActionTypes,
+  FileProps,
+  GetProps
 } from '../../types'
 
 import { Transaction, Scripts } from '../../../config'
@@ -109,19 +111,23 @@ export const getFiles = () => {
       const state = getState()
       const scriptAddress = state.chainInfo.data.scriptAddress
 
+      let hashData: any[] = []
+
       Minima.cmd("coins;", function(respJSON: any) {
 
         if( Minima.util.checkAllResponses(respJSON) ) {
 
-          console.log(respJSON)
+          //console.log(respJSON)
           const coins = respJSON[0].response.coins
           for ( let i = 0; i < coins.length; i++ ) {
             if (coins[i].data.coin.address == scriptAddress) {
-              console.log("Hash: ", coins[i].data.prevstate[0].data)
+              //console.log(coins[i].data.prevstate[0].data)
+              hashData.push(coins[i].data.prevstate[0].data)
             }
           }
         }
-
     	})
+
+      dispatch(write({data: hashData})(GetActionTypes.GET_SUCCESS))
   }
 }

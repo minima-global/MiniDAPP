@@ -55,14 +55,8 @@ export interface InfoData {
 }
 
 // Get stuff
-export interface FileHashes {
-  data: string
-}
-
-export type DataProps = FileHashes
-
 export interface GetProps extends PayloadProps {
-    data: Array<DataProps>
+    data: Array<string>
 }
 
 //Tx stuff
