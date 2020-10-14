@@ -11,27 +11,32 @@ import { Minima } from './minima'
 export const init = () => {
     return async (dispatch: AppDispatch) => {
 
-      Minima.cmd("status", function(respJSON: any) {
-
-          //console.log(respJSON)
-
-          let status: string = ''
-          for (const [key, value] of Object.entries(respJSON.response)) {
-            status += `**${key}**: ${value}<br/>`
-          }
-
-          let chainData:  ChainDataProps = {
-            data: {
-              status: status
-            }
-          }
-
-          dispatch(write({data: chainData.data})(ChainDataActionTypes.ADD_DATA))
-
-      })
-
-       Minima.init()
+      Minima.init()
     }
+}
+
+export const status = () => {
+  return async (dispatch: AppDispatch) => {
+
+    Minima.cmd("status", function(respJSON: any) {
+
+        console.log(respJSON)
+
+        let status: string = ''
+        for (const [key, value] of Object.entries(respJSON.response)) {
+          status += `**${key}**: ${value}<br/>`
+        }
+
+        let chainData:  ChainDataProps = {
+          data: {
+            status: status
+          }
+        }
+
+        dispatch(write({data: chainData.data})(ChainDataActionTypes.ADD_DATA))
+
+    })
+  }
 }
 
 export const addFile = (props: FileProps) => {
@@ -90,51 +95,24 @@ export const addFile = (props: FileProps) => {
 export const getFiles = () => {
   return async (dispatch: AppDispatch) => {
 
-        const txnId = Math.floor(Math.random()*1000000000)
-        let txData = {
-            key: 0,
-            summary: Transaction.pending,
-            time: new Date(Date.now()).toString()
-        }
+      console.log("getting files")
 
-        Minima.cmd("newscript let this=provenator return false;" , function(scriptJSON: any) {
+      let txData = {
+          key: 0,
+          summary: Transaction.pending,
+          time: new Date(Date.now()).toString()
+      }
 
-            if( !Minima.util.checkAllResponses(scriptJSON) ) {
+        Minima.cmd("coins;" , function(respJSON: any) {
+
+            if( !Minima.util.checkAllResponses(respJSON) ) {
 
                 txData.summary = Transaction.failure
                 dispatch(write({data: txData})(TransactionActionTypes.TRANSACTION_FAILURE))
 
             } else {
 
-              const txAmount = 0.01
-              const scriptAddress = scriptJSON[0].response.address.hexaddress;
-          		const txnId = Math.floor(Math.random()*1000000000)
-
-          		const addFileScript =
-          			"txncreate "+ txnId + ";" +
-          			"txnstate " + txnId + " 0 " + '' + ";" +
-                "txnauto " + txnId + " " + txAmount + " " + scriptAddress + ";" +
-                "txnpost " + txnId + ";" +
-          			"txndelete " + txnId + ";";
-
-                dispatch(write({data: txData})(TransactionActionTypes.TRANSACTION_PENDING))
-
-            		Minima.cmd( addFileScript , function(respJSON: any) {
-
-                      console.log(respJSON)
-
-                      txData.key = scriptAddress
-                      if( !Minima.util.checkAllResponses(respJSON) ) {
-
-                          txData.summary = Transaction.failure
-                          dispatch(write({data: txData})(TransactionActionTypes.TRANSACTION_FAILURE))
-
-                      } else {
-
-                          txData.summary = Transaction.success
-                          dispatch(write({data: txData})(TransactionActionTypes.TRANSACTION_SUCCESS))
-      				        }
-          		  })
+              console.log(respJSON)
             }
     	})
   }
