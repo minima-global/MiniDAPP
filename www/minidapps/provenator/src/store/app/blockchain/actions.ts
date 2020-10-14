@@ -40,25 +40,23 @@ export const addFile = (props: FileProps) => {
             time: new Date(Date.now()).toString()
         }
 
-        Minima.cmd("keys new; newaddress;" , function(keysJSON: any) {
+        Minima.cmd("newscript let this=provenator return false;" , function(scriptJSON: any) {
 
-            if( !Minima.util.checkAllResponses(keysJSON) ) {
+            if( !Minima.util.checkAllResponses(scriptJSON) ) {
 
                 txData.summary = Transaction.failure
                 dispatch(write({data: txData})(TransactionActionTypes.TRANSACTION_FAILURE))
 
             } else {
 
-              const pubKey  = keysJSON[0].response.key.publickey;
-        		  const address = keysJSON[1].response.address.hexaddress;
+              const txAmount = 0.01
+              const scriptAddress = scriptJSON[0].response.address.hexaddress;
           		const txnId = Math.floor(Math.random()*1000000000)
 
           		const addFileScript =
-          			"txncreate "+txnId+";"+
-          			"txnstate " + txnId + " 0 " + pubKey + ";" +
-          			"txnstate " + txnId + " 1 " + address + ";" +
-                "txnstate " + txnId + " 2 "  + props.fileHash + ";" +
-                "txnauto " + txnId + " " + 1 + " " + contract + ";" +
+          			"txncreate "+ txnId + ";" +
+          			"txnstate " + txnId + " 0 " + props.fileHash + ";" +
+                "txnauto " + txnId + " " + txAmount + " " + scriptAddress + ";" +
                 "txnpost " + txnId + ";" +
           			"txndelete " + txnId + ";";
 
@@ -68,7 +66,7 @@ export const addFile = (props: FileProps) => {
 
                       console.log(respJSON)
 
-                      txData.key = pubKey
+                      txData.key = scriptAddress
                       if( !Minima.util.checkAllResponses(respJSON) ) {
 
                           txData.summary = Transaction.failure
