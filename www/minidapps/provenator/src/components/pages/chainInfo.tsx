@@ -8,21 +8,25 @@ import { get } from '../../utils/list'
 import { Blockchain } from '../../config/strings'
 
 interface InfoProps {
-  contractAddress: string
+  status: string
 }
 
 const info = (props: InfoProps) => {
 
+  //console.log("status", props.status)
+
   return (
       <div>
         <h2>{Blockchain.heading}</h2>
-        <Markdown escapeHtml={false} source={props.contractAddress} />
+        <div>
+            <Markdown escapeHtml={false} source={props.status} />
+        </div>
       </div>
   )
 }
 
 const mapStateToProps = (state: ApplicationState): InfoProps => {
-    return { contractAddress: state.chainInfo.data.fileContractAddress }
+    return { status: state.chainInfo.data.status }
 }
 
 export const BlockchainInfo = connect<InfoProps, {}, {}, ApplicationState>(

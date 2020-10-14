@@ -3,21 +3,28 @@ import { AppDispatch, ChainDataProps, ChainDataActionTypes, TransactionActionTyp
 
 import { Transaction, Scripts } from '../../../config'
 
+import { getKeyedList } from '../../../utils'
+
 // @ts-ignore
 import { Minima } from './minima'
 
 export const init = () => {
     return async (dispatch: AppDispatch) => {
 
-      Minima.cmd("extrascript \"" + Scripts.fileContract + "\"; keys new; newaddress", function(respJSON: any) {
+      Minima.cmd("status", function(respJSON: any) {
+
+          //console.log(respJSON)
+
+          let status: string = ''
+          for (const [key, value] of Object.entries(respJSON.response)) {
+            status += `**${key}**: ${value}<br/>`
+          }
 
           let chainData:  ChainDataProps = {
             data: {
-              fileContractAddress: respJSON[0].response.address.hexaddress
+              status: status
             }
           }
-
-          //console.log(chainData)
 
           dispatch(write({data: chainData.data})(ChainDataActionTypes.ADD_DATA))
 
@@ -28,10 +35,7 @@ export const init = () => {
 }
 
 export const addFile = (props: FileProps) => {
-  return async (dispatch: AppDispatch, getState: Function) => {
-
-        const state = getState()
-        const contract = state.chainInfo.data.fileContractAddress
+  return async (dispatch: AppDispatch) => {
 
         const txnId = Math.floor(Math.random()*1000000000)
         let txData = {
@@ -40,7 +44,7 @@ export const addFile = (props: FileProps) => {
             time: new Date(Date.now()).toString()
         }
 
-        Minima.cmd("newscript let this=provenator return false;" , function(scriptJSON: any) {
+        Minima.cmd(`newscript ${Scripts.fileContract};`, function(scriptJSON: any) {
 
             if( !Minima.util.checkAllResponses(scriptJSON) ) {
 

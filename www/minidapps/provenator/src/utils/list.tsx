@@ -10,7 +10,7 @@ export const getList = (props: String[]): string => {
 
 export const getKeyedList = (props: Object): string[] =>
   Object.entries(props).map((entry) =>
-    `**${entry[0]}**: ${entry[1]}`
+    `${entry[0]}: ${entry[1]}<br/>`
   )
 
   // // compose = (f, g) => x => f(g(x))

@@ -23,7 +23,7 @@ export type AppDispatch = ThunkDispatch<ApplicationState, any, ActionProps>
 // Blockchain info
 export interface ChainDataProps extends PayloadProps {
   data: {
-    fileContractAddress: string
+    status: string
   }
 }
 
