@@ -55,8 +55,14 @@ export interface InfoData {
 }
 
 // Get stuff
+
+export interface Coin {
+  hash: string
+  block: string
+}
+
 export interface GetProps extends PayloadProps {
-    data: Array<string>
+    data: Array<Coin>
 }
 
 //Tx stuff
