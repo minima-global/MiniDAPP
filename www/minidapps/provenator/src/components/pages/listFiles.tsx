@@ -46,9 +46,21 @@ const filesReader = (props: Props) => {
 
             if (props.files.data.length > 0) {
 
-              for ( var i = 0; i < props.files.data.length; i++) {
-              }
+              let fileInfo: any[] = []
 
+              for ( var i = 0; i < props.files.data.length; i++) {
+
+                    const renderHTML = (
+                        <React.Fragment key={props.files.data[i].hash}>
+                        <p>
+                            {Files.hash}: {props.files.data[i].hash}<br/>
+                            {Files.block}: {props.files.data[i].block}
+                        </p>
+                        </React.Fragment>
+                    )
+                    fileInfo.push(renderHTML)
+                }
+                setHashes(fileInfo)
             }
         }
 

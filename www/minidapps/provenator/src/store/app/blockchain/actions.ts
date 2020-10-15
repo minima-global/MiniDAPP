@@ -53,6 +53,7 @@ export const status = () => {
         for (const [key, value] of Object.entries(respJSON.response)) {
           status += `**${key}**: ${value}<br/>`
         }
+        status += `<br/>`
 
         let chainData:  ChainDataProps = {
           data: {

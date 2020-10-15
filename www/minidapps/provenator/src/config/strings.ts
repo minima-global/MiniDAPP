@@ -93,6 +93,8 @@ class File {
 class Files {
 
     static readonly heading = "My Files"
+    static readonly hash = "Hash"
+    static readonly block = "Block"
 }
 
 export { App,
