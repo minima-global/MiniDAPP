@@ -75,7 +75,7 @@ const getFile = (props: Props) => {
       if( checkBlock != "" ) {
           setInfo( infoData )
           setSubmit(false)
-          if ( checkBlock != FileConfig.noBlock ) {
+          if ( checkBlock == FileConfig.noBlock ) {
 
             const pathAddFile = `${Local.addChecked}/${fileName}/${hash}`
             setTimeout(() => {
