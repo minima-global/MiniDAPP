@@ -109,6 +109,7 @@ export const enum ChainDataActionTypes {
 }
 
 export const enum CheckActionTypes {
+  CHECK_INIT = '@@CheckActionTypes/CHECK_INIT',
   CHECK_SUCCESS = '@@CheckActionTypes/CHECK_SUCCESS',
   CHECK_FAILURE = '@@CheckActionTypes/CHECK_FAILURE'
 }

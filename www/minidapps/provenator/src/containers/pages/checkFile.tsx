@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { connect } from 'react-redux'
 
 import Markdown from 'react-markdown'
@@ -19,7 +19,7 @@ import RightCircleOutlined from '@ant-design/icons/lib/icons/RightCircleOutlined
 import { Okay, OptionsStyles } from '../../styles'
 
 import { checkFile } from '../../store/app/blockchain'
-import { initialise as txInitialise } from '../../store/app/tx/actions'
+import { initialise as checkInitialise } from '../../store/app/check/actions'
 
 import { history, getDictEntries } from '../../utils'
 
@@ -61,6 +61,7 @@ type Props =  FileDispatchProps & FileStateProps
 
 const getFile = (props: Props) => {
 
+    let isFirstRun = useRef(true)
     const [isLoading, setIsLoading] = useState(false)
     const [fileName, setFileName] = useState("")
     const [hash, setHash] = useState("")
@@ -69,20 +70,28 @@ const getFile = (props: Props) => {
 
     useEffect(() => {
 
-      const checkData: CheckData = props.info.data as CheckData
-      const checkBlock = checkData.block
-      const infoData = getDictEntries(props.info)
-      if( checkBlock != "" ) {
-          setInfo( infoData )
-          setSubmit(false)
-          if ( checkBlock == FileConfig.noBlock ) {
+      if ( isFirstRun.current ) {
 
-            const pathAddFile = `${Local.addChecked}/${fileName}/${hash}`
-            setTimeout(() => {
-              history.push(`${pathAddFile}`)
-            }, Misc.delay)
+        isFirstRun.current = false
+        props.initialise()
 
-          }
+      } else {
+
+        const checkData: CheckData = props.info.data as CheckData
+        const checkBlock = checkData.block
+        const infoData = getDictEntries(props.info)
+        if( checkBlock != "" ) {
+            setInfo( infoData )
+            setSubmit(false)
+            if ( checkBlock == FileConfig.noBlock ) {
+
+              const pathAddFile = `${Local.addChecked}/${fileName}/${hash}`
+              setTimeout(() => {
+                history.push(`${pathAddFile}`)
+              }, Misc.delay)
+
+            }
+        }
       }
 
     }, [props.info])
@@ -134,6 +143,7 @@ const getFile = (props: Props) => {
         setFileName("")
         setHash("")
         setIsLoading(!isLoading)
+        setInfo("")
     }
 
     return (
@@ -199,7 +209,6 @@ const getFile = (props: Props) => {
     )
 }
 
-
 const mapStateToProps = (state: ApplicationState): FileStateProps => {
   //console.log(state.orgReader)
   return {
@@ -209,7 +218,7 @@ const mapStateToProps = (state: ApplicationState): FileStateProps => {
 
 const mapDispatchToProps = (dispatch: AppDispatch): FileDispatchProps => {
   return {
-    initialise: () => dispatch(txInitialise()),
+    initialise: () => dispatch(checkInitialise()),
     handleSubmit: (values: FileProps) => dispatch(checkFile(values))
   }
 }

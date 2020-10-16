@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { connect } from 'react-redux'
 import { useParams } from 'react-router-dom'
 
@@ -54,6 +54,7 @@ type Props =  FileDispatchProps & FileStateProps
 
 const getFile = (props: Props) => {
 
+    let isFirstRun = useRef(true)
     const [isLoading, setIsLoading] = useState(false)
     const {fileName, hash} = useParams()
     const [isSubmitting, setSubmit] = useState(false)
@@ -61,12 +62,20 @@ const getFile = (props: Props) => {
 
     useEffect(() => {
 
-      const txData: TxData = props.info.data as TxData
-      const txSummary = txData.summary
-      const infoData = getDictEntries(props.info)
-      if( txData.id != "" ) {
-          setInfo( infoData )
-          setSubmit(false)
+      if ( isFirstRun.current ) {
+
+        isFirstRun.current = false
+        props.initialise()
+
+      } else {
+
+        const txData: TxData = props.info.data as TxData
+        const txSummary = txData.summary
+        const infoData = getDictEntries(props.info)
+        if( txData.id != "" ) {
+            setInfo( infoData )
+            setSubmit(false)
+        }
       }
 
     }, [props.info])
@@ -122,7 +131,6 @@ const getFile = (props: Props) => {
       </>
     )
 }
-
 
 const mapStateToProps = (state: ApplicationState): FileStateProps => {
   //console.log(state.orgReader)
