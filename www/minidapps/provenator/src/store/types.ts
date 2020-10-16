@@ -67,7 +67,7 @@ export interface GetProps extends PayloadProps {
 
 // Check stuff
 export interface CheckData {
-  isIn: boolean
+  in: boolean
   block: string
 }
 

@@ -72,9 +72,8 @@ const getFile = (props: Props) => {
       const checkData: CheckData = props.info.data as CheckData
       const checkBlock = checkData.block
       const infoData = getDictEntries(props.info)
-      setInfo( infoData )
-      console.log(checkBlock, infoData)
-      if( checkBlock != "" ) {
+      if( checkBlock != "" ) {          
+          setInfo( infoData )
           setSubmit(false)
       }
 

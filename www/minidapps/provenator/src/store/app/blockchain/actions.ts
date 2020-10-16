@@ -83,12 +83,10 @@ export const addFile = (props: FileProps) => {
         time: new Date(Date.now()).toString()
     }
 
-    let actionType = TransactionActionTypes.TRANSACTION_SUCCESS
-
     Minima.cmd("coins;", function(respJSON: any) {
 
       let checkData: CheckData = {
-        isIn: false,
+        in: false,
         block: `${File.noBlock}`
       }
 
@@ -99,20 +97,23 @@ export const addFile = (props: FileProps) => {
           if (coins[i].data.coin.address == scriptAddress) {
             if (props.fileHash == coins[i].data.prevstate[0].data) {
               checkData = {
-                isIn: true,
+                in: true,
                 block: coins[i].data.inblock
               }
+              break
             }
           }
         }
       }
 
-      if(checkData.isIn) {
+      if(checkData.in) {
 
         txData.summary += " block: " + checkData.block
-        TransactionActionTypes.TRANSACTION_FAILURE
+        dispatch(write({data: txData})(TransactionActionTypes.TRANSACTION_FAILURE))
 
       } else {
+
+          console.log("Going to add!")
 
           const addFileScript =
       			"txncreate "+ txnId + ";" +
@@ -127,16 +128,15 @@ export const addFile = (props: FileProps) => {
               if( !Minima.util.checkAllResponses(respJSON) ) {
 
                   txData.summary = Transaction.failure
-                  actionType = TransactionActionTypes.TRANSACTION_FAILURE
+                  dispatch(write({data: txData})(TransactionActionTypes.TRANSACTION_FAILURE))
 
               } else {
 
                   txData.summary = Transaction.success
+                  dispatch(write({data: txData})(TransactionActionTypes.TRANSACTION_SUCCESS))
     	        }
     		  })
       }
-
-      dispatch(write({data: txData})(actionType))
   	})
   }
 }
@@ -148,14 +148,14 @@ export const checkFile = (props: FileProps) => {
       const scriptAddress = state.chainInfo.data.scriptAddress
 
       let checkData: CheckData = {
-        isIn: false,
+        in: false,
         block: `${File.noBlock}`
       }
 
       Minima.cmd("coins;", function(respJSON: any) {
 
         let checkData: CheckData = {
-          isIn: false,
+          in: false,
           block: `${File.noBlock}`
         }
 
@@ -166,16 +166,17 @@ export const checkFile = (props: FileProps) => {
             if (coins[i].data.coin.address == scriptAddress) {
               if (props.fileHash == coins[i].data.prevstate[0].data) {
                 checkData = {
-                  isIn: true,
+                  in: true,
                   block: coins[i].data.inblock
                 }
+                break
               }
             }
           }
         }
 
         let actionType = CheckActionTypes.CHECK_FAILURE
-        if ( checkData.isIn ) {
+        if ( checkData.in ) {
           actionType = CheckActionTypes.CHECK_SUCCESS
         }
         dispatch(write({data: checkData})(actionType))

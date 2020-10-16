@@ -2,7 +2,7 @@ import { ActionProps, CheckActionTypes, CheckProps } from '../../../types'
 
 const initialState: CheckProps = {
   data: {
-      isIn: false,
+      in: false,
       block: ''
   }
 }

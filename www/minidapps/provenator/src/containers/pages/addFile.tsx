@@ -65,8 +65,8 @@ const getFile = (props: Props) => {
       const txSummary = txData.summary
       //console.log("here! ",  info.summary, txSummary, isSubmitting )
       const infoData = getDictEntries(props.info)
-      setInfo( infoData )
-      if( txSummary == Transaction.success || txSummary == Transaction.failure ) {
+      if( txData.id != "" ) {
+          setInfo( infoData )
           setSubmit(false)
       }
 
