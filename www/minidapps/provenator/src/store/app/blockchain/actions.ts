@@ -47,13 +47,12 @@ export const status = () => {
 
     Minima.cmd("status", function(respJSON: any) {
 
-        console.log("status", respJSON)
+        //console.log("status", respJSON)
 
         let status: string = ''
         for (const [key, value] of Object.entries(respJSON.response)) {
           status += `**${key}**: ${value}<br/>`
         }
-        status += `<br/>`
 
         let chainData:  ChainDataProps = {
           data: {
@@ -76,7 +75,7 @@ export const addFile = (props: FileProps) => {
   		const txnId = Math.floor(Math.random()*1000000000)
 
       let txData = {
-          key: 0,
+          id: txnId,
           summary: Transaction.pending,
           time: new Date(Date.now()).toString()
       }
@@ -90,9 +89,7 @@ export const addFile = (props: FileProps) => {
 
   		Minima.cmd( addFileScript , function(respJSON: any) {
 
-          //console.log(respJSON)
-
-          txData.key = scriptAddress
+          //console.log(respJSON)      
           if( !Minima.util.checkAllResponses(respJSON) ) {
 
               txData.summary = Transaction.failure

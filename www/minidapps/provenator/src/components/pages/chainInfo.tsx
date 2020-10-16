@@ -26,6 +26,7 @@ const status = (props: Props) => {
 
   useEffect(() => {
 
+    props.getStatus()
     const statusLoop = setInterval(props.getStatus, 2000)
     return () => clearInterval(statusLoop)
 

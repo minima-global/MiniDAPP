@@ -67,7 +67,7 @@ export interface GetProps extends PayloadProps {
 
 //Tx stuff
 export interface TxData {
-  key: string
+  id: string
   summary: string
   time: string
 }

@@ -158,11 +158,11 @@ const themeStyles = makeStyles({
   root: {
     background: 'linear-gradient(#FFFFFF, #FFFFFF)',
     color: theme.palette.text.primary,
-    height: "100vh",
+    height: "100%",
     width: "100%"
   },
   grid: {
-    height: "100vh",
+    height: "100%",
     width: "100%"
   },
   logo: {

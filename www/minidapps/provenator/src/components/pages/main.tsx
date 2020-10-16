@@ -40,13 +40,13 @@ export const Main = () => {
 
           <Paper className={classes.content} square={true}>
             <Grid item container xs={12}>
-               <Grid item xs={3}>
+               <Grid item xs={1}>
                     &nbsp;
                 </Grid>
-                <Grid item xs={6}>
+                <Grid item xs={10}>
                     <Content />
                 </Grid>
-                <Grid item xs={3}>
+                <Grid item xs={1}>
                     &nbsp;
                 </Grid>
             </Grid>
