@@ -14,14 +14,9 @@ import ListItemText from '@material-ui/core/ListItemText'
 import MenuOutlined from '@ant-design/icons/lib/icons/MenuOutlined'
 //import DehazeIcon from '@material-ui/icons/Dehaze'
 import HomeIcon from '@material-ui/icons/Home'
-import DescriptionIcon from '@material-ui/icons/Description'
 import InfoIcon from '@material-ui/icons/Info'
 import HelpIcon from '@material-ui/icons/Help'
-import QuestionAnswerIcon from '@material-ui/icons/QuestionAnswer'
-import StoreMallDirectoryIcon from '@material-ui/icons/StoreMallDirectory'
-import BookIcon from '@material-ui/icons/Book'
 import ContactMailIcon from '@material-ui/icons/ContactMail'
-import AccountCircleIcon from '@material-ui/icons/AccountCircle'
 import Fade from '@material-ui/core/Fade'
 import PermDataSettingIcon from '@material-ui/icons/PermDataSetting'
 
@@ -84,7 +79,7 @@ export const Main = () => {
                     </ListItemIcon>
                     <ListItemText primary={Paths.contact} />
                 </MainMenuItem>
-            </NavLink>            
+            </NavLink>
 
             <NavLink to={Local.about}>
                 <MainMenuItem onClick={handleClose}>

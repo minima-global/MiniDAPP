@@ -4,7 +4,8 @@ class App {
   static readonly title = 'Minima'
   static readonly tagline = ''
   static readonly copyright = '© Copyright 2020 Minima GmbH'
-  static readonly author = '[Steven Huckle](https://glowkeeper.github.io/)'
+  static readonly author = '[Steve Huckle](https://glowkeeper.github.io/)'
+  static readonly email = 'steve dot huckle at minima dot global'
 }
 
 class Paths {
@@ -17,14 +18,15 @@ class Paths {
   static readonly faq = 'FAQ'
   static readonly contact = 'Contact'
 
-  static readonly listFiles = 'List File Hashes'
-  static readonly addFile = `Add the File Hash to ${App.title}`
+  static readonly listFiles = 'List Files'
+  static readonly addFile = `Add a File`
+  static readonly checkFile = `Check a File`
 }
 
 
 class Blockchain {
 
-  static heading = 'Blockchain Data'
+  static heading = 'Blockchain Info'
 }
 
 class GeneralError {
@@ -52,7 +54,7 @@ class About {
 
   static readonly heading = 'About Provenator'
 
-  static readonly info = `**${App.appName}** version 0.1.0.<br /><br />Created by _${App.author}_`
+  static readonly info = `**${App.appName}** version 0.1.0<br /><br />Created by _${App.author}_`
 
 }
 
@@ -60,7 +62,7 @@ class Help {
 
   static readonly heading = 'Provenator Help'
 
-  static readonly info = `Use **${App.appName}** to help prove the provenance of your digital assets. Select _${Paths.addFile}_ from the menu to add an asset **now**.`
+  static readonly info = `Use **${App.appName}** to prove the provenance of your files. Select _${Paths.addFile}_ from the _${Paths.home}_ screen to add a file **now**.`
 }
 
 class Faq {
@@ -74,7 +76,7 @@ class Contact {
 
   static readonly heading = 'Contact'
 
-  static readonly info = `a dot person at minima dot global`
+  static readonly info = `${App.email}`
 }
 
 class File {
@@ -92,7 +94,8 @@ class File {
 
 class Files {
 
-    static readonly heading = "My Files"
+    static readonly heading = "Files"
+    static readonly listFilesInfo = "(If you just added a file, you may need to wait for its hash to be mined before it appears here)"
     static readonly hash = "Hash"
     static readonly block = "Block"
 }

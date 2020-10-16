@@ -4,7 +4,7 @@ import { Switch, Route } from 'react-router-dom'
 import { InfoTypes } from '../store/types'
 
 import { BlockchainInfo, Home, Info, ListFiles } from '../components/pages'
-import { AddFile } from '../containers/pages/'
+import { AddFile, CheckFile } from '../containers/pages/'
 
 import { Paths, Local } from '../config'
 
@@ -21,6 +21,7 @@ export const Content = () => {
 
         <Route name={Paths.listFiles} path={Local.listFiles} render={() => <ListFiles />} />
         <Route name={Paths.addFile} path={Local.addFile} render= {() => <AddFile />} />
+        <Route name={Paths.checkFile} path={Local.checkFile} render= {() => <CheckFile />} />
 
         <Route name={Paths.home} path={Local.home} render= {() => <Home />} />
 

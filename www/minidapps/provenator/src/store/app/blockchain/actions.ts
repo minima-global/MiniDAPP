@@ -89,7 +89,45 @@ export const addFile = (props: FileProps) => {
 
   		Minima.cmd( addFileScript , function(respJSON: any) {
 
-          //console.log(respJSON)      
+          //console.log(respJSON)
+          if( !Minima.util.checkAllResponses(respJSON) ) {
+
+              txData.summary = Transaction.failure
+              dispatch(write({data: txData})(TransactionActionTypes.TRANSACTION_FAILURE))
+
+          } else {
+
+              txData.summary = Transaction.success
+              dispatch(write({data: txData})(TransactionActionTypes.TRANSACTION_SUCCESS))
+	        }
+		  })
+  }
+}
+
+export const checkFile = (props: FileProps) => {
+  return async (dispatch: AppDispatch, getState: Function) => {
+
+      const state = getState()
+      const scriptAddress = state.chainInfo.data.scriptAddress
+      const txAmount = 0.01
+  		const txnId = Math.floor(Math.random()*1000000000)
+
+      let txData = {
+          id: txnId,
+          summary: Transaction.pending,
+          time: new Date(Date.now()).toString()
+      }
+
+  		const addFileScript =
+  			"txncreate "+ txnId + ";" +
+  			"txnstate " + txnId + " 0 " + props.fileHash + ";" +
+        "txnauto " + txnId + " " + txAmount + " " + scriptAddress + ";" +
+        "txnpost " + txnId + ";" +
+  			"txndelete " + txnId + ";";
+
+  		Minima.cmd( addFileScript , function(respJSON: any) {
+
+          //console.log(respJSON)
           if( !Minima.util.checkAllResponses(respJSON) ) {
 
               txData.summary = Transaction.failure

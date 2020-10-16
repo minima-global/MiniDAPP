@@ -11,6 +11,7 @@ import {
 } from '../../store/types'
 
 import { Blockchain } from '../../config/strings'
+import { Misc } from '../../config/app'
 
 interface StatusProps {
   status: string
@@ -27,7 +28,7 @@ const status = (props: Props) => {
   useEffect(() => {
 
     props.getStatus()
-    const statusLoop = setInterval(props.getStatus, 2000)
+    const statusLoop = setInterval(props.getStatus, Misc.delay)
     return () => clearInterval(statusLoop)
 
   }, [])

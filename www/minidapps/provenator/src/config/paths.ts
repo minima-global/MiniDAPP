@@ -10,6 +10,7 @@ class Local {
 
   static readonly listFiles = '/list-files'
   static readonly addFile = '/add-file'
+  static readonly checkFile = '/check-file'
 }
 
 class Remote {

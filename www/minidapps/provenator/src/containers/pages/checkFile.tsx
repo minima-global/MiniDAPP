@@ -18,7 +18,7 @@ import Grid from '@material-ui/core/Grid'
 import RightCircleOutlined from '@ant-design/icons/lib/icons/RightCircleOutlined'
 import { Okay, OptionsStyles } from '../../styles'
 
-import { addFile } from '../../store/app/blockchain'
+import { checkFile } from '../../store/app/blockchain'
 import { initialise as txInitialise } from '../../store/app/tx/actions'
 
 import { history, getDictEntries } from '../../utils'
@@ -34,7 +34,7 @@ import {
 
 //import { TxHelper } from '../../components/tx/txHelper'
 
-const addFileSchema = Yup.object().shape({
+const checkFileSchema = Yup.object().shape({
   fileHash: Yup.string()
     .required(`${GeneralError.required}`)
 })
@@ -152,7 +152,7 @@ const getFile = (props: Props) => {
         <Formik
           initialValues={ {fileHash: hash} }
           enableReinitialize={true}
-          validationSchema={addFileSchema}
+          validationSchema={checkFileSchema}
           onSubmit={(values: any) => {
 
             setSubmit(true)
@@ -205,11 +205,11 @@ const mapStateToProps = (state: ApplicationState): FileStateProps => {
 const mapDispatchToProps = (dispatch: AppDispatch): FileDispatchProps => {
   return {
     initialise: () => dispatch(txInitialise()),
-    handleSubmit: (values: FileProps) => dispatch(addFile(values))
+    handleSubmit: (values: FileProps) => dispatch(checkFile(values))
   }
 }
 
-export const AddFile = connect<FileStateProps, FileDispatchProps, {}, ApplicationState>(
+export const CheckFile = connect<FileStateProps, FileDispatchProps, {}, ApplicationState>(
   mapStateToProps,
   mapDispatchToProps
 )(getFile)

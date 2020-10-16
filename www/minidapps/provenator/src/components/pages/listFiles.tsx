@@ -70,6 +70,7 @@ const filesReader = (props: Props) => {
       <div>
         <h2>{Files.heading}</h2>
         <hr />
+        <p><i>{Files.listFilesInfo}</i></p>
         <p>
           <SimpleArrayRenderer data={hashes} />
         </p>
