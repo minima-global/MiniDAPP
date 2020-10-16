@@ -24,28 +24,18 @@ type Props =  StatusProps & StatusDispatchProps
 
 const status = (props: Props) => {
 
-  let isFirstRun = useRef(true)
-  let [status, setStatus] = useState('')
-
   useEffect(() => {
 
-      if ( isFirstRun.current ) {
+    const statusLoop = setInterval(props.getStatus, 2000)
+    return () => clearInterval(statusLoop)
 
-        isFirstRun.current = false
-        props.getStatus()
-        //setInterval(props.getStatus, 3000)
-
-      } else {
-          setStatus(props.status)
-      }
-
-  }, [props.status])
+  }, [])
 
   return (
       <div>
         <h2>{Blockchain.heading}</h2>
         <p>
-            <Markdown escapeHtml={false} source={status} />
+            <Markdown escapeHtml={false} source={props.status} />
         </p>
       </div>
   )

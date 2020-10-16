@@ -47,7 +47,7 @@ export const status = () => {
 
     Minima.cmd("status", function(respJSON: any) {
 
-        //console.log(respJSON)
+        console.log("status", respJSON)
 
         let status: string = ''
         for (const [key, value] of Object.entries(respJSON.response)) {
