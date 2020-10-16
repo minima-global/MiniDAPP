@@ -1,5 +1,7 @@
+
 import React, { useState, useEffect } from 'react'
 import { connect } from 'react-redux'
+import { useParams } from 'react-router-dom'
 
 import Markdown from 'react-markdown'
 
@@ -12,41 +14,32 @@ import { FormControl } from '@material-ui/core'
 import { TextField } from "material-ui-formik-components"
 
 import Tooltip from '@material-ui/core/Tooltip'
-import FileReaderInput from 'react-file-reader-input'
 
 import Grid from '@material-ui/core/Grid'
 import RightCircleOutlined from '@ant-design/icons/lib/icons/RightCircleOutlined'
 import { Okay, OptionsStyles } from '../../styles'
 
-import { checkFile } from '../../store/app/blockchain'
+import { addFile } from '../../store/app/blockchain'
 import { initialise as txInitialise } from '../../store/app/tx/actions'
 
 import { history, getDictEntries } from '../../utils'
 
-import { FormHelpers,
-         GeneralError,
-         Transaction,
-         Local,
-         Misc,
-         File as FileConfig
-} from '../../config'
+import { FormHelpers, GeneralError, Transaction, Local, Misc, File as FileConfig } from '../../config'
 
 import {
     ApplicationState,
     AppDispatch,
     FileProps,
     PayloadProps,
-    CheckProps,
-    CheckData,
-    TxData } from '../../store/types'
+    TxData
+} from '../../store/types'
 
 //import { TxHelper } from '../../components/tx/txHelper'
 
-const checkFileSchema = Yup.object().shape({
+const addFileSchema = Yup.object().shape({
   fileHash: Yup.string()
     .required(`${GeneralError.required}`)
 })
-
 
 interface FileStateProps {
   info: PayloadProps
@@ -62,102 +55,33 @@ type Props =  FileDispatchProps & FileStateProps
 const getFile = (props: Props) => {
 
     const [isLoading, setIsLoading] = useState(false)
-    const [fileName, setFileName] = useState("")
-    const [hash, setHash] = useState("")
+    const {fileName, hash} = useParams()
     const [isSubmitting, setSubmit] = useState(false)
     const [info, setInfo] = useState("")
 
     useEffect(() => {
 
-      const checkData: CheckData = props.info.data as CheckData
-      const checkBlock = checkData.block
+      const txData: TxData = props.info.data as TxData
+      const txSummary = txData.summary
       const infoData = getDictEntries(props.info)
-      if( checkBlock != "" ) {
+      if( txData.id != "" ) {
           setInfo( infoData )
           setSubmit(false)
-          if ( checkBlock != FileConfig.noBlock ) {
-
-            const pathAddFile = `${Local.addChecked}/${fileName}/${hash}`
-            setTimeout(() => {
-              history.push(`${pathAddFile}`)
-            }, Misc.delay)
-
-          }
       }
 
     }, [props.info])
 
-    const getFile = (e: any, results: any) => {
-
-        const [load, file] = results[0]
-        setFileName(file.name)
-
-        const blobSlice = File.prototype.slice
-        const chunkSize = Misc.chunkSize                             // Read in chunks of 2MB
-        const chunks = Math.ceil(file.size / chunkSize)
-        let currentChunk = 0
-        let spark = new SparkMD5.ArrayBuffer()
-        const fileReader = new FileReader()
-
-        fileReader.onload = function (e) {
-            //console.log('read chunk nr', currentChunk + 1, 'of', chunks);
-            spark.append(e.target!.result as ArrayBuffer)                   // Append array buffer
-            currentChunk++
-
-            if (currentChunk < chunks) {
-                loadNext()
-            } else {
-                // Compute hash
-                //const hash = '0x' + spark.end()
-                const hash = spark.end()
-                setHash(hash)
-                setIsLoading(false)
-            }
-        }
-
-        fileReader.onerror = () => {
-            setIsLoading(false)
-            console.warn(`${FileConfig.loadingError}`)
-        }
-
-        const loadNext = () => {
-
-            const start = currentChunk * chunkSize
-            const end = ((start + chunkSize) >= file.size) ? file.size : start + chunkSize
-            fileReader.readAsArrayBuffer(blobSlice.call(file, start, end))
-        }
-
-        loadNext()
-    }
-
-    const setLoading = () => {
-        setFileName("")
-        setHash("")
-        setIsLoading(!isLoading)
-    }
-
     return (
       <>
-        <h2>{FileConfig.headingCheckFile}</h2>
+        <h2>{FileConfig.headingAddFile}</h2>
         <hr />
-        <FileReaderInput
-          as="binary"
-          id="fileInput"
-          onChange={getFile}
-        >
-            <Tooltip title={FileConfig.fileTip}>
-                <Okay onClick={setLoading} type='submit' variant="contained" color="primary" disabled={isLoading} endIcon={<RightCircleOutlined spin={isLoading}/>}>
-                  {FileConfig.getFile}
-                </Okay>
-            </Tooltip>
-        </FileReaderInput>
         <p>
             {FileConfig.fileName}: {fileName}
         </p>
         <Formik
           initialValues={ {fileHash: hash} }
           enableReinitialize={true}
-          validationSchema={checkFileSchema}
+          validationSchema={addFileSchema}
           onSubmit={(values: any) => {
 
             setSubmit(true)
@@ -181,7 +105,7 @@ const getFile = (props: Props) => {
                       <Grid item xs={12} sm={3}>
                         <Tooltip title={FileConfig.submitTip}>
                           <Okay type='submit' variant="contained" color="primary" disabled={isSubmitting} endIcon={<RightCircleOutlined spin={isSubmitting}/>}>
-                            {FileConfig.checkFileButton}
+                            {FileConfig.addFileButton}
                           </Okay>
                         </Tooltip>
                       </Grid>
@@ -203,18 +127,18 @@ const getFile = (props: Props) => {
 const mapStateToProps = (state: ApplicationState): FileStateProps => {
   //console.log(state.orgReader)
   return {
-    info: state.check as PayloadProps,
+    info: state.tx as PayloadProps,
   }
 }
 
 const mapDispatchToProps = (dispatch: AppDispatch): FileDispatchProps => {
   return {
     initialise: () => dispatch(txInitialise()),
-    handleSubmit: (values: FileProps) => dispatch(checkFile(values))
+    handleSubmit: (values: FileProps) => dispatch(addFile(values))
   }
 }
 
-export const CheckFile = connect<FileStateProps, FileDispatchProps, {}, ApplicationState>(
+export const AddCheckedFile = connect<FileStateProps, FileDispatchProps, {}, ApplicationState>(
   mapStateToProps,
   mapDispatchToProps
 )(getFile)

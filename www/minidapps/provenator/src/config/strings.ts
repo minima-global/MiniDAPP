@@ -19,7 +19,8 @@ class Paths {
   static readonly contact = 'Contact'
 
   static readonly listFiles = 'List Files'
-  static readonly addFile = `Add a File`
+  static readonly addFile = 'Add a File'
+  static readonly addCheckedFile = Paths.addFile
   static readonly checkFile = `Check a File`
 }
 

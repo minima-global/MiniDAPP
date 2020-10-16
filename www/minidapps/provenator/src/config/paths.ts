@@ -10,6 +10,8 @@ class Local {
 
   static readonly listFiles = '/list-files'
   static readonly addFile = '/add-file'
+  static readonly addChecked = '/add-checked-file'
+  static readonly addCheckedFile = '/add-checked-file/:fileName/:hash'
   static readonly checkFile = '/check-file'
 }
 
