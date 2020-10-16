@@ -72,38 +72,72 @@ export const status = () => {
 export const addFile = (props: FileProps) => {
   return async (dispatch: AppDispatch, getState: Function) => {
 
-      const state = getState()
-      const scriptAddress = state.chainInfo.data.scriptAddress
-      const txAmount = 0.01
-  		const txnId = Math.floor(Math.random()*1000000000)
+    const state = getState()
+    const scriptAddress = state.chainInfo.data.scriptAddress
+    const txAmount = 0.01
+		const txnId = Math.floor(Math.random()*1000000000)
 
-      let txData = {
-          id: txnId,
-          summary: Transaction.pending,
-          time: new Date(Date.now()).toString()
+    let txData = {
+        id: txnId,
+        summary: Transaction.unnecessary,
+        time: new Date(Date.now()).toString()
+    }
+
+    let actionType = TransactionActionTypes.TRANSACTION_SUCCESS
+
+    Minima.cmd("coins;", function(respJSON: any) {
+
+      let checkData: CheckData = {
+        isIn: false,
+        block: `${File.noBlock}`
       }
 
-  		const addFileScript =
-  			"txncreate "+ txnId + ";" +
-  			"txnstate " + txnId + " 0 " + props.fileHash + ";" +
-        "txnauto " + txnId + " " + txAmount + " " + scriptAddress + ";" +
-        "txnpost " + txnId + ";" +
-  			"txndelete " + txnId + ";";
+      if( Minima.util.checkAllResponses(respJSON) ) {
 
-  		Minima.cmd( addFileScript , function(respJSON: any) {
+        const coins = respJSON[0].response.coins
+        for ( let i = 0; i < coins.length; i++ ) {
+          if (coins[i].data.coin.address == scriptAddress) {
+            if (props.fileHash == coins[i].data.prevstate[0].data) {
+              checkData = {
+                isIn: true,
+                block: coins[i].data.inblock
+              }
+            }
+          }
+        }
+      }
 
-          //console.log(respJSON)
-          if( !Minima.util.checkAllResponses(respJSON) ) {
+      if(checkData.isIn) {
 
-              txData.summary = Transaction.failure
-              dispatch(write({data: txData})(TransactionActionTypes.TRANSACTION_FAILURE))
+        txData.summary += " block: " + checkData.block
+        TransactionActionTypes.TRANSACTION_FAILURE
 
-          } else {
+      } else {
 
-              txData.summary = Transaction.success
-              dispatch(write({data: txData})(TransactionActionTypes.TRANSACTION_SUCCESS))
-	        }
-		  })
+          const addFileScript =
+      			"txncreate "+ txnId + ";" +
+      			"txnstate " + txnId + " 0 " + props.fileHash + ";" +
+            "txnauto " + txnId + " " + txAmount + " " + scriptAddress + ";" +
+            "txnpost " + txnId + ";" +
+      			"txndelete " + txnId + ";";
+
+      		Minima.cmd( addFileScript , function(respJSON: any) {
+
+              //console.log(respJSON)
+              if( !Minima.util.checkAllResponses(respJSON) ) {
+
+                  txData.summary = Transaction.failure
+                  actionType = TransactionActionTypes.TRANSACTION_FAILURE
+
+              } else {
+
+                  txData.summary = Transaction.success
+    	        }
+    		  })
+      }
+
+      dispatch(write({data: txData})(actionType))
+  	})
   }
 }
 
@@ -118,9 +152,12 @@ export const checkFile = (props: FileProps) => {
         block: `${File.noBlock}`
       }
 
-      let actionType = CheckActionTypes.CHECK_FAILURE
-
       Minima.cmd("coins;", function(respJSON: any) {
+
+        let checkData: CheckData = {
+          isIn: false,
+          block: `${File.noBlock}`
+        }
 
         if( Minima.util.checkAllResponses(respJSON) ) {
 
@@ -132,13 +169,16 @@ export const checkFile = (props: FileProps) => {
                   isIn: true,
                   block: coins[i].data.inblock
                 }
-                actionType = CheckActionTypes.CHECK_SUCCESS
-                break
               }
             }
           }
-          dispatch(write({data: checkData})(actionType))
         }
+
+        let actionType = CheckActionTypes.CHECK_FAILURE
+        if ( checkData.isIn ) {
+          actionType = CheckActionTypes.CHECK_SUCCESS
+        }
+        dispatch(write({data: checkData})(actionType))
     	})
   }
 }

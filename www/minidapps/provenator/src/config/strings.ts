@@ -37,6 +37,7 @@ class GeneralError {
 class Transaction {
 
     static readonly pending = "Please wait - transaction is pending"
+    static readonly unnecessary = `File already on ${App.title}`
     static readonly success = "Submitted successfully"
     static readonly failure = 'Submission failure'
 
