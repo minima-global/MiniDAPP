@@ -7,6 +7,7 @@ export interface ApplicationState {
   info: InfoPageProps
   tx: TransactionProps
   data: GetProps
+  check: CheckProps
 }
 
 export interface PayloadProps {
@@ -55,7 +56,6 @@ export interface InfoData {
 }
 
 // Get stuff
-
 export interface Coin {
   hash: string
   block: string
@@ -64,6 +64,17 @@ export interface Coin {
 export interface GetProps extends PayloadProps {
     data: Array<Coin>
 }
+
+// Check stuff
+export interface CheckData {
+  isIn: boolean
+  block: string
+}
+
+export interface CheckProps extends PayloadProps {
+  data: CheckData
+}
+
 
 //Tx stuff
 export interface TxData {
@@ -95,6 +106,11 @@ export const enum TransactionActionTypes {
 
 export const enum ChainDataActionTypes {
   ADD_DATA = '@@ChainDataActionTypes/ADD_DATA'
+}
+
+export const enum CheckActionTypes {
+  CHECK_SUCCESS = '@@CheckActionTypes/CHECK_SUCCESS',
+  CHECK_FAILURE = '@@CheckActionTypes/CHECK_FAILURE'
 }
 
 export const enum GetActionTypes {

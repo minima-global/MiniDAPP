@@ -81,15 +81,19 @@ class Contact {
 
 class File {
 
-    static readonly headingFile = "Hash a File"
+    static readonly headingAddFile = "Add a File"
+    static readonly headingCheckFile = "Check a File"
     static readonly getFile = "Get File"
+    static readonly checkFile = "Get a File to Check"
+    static readonly noBlock = "n/a"
     static readonly fileTip = "Select a file to be hashed"
     static readonly fileName = "Filename"
     static readonly hash = "Hash"
     static readonly submitTip = "Submit the hash of the file to the Minima blockchain. The key returned is that used to sign the submitted transaction"
     static readonly loadingError = "File did not load"
 
-    static readonly addFileButton = "Submit to Minima"
+    static readonly addFileButton = `Add to ${App.title}`
+    static readonly checkFileButton = `Check on ${App.title}`
 }
 
 class Files {

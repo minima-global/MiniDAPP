@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import { connect } from 'react-redux'
 
 import Markdown from 'react-markdown'
@@ -23,13 +23,21 @@ import { initialise as txInitialise } from '../../store/app/tx/actions'
 
 import { history, getDictEntries } from '../../utils'
 
-import { FormHelpers, GeneralError, Transaction, Local, Misc, File as FileConfig } from '../../config'
+import { FormHelpers,
+         GeneralError,
+         Transaction,
+         Local,
+         Misc,
+         File as FileConfig
+} from '../../config'
 
 import {
     ApplicationState,
     AppDispatch,
     FileProps,
     PayloadProps,
+    CheckProps,
+    CheckData,
     TxData } from '../../store/types'
 
 //import { TxHelper } from '../../components/tx/txHelper'
@@ -53,7 +61,6 @@ type Props =  FileDispatchProps & FileStateProps
 
 const getFile = (props: Props) => {
 
-    let isFirstRun = useRef(true)
     const [isLoading, setIsLoading] = useState(false)
     const [fileName, setFileName] = useState("")
     const [hash, setHash] = useState("")
@@ -62,22 +69,14 @@ const getFile = (props: Props) => {
 
     useEffect(() => {
 
-        // Stop "Key, summary, time" (info) rendering on first run
-        if ( isFirstRun.current ) {
-
-            isFirstRun.current = false
-
-        } else {
-
-            const txData: TxData = props.info.data as TxData
-            const txSummary = txData.summary
-            //console.log("here! ",  info.summary, txSummary, isSubmitting )
-            const infoData = getDictEntries(props.info)
-            setInfo( infoData )
-            if( txSummary == Transaction.success || txSummary == Transaction.failure ) {
-                setSubmit(false)
-            }
-        }
+      const checkData: CheckData = props.info.data as CheckData
+      const checkBlock = checkData.block
+      const infoData = getDictEntries(props.info)
+      setInfo( infoData )
+      console.log(checkBlock, infoData)
+      if( checkBlock != "" ) {
+          setSubmit(false)
+      }
 
     }, [props.info])
 
@@ -122,7 +121,6 @@ const getFile = (props: Props) => {
         }
 
         loadNext()
-      //})
     }
 
     const setLoading = () => {
@@ -133,7 +131,7 @@ const getFile = (props: Props) => {
 
     return (
       <>
-        <h2>{FileConfig.headingFile}</h2>
+        <h2>{FileConfig.headingCheckFile}</h2>
         <hr />
         <FileReaderInput
           as="binary"
@@ -176,7 +174,7 @@ const getFile = (props: Props) => {
                       <Grid item xs={12} sm={3}>
                         <Tooltip title={FileConfig.submitTip}>
                           <Okay type='submit' variant="contained" color="primary" disabled={isSubmitting} endIcon={<RightCircleOutlined spin={isSubmitting}/>}>
-                            {FileConfig.addFileButton}
+                            {FileConfig.checkFileButton}
                           </Okay>
                         </Tooltip>
                       </Grid>
@@ -198,7 +196,7 @@ const getFile = (props: Props) => {
 const mapStateToProps = (state: ApplicationState): FileStateProps => {
   //console.log(state.orgReader)
   return {
-    info: state.tx as PayloadProps,
+    info: state.check as PayloadProps,
   }
 }
 

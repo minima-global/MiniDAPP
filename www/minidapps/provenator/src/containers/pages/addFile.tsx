@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import { connect } from 'react-redux'
 
 import Markdown from 'react-markdown'
@@ -30,7 +30,8 @@ import {
     AppDispatch,
     FileProps,
     PayloadProps,
-    TxData } from '../../store/types'
+    TxData
+} from '../../store/types'
 
 //import { TxHelper } from '../../components/tx/txHelper'
 
@@ -38,7 +39,6 @@ const addFileSchema = Yup.object().shape({
   fileHash: Yup.string()
     .required(`${GeneralError.required}`)
 })
-
 
 interface FileStateProps {
   info: PayloadProps
@@ -53,7 +53,6 @@ type Props =  FileDispatchProps & FileStateProps
 
 const getFile = (props: Props) => {
 
-    let isFirstRun = useRef(true)
     const [isLoading, setIsLoading] = useState(false)
     const [fileName, setFileName] = useState("")
     const [hash, setHash] = useState("")
@@ -62,22 +61,14 @@ const getFile = (props: Props) => {
 
     useEffect(() => {
 
-        // Stop "Key, summary, time" (info) rendering on first run
-        if ( isFirstRun.current ) {
-
-            isFirstRun.current = false
-
-        } else {
-
-            const txData: TxData = props.info.data as TxData
-            const txSummary = txData.summary
-            //console.log("here! ",  info.summary, txSummary, isSubmitting )
-            const infoData = getDictEntries(props.info)
-            setInfo( infoData )
-            if( txSummary == Transaction.success || txSummary == Transaction.failure ) {
-                setSubmit(false)
-            }
-        }
+      const txData: TxData = props.info.data as TxData
+      const txSummary = txData.summary
+      //console.log("here! ",  info.summary, txSummary, isSubmitting )
+      const infoData = getDictEntries(props.info)
+      setInfo( infoData )
+      if( txSummary == Transaction.success || txSummary == Transaction.failure ) {
+          setSubmit(false)
+      }
 
     }, [props.info])
 
@@ -133,7 +124,7 @@ const getFile = (props: Props) => {
 
     return (
       <>
-        <h2>{FileConfig.headingFile}</h2>
+        <h2>{FileConfig.headingAddFile}</h2>
         <hr />
         <FileReaderInput
           as="binary"
