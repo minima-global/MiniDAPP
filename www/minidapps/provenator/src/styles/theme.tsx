@@ -171,7 +171,7 @@ const themeStyles = makeStyles({
     textAlign: 'left',
   },
   header: {
-    padding: theme.spacing(2),
+    padding: theme.spacing(1),
     margin: theme.spacing(1),
     textAlign: 'left',
     background: 'linear-gradient(#27737e, #27737e)',
@@ -190,8 +190,8 @@ const themeStyles = makeStyles({
     background: 'linear-gradient(#27737e, #27737e)'
   },
   content: {
-    padding: theme.spacing(2),
-    margin: theme.spacing(2),
+    padding: theme.spacing(1),
+    margin: theme.spacing(1),
     color: theme.palette.text.primary,
     background: 'linear-gradient(#FFFFFF, #FFFFFF)',
     height: "100%vh",
@@ -204,7 +204,7 @@ const themeStyles = makeStyles({
     background: 'linear-gradient(#27737e, #27737e)'
   },
   footer: {
-    padding: theme.spacing(2),
+    padding: theme.spacing(1),
     margin: theme.spacing(1),
     textAlign: 'center',
     color: theme.palette.text.primary,
@@ -219,21 +219,15 @@ const themeStyles = makeStyles({
     color: theme.palette.text.primary,
     textDecoration: 'none'
   },
-  button: {
+  menu: {
     padding: theme.spacing(1),
     margin: theme.spacing(1),
-    fontSize: "4rem",
-    fontWeight: 400,
-    textAlign: 'right',
+    position: 'absolute',
+    right: "1rem",
+    fontSize: "2rem",
     textTransform: 'none',
     color: theme.palette.common.white,
     background: 'linear-gradient(#929396, #929396)'
-  },
-  menu: {
-    padding: 0,
-    margin: 0,
-    textAlign: 'left',
-    background: 'linear-gradient(#ff671e, #ff671e)'
   },
   spinner: {
      position: 'absolute',

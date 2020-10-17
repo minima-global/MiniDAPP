@@ -1,7 +1,7 @@
 class App {
 
   static readonly appName = 'Provenator'
-  static readonly catchLine = 'Digital asset provenance on the blockchain'
+  static readonly catchLine = 'digital asset provenance on the blockchain'
   static readonly title = 'Minima'
   static readonly tagline = ''
   static readonly copyright = '© Copyright 2020 Minima GmbH'

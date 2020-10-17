@@ -23,7 +23,7 @@ export const Main = () => {
 
           <Paper className={classes.header} square={true}>
             <Grid item container xs={12}>
-                <Grid item xs={5}>
+                <Grid item xs={10}>
                   <h1>
                     {App.appName}
                   </h1>
@@ -31,10 +31,8 @@ export const Main = () => {
                     {App.catchLine}
                   </h3>
                 </Grid>
-                <Grid item xs={6}>
+                <Grid item xs={2}>
                     <ChainInit />
-                </Grid>
-                <Grid item xs={1}>
                     <MainMenu />
                 </Grid>
             </Grid>

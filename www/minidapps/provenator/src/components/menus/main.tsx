@@ -43,9 +43,12 @@ export const Main = () => {
         <Button
           aria-controls="fade-menu"
           aria-haspopup="true"
+          size="small"
+          variant="contained"
           onClick={handleClick}
+          className={themeClasses.menu}
         >
-          <MenuOutlined className={themeClasses.button}/>
+          <MenuOutlined />
         </Button>
         <MainMenu
             id="customized-menu"
@@ -53,16 +56,7 @@ export const Main = () => {
             keepMounted
             open={Boolean(anchorEl)}
             onClose={handleClose}
-        >
-            <NavLink to={Local.home}>
-              <MainMenuItem onClick={handleClose}>
-                  <ListItemIcon>
-                    <HomeIcon/>
-                  </ListItemIcon>
-                  <ListItemText primary={Paths.home} />
-              </MainMenuItem>
-            </NavLink>
-
+        >        
             <NavLink to={Local.help}>
                 <MainMenuItem onClick={handleClose}>
                     <ListItemIcon>
