@@ -57,8 +57,7 @@ class About {
 
   static readonly heading = 'About Provenator'
 
-  static readonly info = `**${App.appName}** version ${App.version}<br /><br />Created by _${App.author}_`
-
+  static readonly info = `**${App.appName}** version ${App.version}<br /><br />Created by _${App.author}_<br /><br /><img className={classes.logo} src={minimaLogo}/> {App.copyright}`
 }
 
 class Help {

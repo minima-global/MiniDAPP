@@ -3,11 +3,11 @@ import React from 'react'
 import Markdown from 'react-markdown'
 import Grid from '@material-ui/core/Grid'
 import Paper from '@material-ui/core/Paper'
-import { sizing } from '@material-ui/system'
 
 import { ChainInit } from '../blockchain/blockchain'
 
 import { Main as MainMenu } from '../menus'
+import { Footer } from './footer'
 import { Content } from '../content'
 import { App } from '../../config/strings'
 
@@ -53,11 +53,11 @@ export const Main = () => {
           </Paper>
 
           <Paper className={classes.footer} square={true}>
-                <Grid item xs={12}>
-                  <img className={classes.logo} src={minimaLogo}/>
-                  <br/>
-                  <Markdown escapeHtml={false} source={App.copyright} />
-                </Grid>
+            <Grid item container xs={12}>
+              <Grid item xs={12}>
+                  <Footer />
+              </Grid>
+            </Grid>
           </Paper>
 
         </Grid>
