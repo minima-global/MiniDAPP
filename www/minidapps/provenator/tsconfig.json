@@ -1,0 +1,37 @@
+{
+  "compilerOptions": {
+    "sourceMap": true,
+    "target": "ES6",
+    "jsx": "Preserve",
+    "module": "ES6",
+    "moduleResolution": "node",
+    "experimentalDecorators": true,
+    "noImplicitAny": true,
+    "noImplicitThis": false,
+    "keyofStringsOnly": false,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "strict": true,
+    "outDir": "build",
+    "lib": [
+      "es2015",
+      "es2017.object",
+      "dom"
+    ]
+  },
+  "awesomeTypescriptLoaderOptions": {
+    "useCache": true,
+    "useBabel": true,
+    "babelOptions": {
+      "babelrc": true
+    }
+  },
+  "include": [
+      "./src/**/*"
+  ],
+  "exclude": [
+    "dist",
+    "build",
+    "node_modules"
+  ]
+}
