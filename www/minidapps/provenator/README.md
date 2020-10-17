@@ -26,14 +26,14 @@ Provenator is the result of the academic paper called, [Fake News - a Technologi
 
 ## Install
 
-The instructions below will install Provenator as a Minima miniDapp.
+The instructions below will install Provenator as a [Minima MiniDapps](https://github.com/minima-global/MiniDAPP).
 
 1. From a command-line, change to the same directory as this README
  and type `npm install`. That will install everything listed in [package.json](/package.json), which are the components of the [React](https://reactjs.org/) frontend to this application
-2. Build the [React](https://reactjs.org/) frontend by typing `npm run prod`.
-3. Run `./buildscript.sh`. That will create the Provenator Minima miniDapps.
+2. Build the [React](https://reactjs.org/) frontend by typing `npm run prod`
+3. Run `./buildscript.sh`. That will create the Provenator [Minima MiniDapps](https://github.com/minima-global/MiniDAPP)
 
-Now run the [Minima blockchain](https://github.com/minima-global/Minima). That also creates a MiniDapp Server, which is accessible via [http://localhost:9004](http://localhost:9004). So start a browser, and load [http://localhost:9004](http://localhost:9004). You should see the MiniDapp homepage.
+Now run the [Minima blockchain](https://github.com/minima-global/Minima). That creates a MiniDapp Server, which is accessible via [http://localhost:9004](http://localhost:9004). So start a browser, and load [http://localhost:9004](http://localhost:9004). You should see the MiniDapp homepage.
 
 Click on `Install`, then go find the `provenator.minidapp` you created in Step 3, above.
 

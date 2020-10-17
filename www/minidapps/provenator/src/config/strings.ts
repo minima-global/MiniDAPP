@@ -51,7 +51,7 @@ class Home {
 
   static readonly heading = 'Home'
 
-  static readonly info = "Provenance plays an essential role in the information era because it adds integrity and authenticity to the data we all consume. Verifiable provenance discourages impropriety by increasing the transparency and accountability of digital assets. However, formal verification of digital media is challenging. Fortunately, blockchains offer innovative solutions to those challenges by giving content creators the tools that allow them to establish the ownership of their creations."
+  static readonly info = `Provenator is an application for proving the origins of captured digital media. It uses cryptographic tools and blockchain technology. By using the trust mechanisms of blockchains, the application aims to show, beyond doubt, the provenance of any source of digital media.<br/><br/>Provenance plays an essential role in the information era because it adds integrity and authenticity to the data we all consume. Verifiable provenance discourages impropriety by increasing the transparency and accountability of digital assets. However, formal verification of digital media is challenging. Fortunately, blockchains offer innovative solutions to those challenges by giving content creators the tools that allow hem to establish the ownership of their creations.`
 }
 
 class About {
