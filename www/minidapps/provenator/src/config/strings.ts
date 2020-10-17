@@ -6,6 +6,7 @@ class App {
   static readonly copyright = '© Copyright 2020 Minima GmbH'
   static readonly author = '[Steve Huckle](https://glowkeeper.github.io/)'
   static readonly email = 'steve dot huckle at minima dot global'
+  static readonly version = '0.1.0'
 }
 
 class Paths {
@@ -56,7 +57,7 @@ class About {
 
   static readonly heading = 'About Provenator'
 
-  static readonly info = `**${App.appName}** version 0.1.0<br /><br />Created by _${App.author}_`
+  static readonly info = `**${App.appName}** version ${App.version}<br /><br />Created by _${App.author}_`
 
 }
 
@@ -64,7 +65,7 @@ class Help {
 
   static readonly heading = 'Provenator Help'
 
-  static readonly info = `Use **${App.appName}** to prove the provenance of your files. Select _${Paths.addFile}_ from the _${Paths.home}_ screen to add a file **now**.`
+  static readonly info = `Use **${App.appName}** to prove the provenance of your digital files. <br/><br/>Select _${Paths.addFile}_ to add a file to ${App.title}.<br/><br/>Select _${Paths.checkFile}_ to examine whether a file has already been added to ${App.title} - if it has not, then _${Paths.checkFile}_ redirects to _${Paths.addFile}_.<br/><br/>Select _${Paths.listFiles}_ to list the files you have already added to ${App.title}.`
 }
 
 class Faq {
@@ -85,13 +86,13 @@ class File {
 
     static readonly headingAddFile = "Add a File"
     static readonly headingCheckFile = "Check a File"
-    static readonly getFile = "Get File"
-    static readonly checkFile = "Get a File to Check"
+    static readonly getFile = "Load File"
+    static readonly checkFile = "Load a File to Check"
     static readonly noBlock = "n/a"
     static readonly fileTip = "Select a file to be hashed"
     static readonly fileName = "Filename"
     static readonly hash = "Hash"
-    static readonly submitTip = "Submit the hash of the file to the Minima blockchain. The key returned is that used to sign the submitted transaction"
+    static readonly submitTip = `Add the hash of the file to ${App.title}`
     static readonly loadingError = "File did not load"
 
     static readonly addFileButton = `Add to ${App.title}`
