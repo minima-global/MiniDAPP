@@ -163,8 +163,8 @@ const themeStyles = makeStyles({
   },
   logo: {
     padding: theme.spacing(1),
-    margin: theme.spacing(1),
-    textAlign: 'left',
+    margin: theme.spacing(1),    
+    position: 'absolute',
   },
   header: {
     padding: theme.spacing(1),
