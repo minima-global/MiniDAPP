@@ -3,18 +3,17 @@ import React from 'react'
 import Markdown from 'react-markdown'
 import Grid from '@material-ui/core/Grid'
 import Paper from '@material-ui/core/Paper'
-import { sizing } from '@material-ui/system'
 
 import { ChainInit } from '../blockchain/blockchain'
 
 import { Main as MainMenu } from '../menus'
+import { Footer } from './footer'
 import { Content } from '../content'
 import { App } from '../../config/strings'
 
-import { themeStyles } from '../../styles'
-
-import logo from '../../images/logo.png'
 import minimaLogo from '../../images/minimaLogo.png'
+
+import { themeStyles } from '../../styles'
 
 export const Main = () => {
 
@@ -27,13 +26,19 @@ export const Main = () => {
           <Paper className={classes.header} square={true}>
             <Grid item container xs={12}>
                 <Grid item xs={1}>
-                    <MainMenu />
+                  <img className={classes.logo} src={minimaLogo}/>
                 </Grid>
-                <Grid item xs={10}>
+                <Grid item xs={9}>
+                  <h1>
+                    {App.appName}
+                  </h1>
+                  <h3>
+                    {App.catchLine}
+                  </h3>
+                </Grid>
+                <Grid item xs={2}>
                     <ChainInit />
-                </Grid>
-                <Grid item xs={1}>
-                    <img className={classes.logo} src={logo}/>
+                    <MainMenu />
                 </Grid>
             </Grid>
           </Paper>
@@ -52,13 +57,7 @@ export const Main = () => {
             </Grid>
           </Paper>
 
-          <Paper className={classes.footer} square={true}>
-                <Grid item xs={12}>
-                  <img className={classes.logo} src={minimaLogo}/>
-                  <br/>
-                  <Markdown escapeHtml={false} source={App.copyright} />
-                </Grid>
-          </Paper>
+          <Footer />
 
         </Grid>
       </div>

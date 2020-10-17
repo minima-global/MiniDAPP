@@ -1,6 +1,7 @@
 class App {
 
   static readonly appName = 'Provenator'
+  static readonly catchLine = 'digital asset provenance on the blockchain'
   static readonly title = 'Minima'
   static readonly tagline = ''
   static readonly copyright = '© Copyright 2020 Minima GmbH'
@@ -40,8 +41,8 @@ class Transaction {
 
     static readonly pending = "Please wait - transaction is pending"
     static readonly unnecessary = `File already on ${App.title}`
-    static readonly success = "Submitted successfully"
-    static readonly failure = 'Submission failure'
+    static readonly success = "Added successfully"
+    static readonly failure = 'Addition Failed'
 
     static readonly errorGettingData = "Error getting data"
 }
@@ -50,15 +51,14 @@ class Home {
 
   static readonly heading = 'Home'
 
-  static readonly info = `**${App.appName}**`
+  static readonly info = "Provenance plays an essential role in the information era because it adds integrity and authenticity to the data we all consume. Verifiable provenance discourages impropriety by increasing the transparency and accountability of digital assets. However, formal verification of digital media is challenging. Fortunately, blockchains offer innovative solutions to those challenges by giving content creators the tools that allow them to establish the ownership of their creations."
 }
 
 class About {
 
   static readonly heading = 'About Provenator'
 
-  static readonly info = `**${App.appName}** version ${App.version}<br /><br />Created by _${App.author}_`
-
+  static readonly info = `**${App.appName}** version ${App.version}<br /><br />Created by _${App.author}_<br /><br />${App.copyright}`
 }
 
 class Help {
