@@ -38,16 +38,12 @@ let theme = createMuiTheme ({
   spacing: 8,
   typography: {
     fontFamily: [
-      '"Helvetica Neue"',
-      'Arial',
+      'Barlow',
+      'Lato',
       'sans-serif',
+      'Arial',
       'Roboto',
       '-apple-system',
-      'BlinkMacSystemFont',
-      '"Segoe UI"',
-      '"Apple Color Emoji"',
-      '"Segoe UI Emoji"',
-      '"Segoe UI Symbol"',
     ].join(','),
     fontSize: 14,
     fontWeightLight: 300,
@@ -56,52 +52,52 @@ let theme = createMuiTheme ({
     h1: {
       fontSize: "2rem",
       fontWeight: 400,
-      fontFamily: "\"Helvetica Neue\", \"Arial\", \"sans-serif\", \"Roboto\"",
+      fontFamily: "\"Barlow\", \"Arial\", \"sans-serif\", \"Roboto\"",
       color: '#000000'
     },
     h2: {
       fontSize: "1.5rem",
       fontWeight: 400,
-      fontFamily: "\"Helvetica Neue\", \"Arial\", \"sans-serif\", \"Roboto\"",
+      fontFamily: "\"Barlow\", \"Arial\", \"sans-serif\", \"Roboto\"",
       color: '#000000'
     },
     h3: {
       fontSize: "1.25rem",
       fontWeight: 400,
-      fontFamily: "\"Helvetica Neue\", \"Arial\", \"sans-serif\", \"Roboto\"",
+      fontFamily: "\"Barlow\", \"Arial\", \"sans-serif\", \"Roboto\"",
       color: '#000000'
     },
     h4: {
       fontSize: "1.1rem",
       fontWeight: 400,
-      fontFamily: "\"Helvetica Neue\", \"Arial\", \"sans-serif\", \"Roboto\"",
+      fontFamily: "\"Barlow\", \"Arial\", \"sans-serif\", \"Roboto\"",
       color: '#000000'
     },
     subtitle1: {
       fontSize: "0.9rem",
       fontWeight: 400,
-      fontFamily: "\"Helvetica Neue\", \"Arial\", \"sans-serif\", \"Roboto\"",
+      fontFamily: "\"Barlow\", \"Arial\", \"sans-serif\", \"Roboto\"",
       lineHeight: "1.5em",
       color: '#000000'
     },
     body1: {
       fontSize: "0.875rem",
       fontWeight: 400,
-      fontFamily: "\"Helvetica Neue\", \"Arial\", \"sans-serif\", \"Roboto\"",
+      fontFamily: "\"Lato\", \"Arial\", \"sans-serif\", \"Roboto\"",
       lineHeight: "1.46429em",
       color: '#000000'
     },
     body2: {
       fontSize: "0.8rem",
       fontWeight: 400,
-      fontFamily: "\"Helvetica Neue\", \"Arial\", \"sans-serif\", \"Roboto\"",
+      fontFamily: "\"Lato\", \"Arial\", \"sans-serif\", \"Roboto\"",
       lineHeight: "1.4em",
       color: '#000000'
     },
     caption: {
       fontSize: "0.75rem",
       fontWeight: 400,
-      fontFamily: "\"Helvetica Neue\", \"Arial\", \"sans-serif\", \"Roboto\"",
+      fontFamily: "\"Lato\", \"Arial\", \"sans-serif\", \"Roboto\"",
       lineHeight: "1.375em",
       color: orange[900]
     },
@@ -109,7 +105,7 @@ let theme = createMuiTheme ({
       fontSize: "0.875rem",
       textTransform: "uppercase",
       fontWeight: 500,
-      fontFamily: "\"Helvetica Neue\", \"Arial\", \"sans-serif\", \"Roboto\"",
+      fontFamily: "\"Lato\", \"Arial\", \"sans-serif\", \"Roboto\"",
       color: '#000000'
     }
   },
