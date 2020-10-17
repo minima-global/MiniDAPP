@@ -19,34 +19,26 @@ import { Paths, Local } from '../../config'
 
 export const Footer = () => {
 
-  const [path, setPath] = React.useState(`${Local.home}`)
+  //const [path, setPath] = React.useState(`${Local.home}`)
 
   const handleChange = (event: any, path: any) => {
-    setPath(path)
+    //setPath(path)
     history.push(path)
   }
 
   const themeClasses = themeStyles()
 
   return (
-     <>
-          <Grid container>
-              <Grid container justify="center">
 
-                <BottomNavigation
-                  value={path}
-                  onChange={handleChange}
-                  showLabels
-                >
-                  <BottomNavigationAction label={Paths.home} value={Local.home} icon={<HomeTwoToneIcon />} />
-                  <BottomNavigationAction label={Paths.addFile} value={Local.addFile} icon={<AttachFileTwoToneIcon />} />
-                  <BottomNavigationAction label={Paths.checkFile} value={Local.checkFile} icon={<CheckTwoToneIcon />} />
-                  <BottomNavigationAction label={Paths.listFiles} value={Local.listFiles} icon={<TocTwoToneIcon />} />
-                </BottomNavigation>
-
-              </Grid>
-          </Grid>
-    </>
-
+    <BottomNavigation
+      onChange={handleChange}
+      className={themeClasses.footer}
+      showLabels
+    >
+      <BottomNavigationAction label={Paths.home} value={Local.home} icon={<HomeTwoToneIcon />} />
+      <BottomNavigationAction label={Paths.addFile} value={Local.addFile} icon={<AttachFileTwoToneIcon />} />
+      <BottomNavigationAction label={Paths.checkFile} value={Local.checkFile} icon={<CheckTwoToneIcon />} />
+      <BottomNavigationAction label={Paths.listFiles} value={Local.listFiles} icon={<TocTwoToneIcon />} />
+    </BottomNavigation>
   )
 }

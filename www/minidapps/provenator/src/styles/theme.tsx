@@ -173,20 +173,20 @@ const themeStyles = makeStyles({
   header: {
     padding: theme.spacing(2),
     margin: theme.spacing(1),
-    textAlign: 'center',
+    textAlign: 'left',
     background: 'linear-gradient(#27737e, #27737e)',
     width: "100%"
   },
   title: {
     padding: theme.spacing(1),
     margin: theme.spacing(1),
-    textAlign: 'center',
+    textAlign: 'left',
     background: 'linear-gradient(#27737e, #27737e)'
   },
   subTitle: {
     padding: theme.spacing(1),
     margin: theme.spacing(1),
-    textAlign: 'center',
+    textAlign: 'left',
     background: 'linear-gradient(#27737e, #27737e)'
   },
   content: {
@@ -194,7 +194,7 @@ const themeStyles = makeStyles({
     margin: theme.spacing(2),
     color: theme.palette.text.primary,
     background: 'linear-gradient(#FFFFFF, #FFFFFF)',
-    height: "50%",
+    height: "100%vh",
     width: "100%"
   },
   caption: {

@@ -13,9 +13,6 @@ import { App } from '../../config/strings'
 
 import { themeStyles } from '../../styles'
 
-import logo from '../../images/logo.png'
-import minimaLogo from '../../images/minimaLogo.png'
-
 export const Main = () => {
 
   const classes = themeStyles()
@@ -26,14 +23,19 @@ export const Main = () => {
 
           <Paper className={classes.header} square={true}>
             <Grid item container xs={12}>
-                <Grid item xs={1}>
-                    <MainMenu />
+                <Grid item xs={5}>
+                  <h1>
+                    {App.appName}
+                  </h1>
+                  <h3>
+                    {App.catchLine}
+                  </h3>
                 </Grid>
-                <Grid item xs={10}>
+                <Grid item xs={6}>
                     <ChainInit />
                 </Grid>
                 <Grid item xs={1}>
-                    <img className={classes.logo} src={logo}/>
+                    <MainMenu />
                 </Grid>
             </Grid>
           </Paper>
@@ -52,13 +54,7 @@ export const Main = () => {
             </Grid>
           </Paper>
 
-          <Paper className={classes.footer} square={true}>
-            <Grid item container xs={12}>
-              <Grid item xs={12}>
-                  <Footer />
-              </Grid>
-            </Grid>
-          </Paper>
+          <Footer />
 
         </Grid>
       </div>
