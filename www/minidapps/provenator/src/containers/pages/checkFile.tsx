@@ -189,7 +189,7 @@ const getFile = (props: Props) => {
                   />
                   <Grid container>
                       <Grid item xs={12} sm={3}>
-                        <Tooltip title={FileConfig.submitTip}>
+                        <Tooltip title={FileConfig.checkTip}>
                           <Okay type='submit' variant="contained" color="primary" disabled={isSubmitting} endIcon={<RightCircleOutlined spin={isSubmitting}/>}>
                             {FileConfig.checkFileButton}
                           </Okay>
