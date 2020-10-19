@@ -13,7 +13,7 @@ import {
   Coin
 } from '../../types'
 
-import { Transaction, Scripts, File } from '../../../config'
+import { Transaction, Scripts, File, Misc } from '../../../config'
 
 // @ts-ignore
 import { Minima } from './minima'
@@ -50,11 +50,27 @@ export const status = () => {
 
     Minima.cmd("status", function(respJSON: any) {
 
-        //console.log("status", respJSON)
-
         let status: string = ''
+        const delimiter = ': '
         for (const [key, value] of Object.entries(respJSON.response)) {
-          status += `**${key}**: ${value}<br/>`
+          const thisValue: string = value as string
+          const thisKey: string = key as string
+          const thisLine =  `**${thisKey}** ${delimiter} ${thisValue}`
+          // Split long lines (max 80 chars (add 4 for markdown bold markup))
+          if (thisLine.length > 84) {
+            const thisStatus = thisLine.match(/.{1,84}/g)
+            if ( thisStatus ) {
+              for (let i = 0; i < thisStatus.length; i++ ) {
+                status += `${thisStatus[i]}<br/>`
+              }
+            } else {
+                // should never get here
+                // check for 'thisStatus' is just to satisfy Typescript
+                status += `<br/>`
+            }
+          } else {
+            status += `${thisLine}<br/>`
+          }
         }
 
         let chainData:  ChainDataProps = {
