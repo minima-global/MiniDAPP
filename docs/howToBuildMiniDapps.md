@@ -12,7 +12,7 @@ Then do the same with the [Minima](https://github.com/spartacusrex99/Minima) rep
 java -jar ./jar/minima.jar
 ````
 
-Importantly, for our purposes, that command fires up a MiniDapp Server on port [21000](http://localhost:2100) of your local machine. We'll use that, later.
+Importantly, for our purposes, that command fires up a MiniDapp Server on port [9004](http://127.0.0.1:9004/) of your local machine. We'll use that, later.
 
 As a brief aside, you could also start the MiniDapp Server via:
 
