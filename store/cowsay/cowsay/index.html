@@ -1,0 +1,86 @@
+<html>
+
+<head>
+
+	<script type="text/javascript" src="./js/minima.js"></script>
+	<script type="text/javascript" src="./js/io.js"></script>
+	<script type="text/javascript" src="./js/cowsay.js"></script>
+
+	<!--  STYLE -->
+	<link rel="stylesheet" type="text/css" href="./css/cowsay.css">
+
+</head>
+
+<body style="background-image: url(./images/cowsayBody.png);">
+
+	<script type="text/javascript">
+
+		//Initialise MiFi
+		Minima.init();
+
+	</script>
+
+	<center>
+
+		<div class='background'>
+
+			<h1>Cowsay (think) Random</h1>
+
+			<select id="whichCow">
+			  <option value="COW">COW</option>
+  			  <option value="BEAVIS_ZEN">BEAVIS_ZEN</option>
+  			  <option value="BONG">BONG</option>
+  			  <option value="BUD_FROGS">BUD_FROGS</option>
+  			  <option value="BUNNY">BUNNY</option>
+  			  <option value="CHEESE">CHEESE</option>
+  			  <option value="COWER">COWER</option>
+  			  <option value="DAEMON">DAEMON</option>
+  			  <option value="DOGE">DOGE</option>
+  			  <option value="DRAGON">DRAGON</option>
+  			  <option value="DRAGON_AND_COW">DRAGON_AND_COW</option>
+  			  <option value="EYES">EYES</option>
+  			  <option value="FLAMING_SHEEP">FLAMING_SHEEP</option>
+  			  <option value="GHOSTBUSTERS">GHOSTBUSTERS</option>
+  			  <option value="GOAT">GOAT</option>
+  			  <option value="HEDGEHOG">HEDGEHOG</option>
+  			  <option value="HELLOKITTY">HELLOKITTY</option>
+  			  <option value="KISS">KISS</option>
+  			  <option value="KITTY">KITTY</option>
+  			  <option value="KOALA">KOALA</option>
+  			  <option value="KOSH">KOSH</option>
+  			  <option value="LUKE_KOALA">LUKE_KOALA</option>
+  			  <option value="MECH_AND_COW">MECH_AND_COW</option>
+  			  <option value="MEOW">MEOW</option>
+  			  <option value="MILK">MILK</option>
+  			  <option value="MOOFASA">MOOFASA</option>
+  			  <option value="MOOSE">MOOSE</option>
+  			  <option value="MUTILATED">MUTILATED</option>
+  			  <option value="REN">REN</option>
+  			  <option value="SATANIC">SATANIC</option>
+  			  <option value="SHEEP">SHEEP</option>
+  			  <option value="SKELETON">SKELETON</option>
+  			  <option value="SMALL">SMALL</option>
+  			  <option value="SQUIRREL">SQUIRREL</option>
+  			  <option value="STEGOSAURUS">STEGOSAURUS</option>
+  			  <option value="STIMPY">STIMPY</option>
+  			  <option value="SUPERMILKER">SUPERMILKER</option>
+  			  <option value="SURGERY">SURGERY</option>
+  			  <option value="TELEBEARS">TELEBEARS</option>
+  			  <option value="TURKEY">TURKEY</option>
+  			  <option value="TURTLE">TURTLE</option>
+  			  <option value="TUX">TUX</option>
+  			  <option value="VADER_KOALA">VADER_KOALA</option>
+  			  <option value="WHALE">WHALE</option>
+  			  <option value="WWW">WWW</option>
+			</select>
+			<br/><br/>
+			<button onclick='cowSayRandom(cowsay)'>Cowsay!</button> <button onclick='cowThinkRandom(cowsay)'>Cowthink!</button><br/><br/>
+			<textarea class="cowsay" id='cowsay' spellcheck="false" readonly></textarea>
+
+		</div>
+
+	</center>
+
+</body>
+
+</html>

@@ -1,0 +1,22 @@
+{
+  "coinflip": {
+    "miniDapp": "coinflip0.9.4.minidapp",
+    "icon": "coinflip/images/coinicon.png",
+    "conf": "coinflip/minidapp.conf"
+  },
+  "cowsay": {
+    "miniDapp": "cowsay1.0.0.minidapp",
+    "icon": "cowsay/images/cowsayIcon.png",
+    "conf": "cowsay/minidapp.conf"
+  },
+  "dexxed": {
+    "miniDapp": "dexxed1.0.0.minidapp",
+    "icon": "dexxed/images/stocks.png",
+    "conf": "dexxed/minidapp.conf"
+  },
+  "scriptide": {
+    "miniDapp": "scriptide0.5.0.minidapp",
+    "icon": "scriptide/images/icon.png",
+    "conf": "scriptide/minidapp.conf"
+  }
+}
