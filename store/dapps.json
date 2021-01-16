@@ -1,7 +1,7 @@
 {
   "coinflip": {
     "miniDapp": "coinflip0.9.4.minidapp",
-    "icon": "coinflip/images/coinIcon.png",
+    "icon": "coinflip/images/coin_icon.png",
     "conf": "coinflip/minidapp.conf"
   },
   "dexxed": {
