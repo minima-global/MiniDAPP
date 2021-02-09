@@ -22,7 +22,18 @@
   background-color: #fafaff;
   font-family:monospace;
   text-align:center;
-  vertical-align:top
+  vertical-align:top;
+  padding: 15px;
+  border-spacing: 20px;
+}
+
+.minidapp {
+  background-color: #ffffff;
+  border-radius: 10px;
+  font-size:12px;
+  width:100%;
+  height:50px;
+  font-family:monospace;
 }
 
 .minidapptitle {
@@ -61,12 +72,6 @@
   font-family:monospace;
 }
 
-.minidapp {
-  background-color: #ddf;
-  border-radius: 10px;
-  font-size:32px;
-  font-family:monospace;
-}
 
 .installdapp{
   border: 1px solid white;
@@ -79,6 +84,10 @@
   height:40;
   font-family:monospace;
   outline: none;
+}
+
+.installdapp:active {
+    border-color: #FF512F;   
 }
 
 .categoryselect{
