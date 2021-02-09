@@ -1,0 +1,109 @@
+.maintitle {
+  background-color: #001c32;
+  font-size:14px;
+  font-family:monospace;
+  vertical-align:middle
+}
+
+.mainicon {
+  width:100px;
+}
+
+.evolution {
+  text-align:center;
+  font-size:24;
+}
+
+.buttonbox {
+	width:150;
+}
+
+.minidapplist {
+  background-color: #fafaff;
+  font-family:monospace;
+  text-align:center;
+  vertical-align:top
+}
+
+.minidapptitle {
+  background-color: #fff;
+  border-radius: 5px;
+  font-size:28px;
+  font-family:monospace;
+  text-align:left;
+  vertical-align:top
+}
+
+.minidappdescription {
+  background-color: #fff;
+  opacity: 0.9;
+  border-radius: 10px;
+  font-size:14px;
+  font-family:monospace;
+  text-align:left;
+  vertical-align:top;
+  padding-left:10;
+}
+
+.mainbody {
+  background-color: #ccc;
+  border-radius: 10px;
+  font-size:32px;
+  font-weight:bold;
+  font-family:monospace;
+}
+
+.mainfooter {
+  background-color: #001c32;
+  color : #ffffff;
+  font-size:20px;
+  height : 80px;
+  font-family:monospace;
+}
+
+.minidapp {
+  background-color: #ddf;
+  border-radius: 10px;
+  font-size:32px;
+  font-family:monospace;
+}
+
+.installdapp{
+  background-color : #001c32;
+  border-radius: 20px;
+  border-color:#ffffff;
+  font-size:16px;
+  color : #ffffff;
+  width:150;
+  height:40;
+  font-family:monospace;
+  outline: none;
+}
+
+.categoryselect{
+	font-size:20px;
+}
+
+.helptext {
+  background-color: #fafaff;
+  font-size:12px;
+  font-family:monospace;
+  text-align:left;
+  vertical-align:top;
+  font-weight:plain;
+}
+
+.loader {
+  border: 16px solid #f3f3f3; /* Light grey */
+  border-top: 16px solid #3498db; /* Blue */
+  border-radius: 50%;
+  width: 120px;
+  height: 120px;
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+

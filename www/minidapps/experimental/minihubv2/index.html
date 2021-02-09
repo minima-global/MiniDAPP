@@ -1,0 +1,103 @@
+<html>
+<head>
+
+	<link rel="stylesheet" type="text/css" href="minidapps.css">
+    <!--  <script type="text/javascript" src="minima.js"></script> -->
+	<!--  <meta name="viewport" content="width=700, initial-scale=1, maximum-scale=1"> -->
+
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+
+	<title>MINIDAPPS</title>
+
+</head>
+
+<body style="background-color: #f0f0fa;">
+
+<script type="text/javascript">
+
+	//Wait for the page to load..
+	window.addEventListener("load", function(){
+		const inputElement = document.getElementById("file-input");
+		inputElement.addEventListener("change", handleFiles, false);
+		
+		function handleFiles() {
+		  document.getElementById('installform').submit();
+		}
+		
+		/*window.addEventListener('MinimaEvent', function(evt) {
+			if(evt.detail.event == "connected"){
+	 			Minima.util.setUID("MiniHUB");
+	 		}else if(evt.detail.event == "newblock"){}
+	    });
+		Minima.init();*/
+	});
+	
+
+	function installDAPP(){
+		//Open a file dialog..
+		document.getElementById('file-input').click();
+	}
+	
+	function uninstallDAPP(name, root){
+		if(confirm("Are you sure you wish to uninstall "+name+" ?")){
+			//Uninstall this root app..
+			window.location.href="uninstalldapp.html?uninstall="+root;
+		}
+	}
+
+</script>
+
+<table align="center" style="width:100%;height:100%;max-width:700;">
+<tr>
+<td>
+	
+	<!-- MAIN TITLE -->
+	<table class="maintitle" width=100%>
+		<tr>
+			<td style="text-align:left;" nowrap>&nbsp;&nbsp;<img height=26 src="minidapphub.png"> </td>
+			<td style="text-align:right;color:#f0f0fa" nowrap>&nbsp;&nbsp;Powered by Minima &nbsp;&nbsp;</td>	
+		</tr>
+	</table>
+	
+</td>
+</tr>
+
+<tr>
+	<td width=100% height=100% class="minidapplist">
+		######
+		
+		
+		
+		
+	</td>
+</tr>
+
+<tr>
+	<td>
+
+	<table class="mainfooter" width=100% border=0>
+		<tr>
+			<td class="buttonbox" style="text-align:right;" nowrap> 
+				<button class="installdapp" onclick="window.location.href='help.html';">Help</button>&nbsp; 
+			</td>
+			
+			<td class="buttonbox" style="text-align:left;" nowrap> 
+				&nbsp;<button class="installdapp" onclick="installDAPP();">Install</button> 	
+			</td>
+		</tr>
+	</table>
+	
+</td>
+</tr>
+</table>
+
+<!-- The actual form that is used to upload minidapps -->
+<form enctype="multipart/form-data" id="installform" action="installdapp.html" method="post" style="display:none;">
+    <!-- Used to open the select File Dialog.. -->
+	<input accept=".minidapp" id="file-input" value="nofile" type="file" name="minidapp" style="display:none;" /> 
+</form>
+
+
+</body>
+
+</html>
