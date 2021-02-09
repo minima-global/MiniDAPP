@@ -69,6 +69,7 @@
 }
 
 .installdapp{
+  border: 1px solid white;
   background-color : #001c32;
   border-radius: 20px;
   border-color:#ffffff;
