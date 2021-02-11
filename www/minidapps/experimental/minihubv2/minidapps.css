@@ -27,6 +27,10 @@
   height:50px;
 }
 
+.buttonbox {
+	width:150;
+}
+
 .minidapptitle {
   background-color: #fff;
   border-radius: 5px;
@@ -72,6 +76,7 @@
   height:40;
   font-family:manrope;
   outline: none;
+  cursor:pointer;
 }
 
 .installdapp:active {
