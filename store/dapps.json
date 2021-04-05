@@ -5,7 +5,7 @@
     "conf": "coinflip/minidapp.conf"
   },
   "dexxed": {
-    "miniDapp": "dexxed0.8.16.minidapp",
+    "miniDapp": "dexxed0.8.17.minidapp",
     "icon": "images/stocks.png",
     "conf": "minidapp.conf"
   },
