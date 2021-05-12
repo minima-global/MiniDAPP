@@ -2,7 +2,7 @@
  * COIN FLIP java script functions
  */
 
-var coinflipcontract = "LET round = STATE ( 0 ) LET prevround = PREVSTATE ( 0 ) ASSERT round EQ INC ( prevround ) IF round EQ 1 THEN IF SIGNEDBY ( PREVSTATE ( 2 ) ) THEN RETURN TRUE ENDIF ASSERT SAMESTATE ( 1 3 ) RETURN VERIFYOUT ( @INPUT @ADDRESS ( @AMOUNT * 2 ) @TOKENID ) ELSEIF round EQ 2 THEN IF @BLKDIFF GT 64 AND SIGNEDBY ( PREVSTATE ( 4 ) ) THEN RETURN TRUE ENDIF ASSERT SAMESTATE ( 1 5 ) LET ponehash = STATE ( 3 ) LET preimage = STATE ( 6 ) ASSERT SHA3 ( 512 preimage ) EQ ponehash RETURN VERIFYOUT ( @INPUT @ADDRESS @AMOUNT @TOKENID ) ELSEIF round EQ 3 THEN IF @BLKDIFF GT 64 AND SIGNEDBY ( PREVSTATE ( 2 ) ) THEN RETURN TRUE ENDIF ASSERT SAMESTATE ( 1 6 ) LET ptwohash = STATE ( 5 ) LET ptwopreimage = STATE ( 7 ) ASSERT SHA3 ( 512 ptwopreimage ) EQ ptwohash LET ponepreimage = STATE ( 6 ) LET rand = SHA3 ( 512 HEXCAT ( ponepreimage ptwopreimage ) ) LET val = NUMBER ( SUBSET ( 0 1 rand ) ) IF ( val LT 128 ) THEN LET winner = 1 ELSE LET winner = 2 ENDIF LET paywinner = @AMOUNT * 0.95 LET payloser = @AMOUNT - paywinner ASSERT STATE ( 8 ) EQ winner ASSERT STATE ( 9 ) EQ paywinner LET poneaddress = STATE ( 1 ) IF winner EQ 1 THEN ASSERT VERIFYOUT ( @INPUT poneaddress paywinner @TOKENID ) ELSE ASSERT VERIFYOUT ( @INPUT poneaddress payloser @TOKENID ) ENDIF RETURN SIGNEDBY ( PREVSTATE ( 4 ) ) ENDIF";
+var coinflipcontract = "LET round = STATE ( 0 ) LET prevround = PREVSTATE ( 0 ) ASSERT round EQ INC ( prevround ) IF round EQ 1 THEN IF SIGNEDBY ( PREVSTATE ( 2 ) ) THEN RETURN TRUE ENDIF ASSERT SAMESTATE ( 1 3 ) RETURN VERIFYOUT ( @INPUT @ADDRESS ( @AMOUNT * 2 ) @TOKENID ) ELSEIF round EQ 2 THEN IF @BLKDIFF GT 16 AND SIGNEDBY ( PREVSTATE ( 4 ) ) THEN RETURN TRUE ENDIF ASSERT SAMESTATE ( 1 5 ) LET ponehash = STATE ( 3 ) LET preimage = STATE ( 6 ) ASSERT SHA3 ( 512 preimage ) EQ ponehash RETURN VERIFYOUT ( @INPUT @ADDRESS @AMOUNT @TOKENID ) ELSEIF round EQ 3 THEN IF @BLKDIFF GT 16 AND SIGNEDBY ( PREVSTATE ( 2 ) ) THEN RETURN TRUE ENDIF ASSERT SAMESTATE ( 1 6 ) LET ptwohash = STATE ( 5 ) LET ptwopreimage = STATE ( 7 ) ASSERT SHA3 ( 512 ptwopreimage ) EQ ptwohash LET ponepreimage = STATE ( 6 ) LET rand = SHA3 ( 512 CONCAT ( ponepreimage ptwopreimage ) ) LET val = NUMBER ( SUBSET ( 0 1 rand ) ) IF ( val LT 128 ) THEN LET winner = 1 ELSE LET winner = 2 ENDIF LET paywinner = @AMOUNT * 0.95 LET payloser = @AMOUNT - paywinner ASSERT STATE ( 8 ) EQ winner ASSERT STATE ( 9 ) EQ paywinner LET poneaddress = STATE ( 1 ) IF winner EQ 1 THEN ASSERT VERIFYOUT ( @INPUT poneaddress paywinner @TOKENID ) ELSE ASSERT VERIFYOUT ( @INPUT poneaddress payloser @TOKENID ) ENDIF RETURN SIGNEDBY ( PREVSTATE ( 4 ) ) ENDIF";
 var coinflipaddress  = "";
 
 //These are kept permanently in SQL..
@@ -25,7 +25,7 @@ function coinFlipInit(){
 	
 	//Create the create database..
 	var initsql = "CREATE TABLE IF NOT EXISTS preimage ( image VARCHAR(160) NOT NULL, hash VARCHAR(160) NOT NULL );" +
-				  "CREATE TABLE IF NOT EXISTS gamekeys ( key VARCHAR(160) NOT NULL );" +
+				  "CREATE TABLE IF NOT EXISTS gamekeys ( gkey VARCHAR(160) NOT NULL );" +
 				  "SELECT * FROM gamekeys";
 	
 	//Run the initialising SQL
@@ -38,7 +38,7 @@ function coinFlipInit(){
 		//Add all the old games you know about..
 		var rows = resp.response[2].count;
 		for(i=0;i<rows;i++){
-			key = resp.response[2].rows[i].KEY;
+			key = resp.response[2].rows[i].gkey;
 			MYGAME_KEYS.push(key);
 		}
 		
@@ -65,7 +65,7 @@ function setTime(){
 }
 
 function setBalance(){
-	document.getElementById("balance").innerHTML = "<b>BALANCE : "+Minima.util.getBalance("0x00")+"</b>";
+	document.getElementById("balance").innerHTML = "<b>"+Minima.util.getBalance("0x00")+"</b>";
 }
 
 function letsplay(){
@@ -137,7 +137,7 @@ function letsplay(){
 }
 
 function updateMyGames(){
-	Minima.cmd("coins  type:unspent address:"+coinflipaddress+";coins relevant type:all", function(alljson){
+	Minima.cmd("coins address:"+coinflipaddress+";coins relevant", function(alljson){
 		//FIRST DO MY GAMES.. And fill up MYGAME_LIST..
 		var mygames = '<table width=100% border=0>'
 			+'<tr style="height:20;font-size:20;"> '
@@ -145,6 +145,8 @@ function updateMyGames(){
 		
 		//Clear the list..
 		MYGAME_LIST = [];	
+		
+		//console.log(alljson);
 		
 		var coinlist = alljson[1].response.coins;
 		var len = coinlist.length;
@@ -208,7 +210,7 @@ function updateMyGames(){
 					roundOneChecker(coinid, amount, p1addrr1, p1keysr1, p1hashr1, p2keysr1, p2hashr1);
 					
 					//Safety mechanism is P1 tries not to complete
-					if(depth>64){
+					if(depth>16){
 						//PLAYER 2 CAN JUST COLLECT EVERYTHING!
 						collectItAll(coinid, 1, amount, p2keysr1);
 					}
@@ -234,7 +236,7 @@ function updateMyGames(){
 					roundTwoChecker(coinid, amount, p1addrr2, p1keysr2, p1hashr2, p2keysr2, p2hashr2, p1preimage);
 					
 					//Safety mechanism if P2 tries not to complete
-					if(depth>64){
+					if(depth>16){
 						//PLAYER 1 CAN JUST COLLECT EVERYTHING!
 						collectItAll(coinid, 2, amount, p1keysr2);
 					}	
@@ -537,7 +539,7 @@ function roundTwo(r2coinid, r2gameamount, r2p1address, p1keys, p1hash, p2keyspre
 	loadPreHash(p2hash,function(pimage){
 		var script = "runscript \"LET paywinner = "+r2gameamount+" * 0.95 LET payloser =  "+r2gameamount+" - paywinner "
 		+"LET preimageone = "+preimage+" LET preimagetwo = "+pimage+" "
-		+"LET rand = SHA3 ( 512 HEXCAT ( preimageone preimagetwo ) ) "
+		+"LET rand = SHA3 ( 512 CONCAT ( preimageone preimagetwo ) ) "
 		+"LET val = NUMBER ( SUBSET ( 0 1 rand ) ) IF ( val LT 128 ) THEN LET winner = 1 ELSE LET winner = 2 ENDIF\"";
 		
 		//Run it and see who WON!
@@ -610,7 +612,7 @@ function addGameKey(key){
 	MYGAME_KEYS.push(key);
 	
 	//Add to the database..
-	var storesql = "INSERT INTO gamekeys (key) VALUES ('"+key+"')";
+	var storesql = "INSERT INTO gamekeys (gkey) VALUES ('"+key+"')";
 	Minima.sql(storesql,function(resp){
 		if(!resp.status){alert("ERROR in SQL\n\n"+resp.message);}
 	});
@@ -641,7 +643,7 @@ function loadPreHash(hash, callback){
 			alert("ERROR in SQL\n\n"+resp.message);
 		}else{
 			//Call the callback with the preimage..
-			callback(resp.response.rows[0].IMAGE);	
+			callback(resp.response.rows[0].image);	
 		}
 	});
 }

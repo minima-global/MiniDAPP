@@ -8,6 +8,7 @@
 
 <body>
 
+
 <script type="text/javascript">
 	
 	//Listen for Minima Events
@@ -15,37 +16,49 @@
 		
 		//Deal with each message type
  		if(evt.detail.event == "connected"){
- 			//Set the UID of this APP - so other minidapps can talk to you..
- 			Minima.util.setUID("banter");
+ 		/*		Minima.util.setUID("banter");
  			
  			//Now- Send a message..
  			Minima.util.send("banter","Hello!",function(resp){
  				//What was the reply
  				console.log("MSG REPLY : "+resp);
  			});
+ 	*/
  	
  		}else if(evt.detail.event == "newmessage"){
-		 	//What message have we received..
+	/*
 		 	console.log("MSG REC : "+evt.detail.info.message);
  			
  			//Do something.. and reply..
 		 	Minima.util.reply(evt, "Thanks!");
+ 		*/
+ 		
  		}
     });
 	
 	//Initialise MiFi
-	Minima.init();
+	//Minima.init();
+	
+	var json = "{ \"name\":\"paddy\", \"description\":\"🐈\"}";
+	
+	var jobj = JSON.parse(json);
+
+	document.write("Hello "+jobj.name+" you are a  "+jobj.descritpion);
+
 	
 </script>
 
 <center>
 <br><br>
 
+<!--  
 Test MiniDAPP Messaging - refresh to send yourself a message..
 
 <br><br>
 <button onclick="Minima.util.notify('HELLO WORLD!');">NOTIFY!</button>
 
+
+-->
 </center>
 </body>
 </html>
