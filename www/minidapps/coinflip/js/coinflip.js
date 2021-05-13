@@ -38,7 +38,7 @@ function coinFlipInit(){
 		//Add all the old games you know about..
 		var rows = resp.response[2].count;
 		for(i=0;i<rows;i++){
-			key = resp.response[2].rows[i].gkey;
+			key = resp.response[2].rows[i].GKEY;
 			MYGAME_KEYS.push(key);
 		}
 		
@@ -642,8 +642,10 @@ function loadPreHash(hash, callback){
 		if(!resp.status){
 			alert("ERROR in SQL\n\n"+resp.message);
 		}else{
+			//console.log("PREHASH LOADED : "+resp.response.rows[0].IMAGE);
+			
 			//Call the callback with the preimage..
-			callback(resp.response.rows[0].image);	
+			callback(resp.response.rows[0].IMAGE);	
 		}
 	});
 }
