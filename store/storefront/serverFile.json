@@ -1,8 +1,5 @@
 {
   "files": [
-    "defaultServer.json",
-    "bazStore.json",
-    "eliasStore.json",
-    "doctorsStore.json"
+    "defaultServer.json"
   ]
 }

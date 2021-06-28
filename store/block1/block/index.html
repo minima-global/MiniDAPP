@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0"/>
+  <title>BLOCK</title>
+  
+  <!-- CSS. -->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+  <link href="css/style.css" type="text/css" rel="stylesheet" media="screen,projection"/>
+  <link href="css/custom.css" type="text/css" rel="stylesheet" media="screen,projection"/>
+  <link rel="icon" type="image/png" href="assets/blockicon.png"/>
+  <link href="https://unpkg.com/tabulator-tables/dist/css/tabulator.min.css" rel="stylesheet">
+  <script type="text/javascript" src="https://unpkg.com/tabulator-tables/dist/js/tabulator.min.js"></script>
+  <script src="js/jquery-3.5.1.min.js"></script>
+  <script src="js/moment.js"></script>
+  <script src="js/Minima/minima.js"></script>
+</head>
+
+<body>
+  <script>
+  // INIT Tabulator blocks-table..
+  var table = null;
+  var app = 'Block';
+  var cryptocurrency = 'Minima';
+  function initTable() {
+    // Create a tabulator instance, and refer it to the div canvas
+    table = new Tabulator("#example-table", {
+      paginationSize: 10,
+      pagination: 'local',
+      layout:'fitDataTable',
+      layout: 'fitColumns',
+      responsiveLayout: 'hide',
+      index: 'HEIGHT',
+      resizableColumns: false,
+      headerSort: false,
+      columns: [
+        {
+          title: "TxPoW", 
+          field: "TXPOW", 
+          visible: false,
+          formatter: function(cell, formatterParams) {
+            var txpowLen = cell.getData().TXPOW;
+          },
+        },
+        {
+          title: 'Height', 
+          field: 'HEIGHT', 
+          sorter: 'number', 
+          responsive: 0, 
+          headerSortStartingDir: 'desc', 
+          width: '100', 
+          cssClass: 'height-column',
+        },
+        {
+          title: 'Hash', 
+          field: 'HASH', 
+          responsive: 2, 
+          hozAlign: 'left', 
+          formatter: function(cell, formatterParams){
+            var hash = cell.getData(); 
+            hash = hash.HASH;
+            return hash;
+          },
+        },
+        {
+          title: 'isblock', 
+          field: 'isblock', 
+          visible: false,
+        },
+        {
+          title: 'TXNS', 
+          field: 'TXNS', 
+          width: 70, 
+          hozAlign: 'right', 
+          widthShrink: 3, 
+          responsive: 3,
+        },
+        {
+          title: 'Relayed', 
+          field: 'RELAYED', 
+          hozAlign:'right',
+          width: 110, 
+          responsive: 1, 
+          formatter: function(cell, formatterParams) {
+            // console.log(cell);
+            // console.log(cell.getData());
+            var time = cell.getData().RELAYED;
+            // console.log(app + ': time relayed ms: '+ time);
+            // console.log(time);
+            time = moment(parseInt(time)).format("HH:mm:ss");
+            // console.log(app + ': formatted time, ' + time);
+            return time;
+          },
+        },
+      ],
+      rowClick:function(e, row){
+
+        var clicked_row = row._row.data;
+      
+        window.location.href = './details.html?txpow='+clicked_row.HASH;
+
+        return false;
+      },
+    });
+    
+}
+
+// JQUERY Helpful Functions
+$(document).ready(function() {
+
+  // Materialize tooltip
+  $('.tooltipped').tooltip({delay: 50});
+  
+  // elias github
+  $("#elias").on("click", function(){
+
+    window.open('https://github.com/eliasnemr', '_blank'); 
+
+  });
+
+
+
+});
+
+function setPrune(time) {
+  if(time == "Everything") {
+    const prune = {
+      status: false,
+      period: ""
+    }
+
+    Minima.file.save(JSON.stringify(prune), "prune.txt", function(res){
+      if (res.success) {
+        M.toast({html:"Turned pruning off!"});
+      }
+    });
+
+  } else if(time) {
+    const prune = {
+      status: true,
+      period: time
+    }
+
+    Minima.file.save(JSON.stringify(prune), "prune.txt", function(res){
+      if (res.success) {
+
+        if(time == '30240') {
+          M.toast({html:"Changed pruning to a week."});
+
+        } else if (time == '129600') {
+          M.toast({html:"Changed pruning to a month."});
+
+        } else if (time == '388800') {
+          M.toast({html:"Changed pruning to 3 months."});
+
+        } else if (time == '777600') {
+          M.toast({html:"Changed pruning to 6 months."});
+
+        } else if (time == '1555200') {
+          M.toast({html:"Changed pruning to a year."});
+
+        }
+
+      }
+    });
+  }
+}
+
+function copy(id) {
+  var textToCopy = document.getElementById(id).innerText;
+
+  var temporaryInputElement = document.createElement("input");
+  temporaryInputElement.type = "text";
+  temporaryInputElement.value = textToCopy;
+
+  document.body.appendChild(temporaryInputElement);
+
+  temporaryInputElement.select();
+  document.execCommand("Copy");
+
+  M.toast({html: "Copied to clipboard."});
+
+  document.body.removeChild(temporaryInputElement);
+  
+}
+
+
+  </script>
+  <!-- Minima.js -->
+  <script type="text/javascript">
+    $(document).ready(function(){
+      /** Update Tabulator Table with new blocks */
+      function updateTableData(msg) {       
+        var isblock = 0;
+        if(msg.txpow.isblock) {
+          isblock = 1;
+        } 
+        
+        // wipe out mmrproofs and signatures for lighter txpows.. 
+        msg.txpow.body.witness.signatures = {};
+        msg.txpow.body.witness.mmrproofs = {};
+
+        if (!msg.txpow.body) {
+          console.log('Txpow body does not exist!');
+          return;
+        }
+        
+        table.addRow(
+          {
+            TXPOW: decodeURI(msg.txpow),
+            HEIGHT: msg.txpow.header.block,
+              HASH: msg.txpow.txpowid,
+              isblock: isblock,
+                TXNS: msg.txpow.body.txnlist.length,
+                RELAYED: msg.txpow.header.timemilli
+                },
+                  true);
+      }
+
+      initTable();
+
+      Minima.init(function(msg){
+        if (msg.event == 'connected') {
+          $('#checkbox').on("change", function(res){
+
+            const preference = {
+                "mode": "light"
+            }
+            if($(this).prop('checked')) {
+                $('body').addClass("dark");
+                preference.mode = "dark";
+                var json = JSON.stringify(preference);
+      
+                Minima.file.save(json, "userPreference.txt", function(res){});
+            } else if(!$(this).prop('checked')) {
+                $('body').removeClass("dark");
+                preference.mode = "light";
+                var json = JSON.stringify(preference);
+      
+                Minima.file.save(json, "userPreference.txt", function(res){});
+            }
+          });
+          function formatBytes(bytes, decimals = 2) {
+            if (bytes === 0) return '0 Bytes';
+        
+            const k = 1024;
+            const dm = decimals < 0 ? 0 : decimals;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+        
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+        
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+          }
+          // dark mode
+          Minima.file.load("userPreference.txt", function(res){
+            if(res.success){
+              var preference = JSON.parse(res.data);
+
+              if(preference.mode == "dark"){
+                $('body').addClass("dark");
+                $('#checkbox').attr('checked', true);
+              } else if(preference.mode == "light"){
+                $('body').removeClass("dark"); 
+                $('#checkbox').attr('checked', false);
+
+              }
+            }
+
+          });
+          // init dropdown
+          $('.dropdown-trigger').dropdown({coverTrigger: false, onCloseEnd: function() {
+                Minima.file.load("prune.txt", function(res){
+                  if(res.success){
+                    var pruning = JSON.parse(res.data);
+
+                    if (pruning && pruning.status) {
+                      var period = pruning.period;
+
+                      $('#dropdown1 li').children().each( function() {
+                          
+                        if (this.id !== period) {
+                          $(this).removeClass('active');
+                        } else {
+                          $(this).addClass('active');
+                        } 
+
+                      });
+
+
+                    } else if(pruning && !pruning.status) {
+
+                      $('#dropdown1 li').children().each( function() {
+                          
+                        if (this.id !== "Everything") {
+                          $(this).removeClass('active');
+                        } else {
+                          $(this).addClass('active');
+                        }
+
+                      });
+                    }
+                  }
+                });
+              },
+              onOpenStart: function() {
+                Minima.file.list('/_sqldb.mv.db', function(res) {
+                  // console.log(res);
+                  if (res.exists) {
+                    const size = formatBytes(res.size, 2);
+                    $('#h2Size span').text(''+size);
+                  };
+                });
+
+                Minima.file.load("prune.txt", function(res){
+                  if(res.success){
+                    var pruning = JSON.parse(res.data);
+              
+                    if (pruning && pruning.status) {
+                      var period = pruning.period;
+              
+                      $('#dropdown1 li').children().each( function() {
+                        if (this.id == period) {
+                          $(this).addClass('active');
+                        } else {
+                          $(this).removeClass('active');
+                        }               
+                      });
+              
+              
+                    } else if(pruning && !pruning.status) {
+              
+                      $('#dropdown1 li').children().each( function() {
+                          
+                        if (this.id !== "Everything") {
+                          $(this).removeClass('active');
+                        } else {
+                          $(this).addClass('active');
+                        }
+              
+                      });
+                    }
+                  }
+                });
+              },
+              }
+            );
+          
+          Minima.sql("SELECT * from txpowlist WHERE ISBLOCK = 1 ORDER BY HEIGHT DESC LIMIT 100", function(res) {
+            // console.log(app + ': fetching all previous blocks saved on SQL.');
+            // console.log(res);
+            if (res.status) {
+              $.each(res.response.rows, function(i, el) {
+                
+                // console.log(el);
+
+                table.addRow(el);
+                
+              });
+            }
+          });
+
+        } else if(msg.event == 'newtxpow') {
+          // console.log(msg.info);
+          updateTableData(msg.info);
+              
+        } else if(msg.event == 'miningstart') {
+    
+          M.toast({html:"Mining Transaction In Progress..."});
+
+        } else if(msg.event == 'miningstop') {
+
+          M.toast({html:"Mining Transaction Finished..."});
+
+        } else if(!msg.event == 'connected') {
+
+            $('body').addClass('backdrop');
+
+        }
+      });
+
+    });
+
+  </script>
+  <script>
+  $(document).ready(function() {
+      /** SEARCH BUTTON CLICK LISTENER */
+    $("#searchBtn").on("click", function(){
+            
+      var query = $("#search-input").val();
+    
+      if(query.length == 0) {
+        
+        setTimeout(function() {
+    
+          M.toast({html:"Nothing found."});
+    
+        }, 2000);
+    
+      } else {
+        
+        window.location.href = "./search.html?query="+query;
+    
+        return false;
+        
+      }
+    });
+    
+    // ENTER KEY SEARCH
+    $('#search-input').keypress(function(event){
+    
+    var keycode = (event.keyCode ? event.keyCode : event.which);
+    
+    if(keycode == '13'){
+    
+      var query = $("#search-input").val();
+    
+      if(query.length == 0) {
+      
+        setTimeout(function() {
+    
+          M.toast({html:"Nothing found."});
+    
+        }, 2000);
+    
+      } else {
+        
+        window.location.href = "./search.html?query="+query;
+    
+        return false;
+        
+      }
+    }
+    event.stopPropagation();
+    });
+
+
+    // load more btn
+    $('.load-btn').on('click', function(){
+
+        var size = $('#example-table').css('max-height').replace(/[^-\d\.]/g, '');
+
+        size = parseInt(size, 10) + 264;
+
+        document.getElementById("example-table").style.maxHeight = size+"px";
+
+        table.redraw(true);    
+    });
+  });
+  </script>
+
+  <header>
+    <div class="menu navbar-fixed" role="navigation">
+      <div id="header" class="row">
+        <div id="brand" class="col push-s1 s4">
+          <img style="width:200px;" src="assets/block2.svg" alt="logo">
+          <div id="title">
+            <p>The Minima <br> Blockchain Explorer</p>
+          </div>
+        </div>
+
+        <div id="titleR" class="right hide-on-small-and-down">
+            <p>Testnet <br> <span>Powered by Minima</span></p>
+            <img src="assets/minimaMark.svg" alt="logo">
+        </div>
+      </div>
+    </div>
+  
+    <div id="nav-wrapper" class="row">
+      <div class="col">
+        <div class="switch">
+          <label>
+            Night mode
+            <input id="checkbox" type="checkbox">
+            <span class="lever"></span>
+          </label>
+        </div>
+      </div>
+      <div class="col">
+        <div class="prune-dd">
+          <a class='dropdown-trigger' href='#' data-target='dropdown1'><label>Pruning <i class="material-icons">arrow_drop_down</i></label></a> 
+          <ul id='dropdown1' class='dropdown-content'>
+            <li><a id="30240" onclick="setPrune('30240')" href="#!">1 week</a></li>
+            <li><a id="129600" onclick="setPrune('129600')" href="#!">1 month</a></li>
+            <li><a id="388800" onclick="setPrune('388800')" href="#!" class="active">3 months</a></li>
+            <li><a id="777600" onclick="setPrune('777600')" href="#!">6 months</a></li>
+            <li><a id="1555200" onclick="setPrune('1555200')" href="#!">A year</a></li>
+            <li><a id="Everything" onclick="setPrune('Everything')" href="#!">Keep all</a></li>
+            <li id="h2Size">
+              <h6>Size: <span id="size">n/a</span></h6>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </header>
+  
+
+  <!-- Body INFO -->
+  <div class="content-wrap">
+    <div id="content"> 
+        <div class="row">
+          <div id="search-title-col" class="col s12">
+            <h5>Discover the heaviest leaf in the chain and traverse through.</h5>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col s12">
+            <div id="search-wrapper">
+              <input 
+              id="search-input" 
+              class="tooltipped" 
+              placeholder="Search by address, coinid or tokenid" 
+              type="text" 
+              data-html="true" 
+              data-position="top" 
+              data-tooltip="Address, block number, coin id..">
+              <i id="searchBtn" class="material-icons search">search</i>
+            </div>
+          </div>
+        </div>
+  
+      <!-- TABULATOR - BLOCKS table -->
+      <div class="row">
+        <div class="col s12" style="padding-right:0;">
+          <div id="example-table"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <footer>
+    <div class="container">
+      <div class="row">
+        <div class="col s12 m6" id="footer-col-icon">
+            <img src="assets/minilogoblacklandscape.svg">
+        </div>
+          
+        <div class="col s12 m6 socials right-align">
+          <a href="https://minima.global/" target="_"><img src="assets/social1.svg" alt="website"></a>
+          <a href="https://github.com/minima-global" target="_"><img src="assets/social2.svg" alt="github"></a>
+          <a href="https://t.me/Minima_Global" target="_"><img src="assets/social3.svg" alt="telegram"></a>
+          <a href="https://medium.com/minima-global" target="_"><img src="assets/social4.svg" alt="medium"></a>
+          <a href="https://twitter.com/Minima_Global" target="_"><img src="assets/social5.svg" alt="twitter"></a>
+          <a href="https://www.youtube.com/channel/UCDe2j57uQrUVtVizFbDpsoQ" target="_"><img src="assets/social6.svg" alt="youtube"></a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+
+  <script src="js/bin/materialize.js"></script>
+  </body>
+</html>

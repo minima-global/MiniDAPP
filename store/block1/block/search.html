@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0"/>
+  <title>BLOCK</title>
+  
+  <!-- CSS. -->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+  <link href="css/style.css" type="text/css" rel="stylesheet" media="screen,projection"/>
+  <link href="css/custom.css" type="text/css" rel="stylesheet" media="screen,projection"/>
+  <link rel="icon" type="image/png" href="assets/blockicon.png"/>
+  <link href="https://unpkg.com/tabulator-tables@4.7.1/dist/css/tabulator.min.css" rel="stylesheet">
+  <!-- Scripts. -->
+  <script type="text/javascript" src="https://unpkg.com/tabulator-tables@4.7.1/dist/js/tabulator.min.js"></script>
+  <script src="js/jquery-3.5.1.min.js"></script>
+  <script src="js/moment.js"></script>
+  <script src="js/Minima/minima.js"></script>
+
+
+</head>
+
+<body>
+  <script>
+    var search_table;
+    const app = 'Block';
+    const cryptocurrency = 'Minima';
+    window.addEventListener("load", function(res){
+      
+      $(document).ready(function(){
+
+        $(document).on('click', '#backBtn1', function(){
+
+          window.history.back();
+
+        });
+
+          Minima.init(function(msg){
+
+              if(msg.event == "connected") {
+
+                  // dark mode
+                  Minima.file.load("userPreference.txt", function(res){
+                    if(res.success){
+                      var preference = JSON.parse(res.data);
+                
+                      if(preference.mode == "dark"){
+                        $('body').addClass("dark");
+                      } else if(preference.mode == "light"){
+                        $('body').removeClass("dark");  
+                      }
+                    }
+                
+                  });
+
+                  var query = Minima.form.getParams("query");
+                  var results = []; var search = [];
+                  Minima.sql("SELECT * FROM txpowlist WHERE TXPOW LIKE '%"+query+"%' ORDER BY RELAYED", function(res){
+                      search = [];
+                      console.log(app + ': searching query, ' + query);
+                      console.log(res);
+                      $.each(res.response.rows, function(i, el){
+                          search.push(el);
+                      });
+
+                      if(res.response.status) {
+                        if(res.response.rows.length > 1){
+                          $('#goback-wrap').remove();
+                          $('#results-table').removeClass('hide');
+                            $('#navbar-search').text("Showing "+res.response.rows.length+" results..");
+                        } else if(res.response.rows.length == 1){
+                          $('#goback-wrap').remove();
+                          $('#results-table').removeClass('hide');
+                            $('#navbar-search').text("Showing "+res.response.rows.length+" result..");
+                        }
+                      } else {
+                        $('#navbar-search').text("No results found..");
+
+                        var markup = '<div id="notfound" class="row center">'+ 
+                                      '<div class="col s12">'+
+                                        '<p>No results found for this query!<p>'+
+                                      '</div>'+
+                                    '</div>'+
+                                    '<br>'+
+                                    '<div id="notfound" class="row center">'+
+                                      '<div class="col s12">'+
+                                        '<a id="backBtn1" class="backBtn btn-small btn-flat">Back To Explorer<p>'+
+                                      '</div>'+
+                                    '</div>';
+
+                        $('#content').append(markup);
+                        $('#results-table-col').addClass('hide');
+                      }
+
+                      search_table = new Tabulator("#results-table", {
+                          pagination: "local",  
+                          layout:"fitDataTable",
+                          //maxHeight: "660",
+                          paginationSize: 10,
+                          layout: "fitColumns",
+                          resizableColumns: false,
+                          responsiveLayout: "hide",
+                          headerSort: false,
+                          index: "HEIGHT",
+                          columns: [
+                              {title:"txpow", field:"TXPOW", visible:false},
+                              {title: "Height", field: "HEIGHT", sorter: "number", responsive:0,  width: '100', cssClass: "height-column"},
+                              {title: "Hash", field: "HASH", hozAlign:"left", formatter:function(cell, formatterParams){
+                                  var hash = cell.getData();
+                                  hash = hash.HASH;
+                                  return hash;
+                              }},
+                              {title: "isblock", field:"isblock", visible: false},
+                              {title: "TXNS", field:"TXNS", width:70, headerHozAlign: "right", hozAlign:'right', widthShrink:3, responsive:3},
+                              {title: "Relayed", field:"RELAYED", width: 110, headerHozAlign: "right", responsive:1, hozAlign:'right', formatter:function(cell, formatterParams){
+                                  var time = cell.getData();
+                                  time = moment(time.RELAYED*1000).format("HH:mm:ss");
+                                  return time;
+                              }},
+                          ],
+                          rowClick: function(e, row) {
+                              var clicked_row = row._row.data;
+                              window.location.href = './details.html?txpow='+clicked_row.HASH;
+                              return false;
+                          }
+                      });
+                      // set the data
+                      search_table.setData(search);
+
+                  });
+
+              }
+
+          });
+      });
+
+    });
+</script>
+
+  <header>
+    <div class="menu navbar-fixed" role="navigation">
+      <div id="header" class="row">
+        <div id="brand" class="col push-s1 s4">
+          <img style="width:200px;" src="assets/block2.svg" alt="logo">
+          <div id="title">
+            <p>The Minima <br> Blockchain Explorer</p>
+          </div>
+        </div>
+
+        <div id="titleR" class="right hide-on-small-and-down">
+          <p>Testnet <br> <span>Powered by Minima</span></p>
+          <img src="assets/minimaMark.svg" alt="logo">
+        </div>
+      </div>
+    </div>
+
+    <div id="nav-wrapper" class="row">
+      <div class="col s12">
+        <div class="nav-wrapper">
+          <a href="index.html" class="breadcrumb explorer">Explorer</a>
+          <a href="index.html" class="breadcrumb explorer" id="navbar-search"></a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="content-wrap">
+    <div id="content">
+      <div class="row">
+        <div id="results-table-col" class="col s12" style="padding-right: 0">
+          <div id="results-table"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="container">
+      <div class="row">
+        <div class="col s12 m6" id="footer-col-icon">
+            <img src="assets/minilogoblacklandscape.svg">
+        </div>
+          
+        <div class="col s12 m6 socials right-align">
+          <a href="https://minima.global/" target="_"><img src="assets/social1.svg" alt="website"></a>
+          <a href="https://github.com/minima-global" target="_"><img src="assets/social2.svg" alt="github"></a>
+          <a href="https://t.me/Minima_Global" target="_"><img src="assets/social3.svg" alt="telegram"></a>
+          <a href="https://medium.com/minima-global" target="_"><img src="assets/social4.svg" alt="medium"></a>
+          <a href="https://twitter.com/Minima_Global" target="_"><img src="assets/social5.svg" alt="twitter"></a>
+          <a href="https://www.youtube.com/channel/UCDe2j57uQrUVtVizFbDpsoQ" target="_"><img src="assets/social6.svg" alt="youtube"></a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+
+
+  <script src="js/bin/materialize.js"></script>
+
+  </body>
+</html>

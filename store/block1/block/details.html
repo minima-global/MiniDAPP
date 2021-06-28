@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0"/>
+  <title>BLOCK</title>
+
+  <!-- CSS  -->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+  <link href="css/style.css" type="text/css" rel="stylesheet" media="screen,projection"/>
+  <link href="css/custom.css" type="text/css" rel="stylesheet" media="screen,projection"/>
+  <script src="js/jquery-3.5.1.min.js"></script>
+</head>
+
+<body>
+<script type="text/javascript">
+  const app = 'Block';
+    $(document).ready(function(){
+      Minima.init(function(msg){
+        if(msg.event == "connected") {
+          var txpow_ = Minima.form.getParams("txpow");
+    
+          Minima.sql("SELECT * FROM txpowlist WHERE HASH = '"+txpow_+"'", function(res){
+            // console.log(res);
+            if(res.response.status && res.response.rows.length > 0) {
+              loadDetails(res);
+            } else if(res.response.status && res.response.rows.length == 0) {
+              // alert div 
+              var markup =
+               '<div id="notfound" class="row center">'+ 
+                '<div class="col s12">'+
+                  '<p>Transaction details not found in your local database.<p>'+
+                '</div>'+
+                '</div>'+
+                '<br>'+
+                '<div id="notfound" class="row center">'+
+                '<div class="col s12">'+
+                  '<a id="backBtn" class="backBtn btn-small btn-flat">Back To Explorer<p>'+
+                '</div>'+
+                '</div>';
+    
+              $('#content').append(markup);
+              $('#nav-wrapper').addClass('hide');
+            } else {
+              // alert div 
+              var markup = 
+                '<div id="notfound" class="row center">'+ 
+                '<div class="col s12">'+
+                  '<p>Failed to make SQL Query, please try again.<p>'+
+                '</div>'+
+                '</div>'+
+                '<br>'+
+                '<div id="notfound" class="row center">'+
+                '<div class="col s12">'+
+                  '<a id="backBtn" class="backBtn btn-small btn-flat">Back To Explorer<p>'+
+                '</div>'+
+                '</div>';
+              
+                $('#content').append(markup);
+                $('#nav-wrapper').addClass('hide');
+            }
+          });
+          // dark mode
+          Minima.file.load("userPreference.txt", function(res){
+          if(res.success){
+            var preference = JSON.parse(res.data);
+    
+            if(preference.mode == "dark"){
+              $('body').addClass("dark");
+            } else if(preference.mode == "light"){
+              $('body').removeClass("dark");  
+            }
+          }
+        });
+      }
+
+      });
+
+
+      // tool info display
+      $('.tooltipped').tooltip();
+
+      // elias github
+      $("#elias").on("click", function(){
+        window.open('https://github.com/eliasnemr', '_blank'); 
+      });
+
+      $(document).on('click', '#backBtn', function(){
+        window.history.back();
+      })
+
+      $(document).on("click", ".pulse", function(){
+        $('.tip').toggle("slide");
+        $('.tip2').toggle("slide");
+      });   
+      
+      $(document).on("click", ".details-btn", function() {
+        // console.log('details-btn pressed');
+        $('.details').toggle("slide");
+
+        if ($('.details-btn').find('i').text() == 'add'){
+          $(this).find('i').text('close');
+        } else {
+          $(this).find('i').text('add');
+        }
+
+      });
+});
+function parentClicked(parent) {
+  window.location.search = location.search.replace(/txpow=[^&$]*/i, 'txpow='+parent);
+  return false;
+}
+function txnClicked(hash) {
+  window.location.search = location.search.replace(/txpow=[^&$]*/i, 'txpow='+hash);
+  return false;
+}
+
+function loadDetails(data) {
+    if (data) {
+      return new Promise((resolve, reject) => {
+        data = JSON.parse(decodeURIComponent(data.response.rows[0].TXPOW));
+        // console.log(data);
+        // txpow json data object
+        let txpow = {
+          id: data.txpowid, // TXPOW ID
+          blocknumber: data.header.block, // BLOCK NUMBER
+          isblock: data.isblock,
+          nonce: data.header.nonce,
+          superblock: data.superblock,
+          time: moment(parseInt(data.header.timemilli)).format("DD MMMM YYYY HH:MM a"),
+          inputs: data.body.txn.inputs,
+          outputs: data.body.txn.outputs,
+          txnlist: data.body.txnlist,
+          size: data.size,
+          parent: data.header.superparents[0].parent,
+          type: (data.body.txn.inputs.length > 0 ? "Value Transfer" : "Pulse"),
+          isTokenCreator: (data.body.txn.tokengen ? "Yes" : ""),
+          tokenName: (data.body.txn.tokengen ? data.body.txn.tokengen.token : ""),
+          message: (data.body.txn.state.length>0 && data.body.txn.state[0].data == '01000100' ? data.body.txn.state[1].data : "") 
+        }
+        resolve(txpow);
+      }).then(txpow => {
+        
+        $('#nav-blocks').text('Block '+txpow.blocknumber);
+
+        // add details
+        let markup = '<div id="blockDetails" class="row">'+
+                        '<div class="col s12">'+
+                          '<ul class="collection with-header">'+
+                            '<li class="collection-header"><h4>Details</h4></li>'+
+                            '<li class="collection-item row"><div class="col m3 s12">TxPoW ID</div><a class="secondary-content col m9 s12">'+txpow.id+'</a></li>'+
+                            '<li class="collection-item row"><div class="col m3 s12">Timestamp</div><a class="secondary-content col m9 s12">'+txpow.time+'</a></li>'+
+                            '<li class="collection-item row"><div class="col m3 s12">Size</div><a class="secondary-content col m9 s12">'+txpow.size+'</a></li>'+
+                            '<li class="collection-item row"><div class="col m3 s12">Number of transactions</div><a class="secondary-content col m9 s12">'+txpow.txnlist.length+'</a></li>'+
+                            '<li class="collection-item row"><div class="col m3 s12">Is a block?</div><a class="secondary-content col m9 s12">'+txpow.isblock+'</a></li>'+
+                            '<li class="collection-item row"><div class="col m3 s12">Nonce</div><a class="secondary-content col m9 s12">'+txpow.nonce+'</a></li>'+
+                            '<li class="collection-item row"><div class="col m3 s12">Superblock level</div><a class="secondary-content col m9 s12">'+txpow.superblock+'</a></li>'+
+                            '<li id="type" class="collection-item row"><div class="col m3 s12">Type</div><a class="secondary-content col m9 s12">'+txpow.type+'</a></li>'+
+                            '<li id="tokengen" class="collection-item row hide"><div class="col m3 s12">Token name</div><a class="secondary-content col m9 s12">'+txpow.tokenName+'</a></li>'+
+                            '<li id="typec" class="collection-item row hide"><div class="col m3 s12">Type</div><a class="secondary-content col m9 s12">Token Creator</a></li>'+
+                            '<li class="collection-item row"><div class="col m3 s12">Parent</div><a onclick="parentClicked(\''+txpow.parent+'\')" class="secondary-content link col m9 s12">'+txpow.parent+'</a></li>'+
+                          '</ul>'+
+                        '</div>'+
+                      '</div>';
+
+        $('#content').append(markup);
+
+        if(txpow.message.length > 0) {
+          // console.log("Mesage says + "+txpow.message);
+          let markup = '<li id="message" class="collection-item row"><div class="col m3 s12">Message</div><a class="secondary-content col m9 s12">'+txpow.message+'</a></li>';
+          // console.log(markup);
+          $('#blockDetails ul').append(markup);
+        }
+
+        if(txpow.isTokenCreator.length > 0) {
+          $('#blockDetails #type').addClass('hide');
+          $('#blockDetails #tokengen').removeClass('hide');
+          $('#blockDetails #typec').removeClass('hide');
+
+        }
+        
+        // is this a transaction?
+        if(txpow.inputs.length > 0) {
+          let inputs = "";let outputs = "";
+          for(var i=0; i < txpow.inputs.length; i++) {
+            inputs += 
+            '<div class="inputWrapper">'+
+            '<li class="collection-item row"><div class="col m3 s12">Index </div><a class="secondary-content col m9 s12">'+i+'</a></li>'+
+            '<li class="collection-item row"><div class="col m3 s12">Coin ID </div><a class="secondary-content col m9 s12">'+txpow.inputs[i].coinid+'</a></li>'+
+            '<li class="collection-item row"><div class="col m3 s12">Address </div><a class="secondary-content col m9 s12">'+txpow.inputs[i].address+'</a></li>'+
+            '<li class="collection-item row"><div class="col m3 s12">Mx Address </div><a class="secondary-content col m9 s12">'+txpow.inputs[i].mxaddress+'</a></li>'+
+            '<li class="collection-item row"><div class="col m3 s12">Token ID </div><a class="secondary-content col m9 s12">'+txpow.inputs[i].tokenid+'</a></li>'+
+            '<li class="collection-item row"><div class="col m3 s12">Value </div><a class="secondary-content col m9 s12">'+txpow.inputs[i].amount+'</a></li>'+
+            '</div>';
+
+          }
+          for(var i=0; i < txpow.outputs.length; i++) {
+            outputs += 
+            '<div class="outputWrapper">'+
+            '<li class="collection-item row"><div class="col m3 s12">Index </div><a class="secondary-content col m9 s12">'+i+'</a></li>'+
+            '<li class="collection-item row"><div class="col m3 s12">Coin ID </div><a class="secondary-content col m9 s12">'+txpow.outputs[i].coinid+'</a></li>'+
+            '<li class="collection-item row"><div class="col m3 s12">Address </div><a class="secondary-content col m9 s12">'+txpow.outputs[i].address+'</a></li>'+
+            '<li class="collection-item row"><div class="col m3 s12">Mx Address </div><a class="secondary-content col m9 s12">'+txpow.outputs[i].mxaddress+'</a></li>'+
+            '<li class="collection-item row"><div class="col m3 s12">Token ID </div><a class="secondary-content col m9 s12">'+txpow.outputs[i].tokenid+'</a></li>'+
+            '<li class="collection-item row"><div class="col m3 s12">Value </div><a class="secondary-content col m9 s12">'+txpow.outputs[i].amount+'</a></li>'+
+            '</div>';
+          }
+          // add the transaction inputs/outputs
+          let markup_i = '<div id="inputDetails" class="row">'+
+                          '<div class="col s12">'+
+                            '<ul class="collection with-header">'+
+                              '<li class="collection-header"><h4>Inputs</h4></li>'+
+                              inputs+
+                            '</ul>'+
+                          '</div>'
+                        '</div>';
+          let markup_o = '<div id="outputDetails" class="row">'+
+                            '<div class="col s12">'+
+                              '<ul class="collection with-header">'+
+                                '<li class="collection-header"><h4>Outputs</h4></li>'+
+                                outputs+
+                              '</ul>'+
+                            '</div>'
+                          '</div>';
+
+          $('#blockDetails').after(markup_i);    
+          $('#inputDetails').after(markup_o);              
+
+        }
+
+        // does this TxPoW carry other TxPoWs?
+        if(txpow.txnlist.length > 0) {
+          let txnlist = "";
+
+          for (var i=0; i < txpow.txnlist.length; i++) {
+
+            txnlist+= 
+            '<div class="txnlistWrapper">'+
+              '<li class="collection-item row"><div class="col m3 s12">Transaction #'+i+'</div><a onclick="txnClicked(\''+txpow.txnlist[i]+'\')" class="secondary-content link col m9 s12">'+txpow.txnlist[i]+'</a></li>'+
+            '</div>';
+
+          }
+
+          let markup_l = '<div id="txnlistDetails" class="row">'+
+                            '<div class="col s12">'+
+                              '<ul class="collection with-header">'+
+                                '<li class="collection-header"><h4>Transaction list</h4></li>'+
+                                txnlist+
+                              '</ul>'+
+                            '</div>'+
+                          '</div>';
+
+          if ($('#outputDetails').length) {
+
+            $('#outputDetails').after(markup_l);
+
+          } else {
+            $('#blockDetails').after(markup_l);
+          }
+        }
+      });
+    } else {
+      console.log('Txpow data not found.');
+    }
+
+  }
+
+</script>
+
+<header>
+  <div class="menu navbar-fixed" role="navigation">
+    <div id="header" class="row">
+      <div id="brand" class="col push-s1 s4">
+        <img style="width:200px;" src="assets/block2.svg" alt="logo">
+        <div id="title">
+          <p>The Minima <br> Blockchain Explorer</p>
+        </div>
+      </div>
+
+      <div id="titleR" class="right hide-on-small-and-down">
+        <p>Testnet <br> <span>Powered by Minima</span></p>
+        <img src="assets/minimaMark.svg" alt="logo">
+      </div>
+
+    </div>
+  </div>
+
+  <div style="flex-direction: row!important; padding-left: 10%;" id="nav-wrapper" class="row">
+    <div class="col">
+      <div class="nav-wrapper">
+        <a href="index.html" class="breadcrumb explorer">Explorer</a>
+        <a href="#!" class="breadcrumb explorer" id="nav-blocks"></a>
+      </div>
+    </div>
+  </div>
+</header>
+  
+  <!-- Details BODY INFO -->
+  <div class="content-wrap">
+    <div id="content"></div>
+  </div>
+
+  <footer>
+    <div class="container">
+      <div class="row">
+        <div class="col s12 m6" id="footer-col-icon">
+            <img src="assets/minilogoblacklandscape.svg">
+        </div>
+          
+        <div class="col s12 m6 socials right-align">
+          <a href="https://minima.global/" target="_"><img src="assets/social1.svg" alt="website"></a>
+          <a href="https://github.com/minima-global" target="_"><img src="assets/social2.svg" alt="github"></a>
+          <a href="https://t.me/Minima_Global" target="_"><img src="assets/social3.svg" alt="telegram"></a>
+          <a href="https://medium.com/minima-global" target="_"><img src="assets/social4.svg" alt="medium"></a>
+          <a href="https://twitter.com/Minima_Global" target="_"><img src="assets/social5.svg" alt="twitter"></a>
+          <a href="https://www.youtube.com/channel/UCDe2j57uQrUVtVizFbDpsoQ" target="_"><img src="assets/social6.svg" alt="youtube"></a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+
+<!--  Scripts-->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jsrender/1.0.7/jsrender.min.js"></script>
+<script src="js/bin/materialize.js"></script>
+<script src="js/Minima/minima.js"></script>
+<script src="js/moment.js"></script>
+
+  </body>
+</html>

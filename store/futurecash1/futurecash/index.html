@@ -1,0 +1,573 @@
+<html>
+	<!-- By Spartacus Rex -->
+	<!-- Re-skinned by Elias Nemr -->
+	<!-- Graphics & design by Pete Howell -->
+	<!-- 13/11/2020 -->
+<head>
+	  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0"/>
+	<!--   The MINIMA MiFi Javascript Library -->
+	<script type="text/javascript" src="minima.js"></script>
+	<script type="text/javascript" src="decimal.js"></script>
+	<!-- Materialize Icons -->
+	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+	<!-- Compiled and minified CSS -->
+	<link rel="stylesheet" href="css/materialize.css">
+	<!-- Icons -->
+	
+	<!--  STYLE -->
+	<link rel="stylesheet" type="text/css" href="future.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+	<title>FUTURE CASH</title>
+</head>
+
+<body>
+
+	<script type="text/javascript">
+
+		$(document).ready(function(){
+
+			$('.collapsible').collapsible();
+		});
+		// init date picker
+		document.addEventListener('DOMContentLoaded', function() {
+
+			// instantiate date-picker
+			var elems = document.querySelectorAll('.datepicker');
+			let options = {
+				minDate: new Date()
+			};
+			var instances = M.Datepicker.init(elems, options);
+			// instantiate time-picker
+			let options2 = {};
+			var elems2 = document.querySelectorAll('.timepicker');
+			var instances2 = M.Timepicker.init(elems2, options2);
+			
+		  });
+
+		//Global Variables - used Script IDE..
+		var timescript  = "LET owner = PREVSTATE ( 0 ) LET time = PREVSTATE ( 1 ) RETURN SIGNEDBY ( owner ) AND @BLKNUM GTE time";
+		var timeaddress = "";
+		 
+		function copyKey() {
+
+			const key = document.getElementById("myaddress").innerHTML;
+
+			if (key.length > 0 && key !== "No key generated yet.") {
+				const el = document.createElement('textarea');
+				el.value = key;
+				document.body.appendChild(el);
+				el.select();
+				document.execCommand('copy');
+				document.body.removeChild(el);
+	
+				M.toast({html: "Copied key to clipboard.", classes: "success"});
+				return;
+			} else {
+				M.toast({html: "No key to copy!", classes: "danger"});
+			}
+
+
+		}
+
+		async function pastekey() {
+
+			const text = await navigator.clipboard.readText();
+			if (text.substring(0, 2) == '0x') {
+				document.getElementById("futurekey").value = text;
+				M.toast({html: "Pasted key!", classes: "success"});
+			} else {
+				M.toast({html:"Don't recognize key!", classes:"danger"});
+			}
+
+
+
+		}
+		function showBlock(block) {
+			M.toast({html: "Ready at block - "+block, classes:"ready"});
+		}
+		 
+		function setTime(){
+			//Set the right time
+			document.getElementById("blocktime").innerHTML = "Block time: "+Minima.block;	
+		}
+		
+		function setBalance(){
+			//Use Util function to get Balance..
+			document.getElementById("yourbalance").innerHTML = "Balance: "+Minima.util.getBalance("0x00");
+		}
+		
+		function newKey(){
+			Minima.cmd("keys new", function(json){
+				document.getElementById("myaddress").innerHTML = ""+json.response.key.publickey;
+			});
+		}
+		
+		function showPage(page){
+			if(page == 0 ){
+				document.getElementById("introBtn").classList.add("active");
+				document.getElementById("myFutureBtn").classList.remove("active");
+				document.getElementById("sendCashBtn").classList.remove("active");
+
+				document.getElementById("intro").classList.remove("hide");
+				document.getElementById("sendcash").classList.add("hide");
+				document.getElementById("mycash").classList.add("hide");
+			
+			}else if(page == 1 ){
+				document.getElementById("sendCashBtn").classList.add("active");
+				document.getElementById("introBtn").classList.remove("active");
+				document.getElementById("myFutureBtn").classList.remove("active");
+
+				document.getElementById("intro").classList.add("hide");
+				document.getElementById("sendcash").classList.remove("hide");
+				document.getElementById("mycash").classList.add("hide");
+				
+			}else if(page == 2 ){
+				document.getElementById("myFutureBtn").classList.add("active");
+				document.getElementById("introBtn").classList.remove("active");
+				document.getElementById("sendCashBtn").classList.remove("active");
+
+				document.getElementById("intro").classList.add("hide");
+				document.getElementById("sendcash").classList.add("hide");
+				document.getElementById("mycash").classList.remove("hide");
+				
+			}
+		}
+	
+		function sendFunds(){
+			amount = document.getElementById("amount").value.trim();
+			date   = document.getElementById("futuredate").value.trim();
+
+			time   = document.getElementById("futuretime").value.trim();
+
+
+			key    = document.getElementById("futurekey").value.trim();
+			
+			// add the date to time chosen by user...
+			if(date=="") {
+				return M.toast({html: "Empty input fields are not allowed!"});
+			}
+			date+=" "+time;
+			// create it
+			let calculateDate = new Date(date);
+			// get the date in milliseconds
+			let ms = calculateDate.getTime();
+			// get today's date and time
+			let today = new Date();
+			// get it as ms
+			let msToday = today.getTime();
+			// get difference
+			let difference = ms - msToday;
+			// block time == 20000 milliseconds/20 seconds
+			let BLOCK_TIME = 20000;
+			// get the amount of blocks needed till time
+			let blockDifference = Math.round(difference/BLOCK_TIME);
+			// current block
+			let block = Minima.block + blockDifference;
+
+			if(amount == "" || time=="" || key =="" || date=="" ){
+				var elems = document.querySelectorAll('.modal');
+				let options = {
+					opacity: 0.7,
+					dismissible: true,
+					onOpenStart: function(){
+						$('#modalSendFunds h4').text("Can't accept empty or invalid entries!");
+						$('#modalSendFunds p').text("");
+						$('#yesBtn').addClass("hide");
+					},
+				};
+				var instances = M.Modal.init(elems, options);
+				return;
+			}
+
+			let confirmed = false;
+			var elems = document.querySelectorAll('.modal');
+			let options = {
+				opacity: 0.7,
+				dismissible: true,
+				onOpenStart: function(){
+					$('#modalSendFunds h4').html("You are about to send money to the <b>Future!</b>");
+					$('#modalSendFunds p').text("are you sure?");
+					$('#yesBtn').removeClass("hide");
+
+					$('#yesBtn').on('click', function(){
+						confirmed = true;
+					});
+				},
+				onCloseEnd: function() {
+					if(confirmed) {
+						//Clear it..
+						document.getElementById("amount").value = "";
+						document.getElementById("futuretime").value = "";
+						document.getElementById("futuredate").value = "";
+						document.getElementById("futurekey").value = "";
+						
+						//Create a random txn id..
+						var txnid = Math.floor(Math.random()*1000000000);
+						
+						//Construct Transaction..
+						var txncreator = 
+							"txncreate "+txnid+";"+
+							"txnstate "+txnid+" 0 "+key+";"+
+							"txnstate "+txnid+" 1 "+block+";"+
+							"txnstate "+txnid+" 2 "+ms+";"+
+							"txnauto "+txnid+" "+amount+" "+timeaddress+";"+
+							"txnpost "+txnid+";"+
+							"txndelete "+txnid+";";
+					
+						//Post it..
+						Minima.cmd( txncreator , function(resp){
+							Minima.util.checkAllResponses(resp);
+						});
+					}
+				}
+			};
+			var instances = M.Modal.init(elems, options);
+			
+			
+		}
+		
+		function cashFunction(){
+			Minima.cmd("coins relevant address:"+timeaddress , function(json){
+
+				let cashtable =	'<div id="futuretable">'+
+									'<div id="table-header" class="z-depth-0 row">'+
+										'<div id="th-amount" class="col s4"><div class="btn-flat z-depth-0 waves-block">Amount</div></div>'+
+										'<div id="th-time" class="col s4"><div class="btn-flat z-depth-0 waves-block">Time</div></div>'+
+										'<div id="th-collect" class="col s4"><div class="btn-flat z-depth-0 waves-block">Collect</div></div>'+
+									'</div>'+
+									'<div id="futuredata">';
+								
+										
+				//get any of these coins that have the time address
+				var coinlen = json.response.coins.length;
+				for(i=0;i<coinlen;i++){
+					var coinproof = json.response.coins[i].data;
+					
+					var keycoin    = Minima.util.getStateVariable(coinproof.prevstate,0);
+					var timecoin   = parseInt(Minima.util.getStateVariable(coinproof.prevstate,1), 10);
+					var datecoin   = parseInt(Minima.util.getStateVariable(coinproof.prevstate, 2), 10);
+					var date = "";
+					
+					var amountcoin = coinproof.coin.amount;
+					
+					var collectstring = "";
+					if(timecoin <= Minima.block){
+						collectstring = '<button id="'+coinproof.coin.coinid+'" onclick="collectCoin(\''+coinproof.coin.coinid+'\',\''+keycoin+'\',\''+amountcoin+'\');" class="collect z-depth-0 btn-small waves-block">Collect</button>';
+					}else{
+						var diff = timecoin - Minima.block;
+						collectstring = "Ready in "+diff+"..";
+
+						// calculate progress
+						let percent = (Minima.block/diff * 100);
+						
+						collectstring = '<div onclick="showBlock(\''+timecoin+'\')" class="progress">'+
+											'<div class="determinate" style="width: '+percent+'"></div>'+
+										'</div>';
+					}
+
+					// format date
+					const dateTimeFormat = new Intl.DateTimeFormat('en', {
+						year: '2-digit',
+						month: 'short',
+						day: 'numeric',
+						hour: 'numeric',
+						minute: 'numeric',
+					  });
+
+					date = moment(datecoin).format("MMM DD, YY - HH:mm");
+					
+					if(coinproof.coin.address == timeaddress){
+						cashtable+= '<div class="row">'+
+										'<div id="td-amount" class="col s4 futurecash"><div class="wrap">'+coinproof.coin.amount+'</div></div>'+
+										'<div id="td-time" class="col s4 futurecash">'+date+'</div>'+
+										'<div id="td-collect" class="col s4 futurecash" id="futurecashbtn">'+collectstring+'</div>'+
+									'</div>';
+					}
+				}
+				
+				if(coinlen == 0){
+					
+					cashtable+= '<div class="row">'+
+									'<div class="col s12 center-align"><p> No money yet! </p></div>'+
+								'</div>';
+								
+				}
+				
+				cashtable+= '</div></div>';
+
+				//And set it..
+				document.getElementById("futuremoney").innerHTML = cashtable;
+			});
+		}
+		
+		function collectCoin(coinid, key, cashamount){
+			//Disable the button..
+			document.getElementById(coinid).disabled = 'true';
+			
+			//Get a new address and send these funds to that..
+			Minima.cmd("newaddress", function(json){
+				var newaddress = json.response.address.miniaddress;
+				
+				//Now build the collect transaction and send..
+				//Create a random txn id..
+				var txnid = Math.floor(Math.random()*1000000000);
+				
+				//Construct Transaction..
+				var txncreator = 
+					"txncreate "+txnid+";"+
+					"txninput "+txnid+" "+coinid+";"+
+					"txnoutput "+txnid+" "+cashamount+" "+newaddress+" 0x00;"+
+					"txnsign "+txnid+" "+key+";"+
+					"txnpost "+txnid+";"+
+					"txndelete "+txnid+";";
+				
+				//Post it..
+				Minima.cmd( txncreator , function(resp){
+					if(Minima.util.checkAllResponses(resp)){
+
+						M.toast({html: "Collected "+cashamount+" FutureCash!", classes:"success"});
+						
+					}
+			    });	
+			});
+		}
+		
+		//Wait for the page to load..
+		window.addEventListener("load", function(){
+			let preferences = {}
+			preferences = {isUsersFirst: false};
+			//Initialise MiFi
+			Minima.init(function(msg){
+				//Deal with each message type
+		 		if(msg.event == "connected"){
+					// preference 
+					Minima.file.load("preference.txt", function(res){
+						if (res.success) {
+							let preferences = JSON.parse(res.data);
+							// check if user's first time... 
+							if (preferences.isUsersFirst) {
+
+								showPage(1);
+							} 
+
+						} else {
+							preferences.isUsersFirst = true;
+							let json = JSON.stringify(preferences);
+							Minima.file.save(json, "preference.txt", function(res){
+								if (res.success){};
+							});
+						}
+					});
+
+					setTime();
+			 		setBalance();
+			 		
+			 		// Tell Minima about the timescript! Now you can spend it when required 
+			 		// Minima listens for any scripts with your PUBLIC KEYS in the STATE or PREVSTATE and 
+			 		// tracks those outputs automagically..
+			 		Minima.cmd("extrascript \""+timescript+"\"", function(resp){
+					 	//Set the time address
+				 		timeaddress = resp.response.address.hexaddress;
+						 
+						
+				 		//Run it once..
+				 		cashFunction();
+			 		});
+			 	}else if(msg.event == "newblock"){
+		 			setTime();
+		 			cashFunction();
+		 			
+		 		}else if(msg.event == "newbalance"){
+		 			setBalance();
+		 		}else if(msg.event == "miningstart") {
+					M.toast({html: "Mining started...", classes:"miningstarted"});
+				}else if(msg.event == "miningstop") {
+					M.toast({html: "Mining stopped...", classes:"miningstop"});
+				}
+			});
+			
+			//Show Intro
+			showPage(0);
+		});
+		
+	</script>
+	
+	<div id="menu" class="container">
+		<div class="menu-header">
+			<div id="b-title-wrap" class="z-depth-0 row">
+
+				<div class="col s10">
+					<h4> Future<span>Cash ></span> <span id="demo">Demo</span>
+				</div>
+				<div class="col s2">
+					<img id="icon" src="assets/MINIMA_ORANGE.svg">
+				</div>
+				
+				</h4>
+			</div>
+
+
+			<div id="buttons" class="z-depth-0 row">
+				<div id="aboutwrapper" class="col s4">
+					<div onclick="showPage(0)" id="introBtn" class="btn-flat waves-block menuBtn active">About</div>
+				</div>
+				<div id="sendcashwrapper" class="col s4">
+					<div onclick="showPage(1)" id="sendCashBtn" class="btn-flat waves-block menuBtn">Send</div>
+				</div>
+				<div id="myfuturewrapper" class="col s4">
+					<div onclick="showPage(2)" id="myFutureBtn" class="btn-flat waves-block menuBtn">My Future</div>
+				</div>
+			</div>
+		</div>
+		
+		<div id="menu-content" class="z-depth-0 card">
+			<div class="card-content">
+				<!-- Intro -->
+				<div id="intro" style="overflow-y: scroll">
+					
+					<div class="row">
+						<div class="col s12">
+							<ul class="firstcollection collapsible collection z-depth-0">
+								<li>
+									<div class="collapsible-header"><h5><i class="material-icons info-icons">lock</i>Safeguard money with FutureCash</h5><i id="dropdown1" class="dropdown material-icons iconadd">arrow_drop_down</i><i class="dropdown material-icons iconremove">arrow_drop_up</i></div>
+									<div class="collapsible-body">
+										<p>1. Look after your cash by not spending it</p>
+										<p>2. Look after other people's cash, too!</p>
+									</div>
+								</li>
+							</ul>
+						</div>
+						<div class="col s12">
+							<ul class="secondcollection collapsible collection z-depth-0">
+								<li>
+									<div class="collapsible-header"><h5><i class="material-icons info-icons">lock</i>Safeguarding your cash</h5><i id="dropdown1" class="dropdown material-icons iconadd">arrow_drop_down</i><i class="dropdown material-icons iconremove">arrow_drop_up</i></div>
+									<div class="collapsible-body">
+										<p>1. Navigate to the <span style="font-family:manrope-bold">Send</span> page</p>
+										<p>2. Generate a key you will use to lock away your cash</p>
+										<p>3. Copy the key</p>
+										<p>4. Paste the key into the key field </p>
+										<p>5. Pick a date and time - that's when you would like your cash to become spendable</p>
+										<p>6. Choose how much you would like to lock away</p>
+										<p>7. Send yourself some <span style="font-family:manrope-bold">FutureCash</span></p>
+									</div>
+								</li>
+							</ul>
+						</div>
+						<div class="col s12">
+							<ul  class="thirdcollection collapsible collection z-depth-0">
+								<li>
+									<div class="collapsible-header"><h5><i class="material-icons info-icons">lock</i>Safeguarding other people's cash</h5><i id="dropdown2" class="dropdown material-icons iconadd">arrow_drop_down</i><i class="dropdown material-icons iconremove">arrow_drop_up</i></div>
+									<div class="collapsible-body">
+										<p>1. Generate a key you will use to lock away your cash</p>
+										<p>2. Copy the key</p>
+										<p>3. Send the key to the person whose cash you want to safeguard</p>
+										<p>4. Ask them to follow steps 3 - 6 from <span onclick="openCollapsible()" style="font-family: manrope-bold">above</span> </p>
+									</div>
+								</li>
+							</ul>
+						</div>
+						<div class="col s12">
+							<ul  class="fourthcollection collapsible collection z-depth-0">
+								<li>
+									<div  class="collapsible-header"><h5><i class="material-icons info-icons">lock_open</i>Collecting FutureCash</h5> <i class="dropdown material-icons iconadd">arrow_drop_down</i><i class="dropdown material-icons iconremove">arrow_drop_up</i></div>
+									<div class="collapsible-body">
+										<p>1. Navigate to the <span style="font-family: manrope-bold;">My Future</span> page</p>
+										<p>2. Once the date and time of the <span style="font-family:manrope-bold">FutureCash</span> arrives, a <span style="font-family: manrope-bold;">Collect</span> button appears, which allow key holders to collect the <span style="font-family:manrope-bold">FutureCash</span></p>
+									</div>
+								</li>
+							</ul>
+						</div>
+					</div>
+				</div>
+				<!-- Send Cash -->
+				<div id="sendcash" class="hide">
+					<div id="myaddress-wrap" class="row">
+						<div class="col s12">
+							<p id="myaddress">No key generated yet.</p>
+						</div>
+						<div class="col s7">
+							<div onclick="newKey();" class="btn-flat btn-small z-depth-0 genBtn">Generate key</div>
+						</div>
+						<div id="copyWrapper" class="col offset-s1 s4">
+							<div onclick="copyKey();" class="btn-flat btn-small z-depth-0 copykey">Copy key</div>
+						</div>
+					</div>
+					<div id="sendform">
+						<div class="row">
+							<div class="col s3">
+								<h6 id="title-dt" style="margin-top: 0">Date & Time:</h6>
+							</div>
+							<div class="col s4">
+								<input size="40" class="datepicker" id="futuredate">
+							</div>
+							<div id="copykey" class="col s4">
+								<input size="40" type="text" class="timepicker" id="futuretime">
+							</div>
+						</div>
+						<div class="row">
+							<div class="col s3">
+								<h6>Amount:</h6>
+							</div>
+							<div class="col s9">
+								<input size="40" type="number" id="amount">
+							</div>
+						</div>
+						<div class="row">
+							<div class="col s3">
+								<h6>Key:</h6>
+							</div>
+							<div class="col s9">
+								<input size="40" type="text" id="futurekey">
+							</div>
+						</div>
+						<div class="row">
+							<div class="col offset-s3 s5">
+								<div onclick="pastekey();" class="btn-flat btn-small z-depth-0 pastekey">Paste key</div>
+							</div>
+							<div style="width: 1 auto; padding-right:1%" class="col s4">
+								<div onclick="sendFunds()" data-target="modalSendFunds" class="btn-small z-depth-0 sendBtn modal-trigger left">Send Funds</div>
+							</div>
+
+						</div>
+					</div>
+				</div>
+				<!-- My Future -->
+				<div id="mycash" class="hide">
+					<div id="futuremoney">
+						NO MONEY YET
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="menu-footer row">
+			<div style="padding: 0;" class="col s6">
+				<div class="baldiv" id="yourbalance">...</div>
+			</div>
+			<div style="padding: 0;" class="col s6">
+				<div class="timediv" id="blocktime">...</div>
+			</div>
+		</div>
+
+
+		<!-- Modal -->
+		<div id="modalSendFunds" class="modal">
+			<div class="modal-content">
+			  <h4>You are about to send money to the <b>Future!</b></h4>
+			  <p>Are you sure?</p>
+			</div>
+			<div class="modal-footer">
+			  <a href="#!" class="modal-close waves-effect waves-green btn-flat">Dismiss</a>
+			  <a id="yesBtn" href="#!" class="modal-close waves-effect waves-green btn-flat">Yes</a>
+			</div>
+		  </div>
+
+	</div>
+
+	<!-- Compiled and minified JavaScript -->
+	<script src="js/materialize.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js" integrity="sha512-qTXRIMyZIFb8iQcfjXWCO8+M5Tbc38Qi5WzdPOYZHIlZpzBHG3L3by84BBBOiRGiEb7KKtAOAs5qYdUiZiQNNQ==" crossorigin="anonymous"></script>
+</body>
+    
+</html>
