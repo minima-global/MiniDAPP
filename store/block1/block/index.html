@@ -195,27 +195,26 @@ function copy(id) {
         var isblock = 0;
         if(msg.txpow.isblock) {
           isblock = 1;
+          // wipe out mmrproofs and signatures for lighter txpows.. 
+          msg.txpow.body.witness.signatures = {};
+          msg.txpow.body.witness.mmrproofs = {};
+  
+          if (!msg.txpow.body) {
+            console.log('Txpow body does not exist!');
+            return;
+          }
+          
+          table.addRow(
+            {
+              TXPOW: decodeURI(msg.txpow),
+              HEIGHT: msg.txpow.header.block,
+                HASH: msg.txpow.txpowid,
+                isblock: isblock,
+                  TXNS: msg.txpow.body.txnlist.length,
+                  RELAYED: msg.txpow.header.timemilli
+                  },
+                    true);
         } 
-        
-        // wipe out mmrproofs and signatures for lighter txpows.. 
-        msg.txpow.body.witness.signatures = {};
-        msg.txpow.body.witness.mmrproofs = {};
-
-        if (!msg.txpow.body) {
-          console.log('Txpow body does not exist!');
-          return;
-        }
-        
-        table.addRow(
-          {
-            TXPOW: decodeURI(msg.txpow),
-            HEIGHT: msg.txpow.header.block,
-              HASH: msg.txpow.txpowid,
-              isblock: isblock,
-                TXNS: msg.txpow.body.txnlist.length,
-                RELAYED: msg.txpow.header.timemilli
-                },
-                  true);
       }
 
       initTable();

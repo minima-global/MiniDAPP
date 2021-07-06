@@ -11,8 +11,8 @@
   "relayed BIGINT NOT NULL," +
   "txns int NOT NULL" +
   ")";
-  var INDEX = "CREATE INDEX IDXHASH ON txpowlist(hash)";
-  var INDEXHEIGHT = "CREATE INDEX IDXHEIGHT ON txpowlist(height DESC)";
+  var INDEX = "CREATE INDEX IF NOT EXISTS IDXHASH ON txpowlist(hash)";
+  var INDEXHEIGHT = "CREATE INDEX IF NOT EXISTS IDXHEIGHT ON txpowlist(height DESC)";
   /** Create SQL Table */
   function createSQL(){
     Minima.sql(INITSQL+";"+INDEX+";"+INDEXHEIGHT, function(resp){
@@ -22,7 +22,7 @@
   });
   }
 
-  var ADDBLOCKQUERY = "INSERT INTO txpowlist VALUES ('"
+  var ADDBLOCKQUERY = "INSERT INTO txpowlist VALUES (\'"
   function addTxPoW(txpow) {
     
     var isblock = 0;
@@ -41,17 +41,17 @@
        
     Minima.sql(ADDBLOCKQUERY +
       encodeURIComponent(JSON.stringify(txpow)) + /** TXPOW */
-      "', " +
+      "\', \'" +
       parseInt(txpow.header.block) + /** HEIGHT */
-      ", '" +
+      "\', \'" +
       txpow.txpowid + /** HASH */
-      "', '" +
+      "\', \'" +
       isblock + /** isblock */
-      "', " +
+      "\', \'" +
       parseInt(txpow.header.timemilli) /** relayed */
-      + ", '"
+      + "\', \'"
       + txpow.body.txnlist.length + /** txns */
-      "')", function(res){
+      "\')", function(res){
       if(res.status == true) 
       {
         // Minima.log(app + ': timemilli'+txpow.header.timemilli);
@@ -95,13 +95,13 @@
     
       } else if(msg.event == 'newtxpow') {
 
-        if (loop == false) {
-          for (var i = 0; i <= 500000; i++) {
-            Minima.log('adding txpow..');
-            addTxPoW(msg.info.txpow);
-          }
-          loop = true;
-        }
+        // if (loop == false) {
+        //   for (var i = 0; i <= 500000; i++) {
+        //     Minima.log('adding txpow..');
+        //     addTxPoW(msg.info.txpow);
+        //   }
+        //   loop = true;
+        // }
 
         addTxPoW(msg.info.txpow);
 
