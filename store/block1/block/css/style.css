@@ -8291,5 +8291,13 @@ body.dark
   #dropdown1 li#h2Size h6 span {
     color: #FAFAF0;
 }
-
+body.dark div#stateDetails .collection-header h4 {
+  color: #F65130!important;
+}
+body.dark div.stateWrapper .collection-item {
+  color: #fff;
+}
+body.dark div.stateWrapper .collection-item p.secondary-content {
+  color: #fff;
+}
 /*# sourceMappingURL=style.css.map */

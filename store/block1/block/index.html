@@ -20,9 +20,9 @@
 <body>
   <script>
   // INIT Tabulator blocks-table..
-  var table = null;
-  var app = 'Block';
-  var cryptocurrency = 'Minima';
+  var table = null;var loop = false;
+  const app = 'Block';
+  const cryptocurrency = 'Minima';
   function initTable() {
     // Create a tabulator instance, and refer it to the div canvas
     table = new Tabulator("#example-table", {
@@ -83,18 +83,16 @@
           width: 110, 
           responsive: 1, 
           formatter: function(cell, formatterParams) {
-            // console.log(cell);
-            // console.log(cell.getData());
+
             var time = cell.getData().RELAYED;
-            // console.log(app + ': time relayed ms: '+ time);
-            // console.log(time);
+
             time = moment(parseInt(time)).format("HH:mm:ss");
-            // console.log(app + ': formatted time, ' + time);
+
             return time;
           },
         },
       ],
-      rowClick:function(e, row){
+      rowClick:function(e, row) {
 
         var clicked_row = row._row.data;
       
@@ -103,91 +101,85 @@
         return false;
       },
     });
-    
 }
 
-// JQUERY Helpful Functions
-$(document).ready(function() {
+  // JQUERY Helpful Functions
+  $(document).ready(function() {
 
-  // Materialize tooltip
-  $('.tooltipped').tooltip({delay: 50});
-  
-  // elias github
-  $("#elias").on("click", function(){
+    // Materialize tooltip
+    $('.tooltipped').tooltip({delay: 50});
+    
+    // elias github
+    $("#elias").on("click", function(){
 
-    window.open('https://github.com/eliasnemr', '_blank'); 
+      window.open('https://github.com/eliasnemr', '_blank'); 
 
+    });
   });
 
-
-
-});
-
-function setPrune(time) {
-  if(time == "Everything") {
-    const prune = {
-      status: false,
-      period: ""
-    }
-
-    Minima.file.save(JSON.stringify(prune), "prune.txt", function(res){
-      if (res.success) {
-        M.toast({html:"Turned pruning off!"});
+  function setPrune(time) {
+    if(time == "Everything") {
+      const prune = {
+        status: false,
+        period: ""
       }
-    });
 
-  } else if(time) {
-    const prune = {
-      status: true,
-      period: time
-    }
+      Minima.file.save(JSON.stringify(prune), "prune.txt", function(res){
+        if (res.success) {
+          M.toast({html:"Turned pruning off!"});
+        }
+      });
 
-    Minima.file.save(JSON.stringify(prune), "prune.txt", function(res){
-      if (res.success) {
+    } else if(time) {
+      const prune = {
+        status: true,
+        period: time
+      }
 
-        if(time == '30240') {
-          M.toast({html:"Changed pruning to a week."});
+      Minima.file.save(JSON.stringify(prune), "prune.txt", function(res){
+        if (res.success) {
 
-        } else if (time == '129600') {
-          M.toast({html:"Changed pruning to a month."});
+          if(time == '30240') {
+            M.toast({html:"Changed pruning to a week."});
 
-        } else if (time == '388800') {
-          M.toast({html:"Changed pruning to 3 months."});
+          } else if (time == '129600') {
+            M.toast({html:"Changed pruning to a month."});
 
-        } else if (time == '777600') {
-          M.toast({html:"Changed pruning to 6 months."});
+          } else if (time == '388800') {
+            M.toast({html:"Changed pruning to 3 months."});
 
-        } else if (time == '1555200') {
-          M.toast({html:"Changed pruning to a year."});
+          } else if (time == '777600') {
+            M.toast({html:"Changed pruning to 6 months."});
+
+          } else if (time == '1555200') {
+            M.toast({html:"Changed pruning to a year."});
+
+          }
 
         }
-
-      }
-    });
+      });
+    }
   }
-}
 
-function copy(id) {
-  var textToCopy = document.getElementById(id).innerText;
+  function copy(id) {
+    var textToCopy = document.getElementById(id).innerText;
 
-  var temporaryInputElement = document.createElement("input");
-  temporaryInputElement.type = "text";
-  temporaryInputElement.value = textToCopy;
+    var temporaryInputElement = document.createElement("input");
+    temporaryInputElement.type = "text";
+    temporaryInputElement.value = textToCopy;
 
-  document.body.appendChild(temporaryInputElement);
+    document.body.appendChild(temporaryInputElement);
 
-  temporaryInputElement.select();
-  document.execCommand("Copy");
+    temporaryInputElement.select();
+    document.execCommand("Copy");
 
-  M.toast({html: "Copied to clipboard."});
+    M.toast({html: "Copied to clipboard."});
 
-  document.body.removeChild(temporaryInputElement);
-  
-}
-
+    document.body.removeChild(temporaryInputElement);
+    
+  }
 
   </script>
-  <!-- Minima.js -->
   <script type="text/javascript">
     $(document).ready(function(){
       /** Update Tabulator Table with new blocks */
@@ -203,7 +195,7 @@ function copy(id) {
             console.log('Txpow body does not exist!');
             return;
           }
-          
+           
           table.addRow(
             {
               TXPOW: decodeURI(msg.txpow),
@@ -213,16 +205,50 @@ function copy(id) {
                   TXNS: msg.txpow.body.txnlist.length,
                   RELAYED: msg.txpow.header.timemilli
                   },
-                    true);
+                   true, 1);
+          
         } 
       }
 
       initTable();
 
+      function populateTable() {
+        try {
+          Minima.sql("SELECT * from txpowlist WHERE ISBLOCK = 1 ORDER BY HEIGHT DESC LIMIT 100", function(res) {
+            // console.log(app + ': fetching all previous blocks saved on SQL.');
+            // console.log(res);
+            if (res.status) {
+              if (res.response.status) {
+                const last100Blocks = res.response.rows ? res.response.rows : [];
+                // console.log(last100Blocks);
+                if (table) {
+                  table.setData(last100Blocks);
+
+                  /** 
+                  table.setSort(
+                    { column:"HEIGHT", dir:"desc" },
+                  );
+                  */
+                } else {
+                  throw new Error('Blocks table not found.');
+                }
+              } else {
+                throw new Error('1. Fetching from sql failed.')
+              }
+            } else {
+              throw new Error('2. Fetching from sql failed.');
+            }
+          });
+        } catch(err) {
+          Minima.log(err);
+        }
+      }
+      
+      
       Minima.init(function(msg){
         if (msg.event == 'connected') {
           $('#checkbox').on("change", function(res){
-
+    
             const preference = {
                 "mode": "light"
             }
@@ -240,6 +266,7 @@ function copy(id) {
                 Minima.file.save(json, "userPreference.txt", function(res){});
             }
           });
+          
           function formatBytes(bytes, decimals = 2) {
             if (bytes === 0) return '0 Bytes';
         
@@ -345,33 +372,33 @@ function copy(id) {
               }
             );
           
-          Minima.sql("SELECT * from txpowlist WHERE ISBLOCK = 1 ORDER BY HEIGHT DESC LIMIT 100", function(res) {
-            // console.log(app + ': fetching all previous blocks saved on SQL.');
-            // console.log(res);
-            if (res.status) {
-              $.each(res.response.rows, function(i, el) {
-                
-                // console.log(el);
+          populateTable();
 
-                table.addRow(el);
-                
-              });
-            }
-          });
-
-        } else if(msg.event == 'newtxpow') {
+        } else if (msg.event == 'newtxpow') {
           // console.log(msg.info);
+
           updateTableData(msg.info);
+
+          const rows = table.getRows();
+
+          if (rows.length > 100) {
+            rows.length = 100;
+            let data = [];
+            for (let i = 0; i < rows.length; i++ ) {
+              data.push(rows[i]._row.data);
+            }
+            table.setData(data);
+          }
               
-        } else if(msg.event == 'miningstart') {
+        } else if (msg.event == 'miningstart') {
     
           M.toast({html:"Mining Transaction In Progress..."});
 
-        } else if(msg.event == 'miningstop') {
+        } else if (msg.event == 'miningstop') {
 
           M.toast({html:"Mining Transaction Finished..."});
 
-        } else if(!msg.event == 'connected') {
+        } else if (!msg.event == 'connected') {
 
             $('body').addClass('backdrop');
 
@@ -530,20 +557,36 @@ function copy(id) {
 
 
   <footer>
-    <div class="container">
-      <div class="row">
-        <div class="col s12 m6" id="footer-col-icon">
-            <img src="assets/minilogoblacklandscape.svg">
-        </div>
-          
-        <div class="col s12 m6 socials right-align">
-          <a href="https://minima.global/" target="_"><img src="assets/social1.svg" alt="website"></a>
-          <a href="https://github.com/minima-global" target="_"><img src="assets/social2.svg" alt="github"></a>
-          <a href="https://t.me/Minima_Global" target="_"><img src="assets/social3.svg" alt="telegram"></a>
-          <a href="https://medium.com/minima-global" target="_"><img src="assets/social4.svg" alt="medium"></a>
-          <a href="https://twitter.com/Minima_Global" target="_"><img src="assets/social5.svg" alt="twitter"></a>
-          <a href="https://www.youtube.com/channel/UCDe2j57uQrUVtVizFbDpsoQ" target="_"><img src="assets/social6.svg" alt="youtube"></a>
-        </div>
+    <div class="row">
+      <div class="col m6 s12 brand">
+        <img src="assets/minilogoblacklandscape.svg" alt="minimaIcon" />
+      </div>
+      <div class="col s12 m6 socials">
+        <a 
+        href="https://minima.global/" 
+        target="_"><img class="social" 
+        src="assets/social1.svg" 
+        alt="website"></a>
+        <a 
+        href="https://github.com/minima-global" 
+        target="_">
+        <img class="social" src="assets/social2.svg" alt="github"></a>
+        <a 
+        href="https://t.me/Minima_Global" 
+        target="_"><img class="social" 
+        src="assets/social3.svg" 
+        alt="telegram"></a>
+        <a 
+        href="https://medium.com/minima-global" 
+        target="_"><img class="social" src="assets/social4.svg" alt="medium"></a>
+        <a 
+        href="https://twitter.com/Minima_Global" 
+        target="_"><img class="social" 
+        src="assets/social5.svg" 
+        alt="twitter"></a>
+        <a 
+        href="https://www.youtube.com/channel/UCDe2j57uQrUVtVizFbDpsoQ" 
+        target="_"><img class="social" src="assets/social6.svg" alt="youtube"></a>
       </div>
     </div>
   </footer>

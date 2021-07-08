@@ -359,44 +359,80 @@
   }
 
   /* Details.html */
-  #blockDetails, #inputDetails, #outputDetails, #txnlistDetails {
+  #blockDetails, #inputDetails, #outputDetails, #txnlistDetails, #stateDetails {
     margin-left: -1.5%;
     margin-bottom: 2%;
   }
   .outputWrapper, .inputWrapper, .txnlistWrapper {
     border-bottom: 0.5px solid #9B9CA8!important;
   }
-  #blockDetails .collection, #inputDetails .collection, #outputDetails .collection, #txnlistDetails .collection {
+  #blockDetails .collection, 
+  #inputDetails .collection, 
+  #outputDetails .collection, 
+  #txnlistDetails .collection,
+  #stateDetails .collection {
     border: none!important;
   }
-  #blockDetails .collection .collection-header, #inputDetails .collection .collection-header, #outputDetails .collection .collection-header, #txnlistDetails .collection .collection-header {
+  #blockDetails .collection .collection-header, 
+  #inputDetails .collection .collection-header, 
+  #outputDetails .collection .collection-header, 
+  #txnlistDetails .collection .collection-header,
+  #stateDetails .collection .collection-header {
     border:none!important;
     border-bottom: 2px solid #9B9CA8!important;
     background: none!important;
   }
-  #blockDetails .collection .collection-header h4, #inputDetails .collection .collection-header h4, #outputDetails .collection .collection-header h4, #txnlistDetails .collection .collection-header h4  {
+  
+  #blockDetails .collection .collection-header h4, 
+  #inputDetails .collection .collection-header h4, 
+  #outputDetails .collection .collection-header h4, 
+  #txnlistDetails .collection .collection-header h4,
+  #stateDetails .collection .collection-header h4 {
     font-size: 1.0rem;
     font-family: manrope-bold;
     color: #000 !important;
   }
-  #blockDetails .collection-item, #inputDetails .collection-item, #outputDetails .collection-item, #txnlistDetails .collection-item  {
+  #blockDetails .collection-item,
+  #inputDetails .collection-item,
+  #outputDetails .collection-item,
+  #txnlistDetails .collection-item,
+  #stateDetails .collection-item  {
     border:none!important;
     background: none!important;
     border-bottom: 2px solid #F1F1FA;
   }
-  #blockDetails .collection-item div, #inputDetails .collection-item div, #outputDetails .collection-item div, #txnlistDetails .collection-item div {
+  #stateDetails .collection-item {
+    border: none!important;
+    background: none!important;
+  }
+  #blockDetails .collection-item div,
+  #inputDetails .collection-item div, 
+  #outputDetails .collection-item div, 
+  #txnlistDetails .collection-item div,
+  #stateDetails .collection-item div {
     float: left;
     position: relative;
     font-family: manrope-bold;
     padding-left: 0;
   }
-  #blockDetails .collection-item a, #inputDetails .collection-item a, #outputDetails .collection-item a, #txnlistDetails .collection-item a {
+  #blockDetails .collection-item a, 
+  #inputDetails .collection-item a, 
+  #outputDetails .collection-item a, 
+  #txnlistDetails .collection-item a {
     padding-left: 0;
     text-align: left;
     float: left;
     overflow: hidden!important;
     color: #0F0F0F;
     text-overflow: ellipsis;
+    white-space: normal;
+  }
+  .stateWrapper .collection-item p {
+    padding: 0;
+    margin: 0;
+    overflow-wrap: break-word;
+    text-align: left;
+    color: #0F0F0F;
     white-space: normal;
   }
   #outputWrapper, #inputWrapper, #txnlistWrapper {
@@ -585,70 +621,57 @@
   /** footer */
   footer {
     position: fixed;
-    height: 166px;
+    height: 100px;
     width: 100%;
-    z-index: 9999;
     bottom: 0;
     padding-bottom:0;
     background-color: #031D32 !important;
   }
-  footer div.container {
-    height:100%;
+  footer div.row {
+    height: 100%;
+  }
+  footer div.row div.col {
+    height: 50%;
+  }
+  footer div.row {
+    margin-left: 27px;
+    margin-right: 27px;
+  }
+  @media screen and (min-width: 600px) {
+    footer div.row div.col {
+      height: 100%;
+    }
+  }
+  footer div.row div.m6.col.brand {
     display: flex;
+    justify-content: center;
     align-items: center;
   }
-  footer 
-    div.container 
-      div.row
-        div.col {
-          height: 40.73px;
-          padding-bottom: 50px;
-        }
-  footer 
-    div.container 
-      div.row
-        div.col
-          img {
-            width: 180px;
-            height: auto;
-          }
-    footer 
-    div.container 
-      div.row
-        div.col
-          a
-            img {
-              width: 34px;
-            }
-
-
-  footer .row {
-    width: 100%;
+  footer div.row div.s12.col.brand {
+    justify-content: flex-start;
   }
-  footer .row .col {
-    padding: 0;
+  footer div.row div.col.brand img {
+    width: 150px;
   }
-  #testnet {
-    padding-left: 5%;
-    color: #317AFF;
-    vertical-align: middle;
+  footer div.row div.col.m6.socials {
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
-  div.socials a {
-    cursor: pointer;
-    padding: 10px;
+  footer div.row div.col.s12.socials {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
   }
-  div.socials a:last-child {
-    padding-right: 0px;
-  }
-  div.socials a img {
+  footer div.row div.col.socials a img {
     width: 30px;
+    padding: 3px;
   }
-  div.socials a:hover {
-    transform: scale(1.2);
-  }
-  #lastsocial {
-    padding-right: 0!important;
-  }
+  
+
+
+
+
 
   #h2Size {
     display: flex;
@@ -663,6 +686,28 @@
   #h2Size h6 span {
     font-size: 14px;
     color: #001C32;
+  }
+
+  div#contentNotFound {
+    display: none;
+  }
+  .show {
+    display: block!important;
+  }
+
+  /** Tabulator */
+  .tabulator-page.active {
+    color: #fff!important;
+    background-color: #0279FF!important;
+    font-size: 1.2rem!important;
+  }
+  button.tabulator-page:disabled {
+    background: none !important;
+    color: #000;
+    opacity: 0.3
+  }
+  button.tabulator-page:disabled:hover {
+    color: #000!important;
   }
 
   
