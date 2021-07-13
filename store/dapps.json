@@ -1,7 +1,7 @@
 {
   "block": {
     "miniDapp": "block1.0.15.minidapp",
-    "icon": "block/assets/blockicon.svg",
+    "icon": "block/assets/blockLogoThumbnail.svg",
     "conf": "block/minidapp.conf"
   },
   "futurecash1": {
