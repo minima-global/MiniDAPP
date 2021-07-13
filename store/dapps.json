@@ -20,7 +20,7 @@
     "conf": "minidapp.conf"
   },
   "terminal": {
-    "miniDapp": "terminal1.1.minidapp",
+    "miniDapp": "terminal1.1.0.minidapp",
     "icon": "terminal/terminal_icon.png",
     "conf": "terminal/minidapp.conf"
   },
