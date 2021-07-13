@@ -1,6 +1,6 @@
 {
   "block1": {
-    "miniDapp": "block11.0.14.minidapp",
+    "miniDapp": "block11.0.15.minidapp",
     "icon": "block/assets/blockicon.svg",
     "conf": "block/minidapp.conf"
   },

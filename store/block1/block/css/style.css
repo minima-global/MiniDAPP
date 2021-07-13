@@ -8173,6 +8173,10 @@ body.dark .tabulator-header {
 body.dark #example-table .tabulator-footer, body.dark #results-table .tabulator-footer {
   background-color: #031D32 !important;
 }
+body.dark #example-table .tabulator-footer span.tabulator-paginator button:disabled, body.dark #results-table .tabulator-footer span.tabulator-paginator button:disabled {
+  color: #fff;
+  opacity: 0.3;
+}
 body.dark .tabulator-cell {
   color: #E2E2E2 !important;
 }

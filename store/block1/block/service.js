@@ -29,7 +29,7 @@
     });
   }
 
-  var ADDBLOCKQUERY = "INSERT INTO txpowlist VALUES (\'"
+  var ADDBLOCKQUERY = "INSERT INTO txpowlist VALUES (\""
   function addTxPoW(txpow) {
     
     var isblock = 0;
@@ -45,14 +45,16 @@
     // wipe out mmrproofs and signatures for lighter txpows.. 
     txpow.body.witness.signatures = {};
     txpow.body.witness.mmrproofs = {};
+
+
        
     Minima.sql(ADDBLOCKQUERY +
       encodeURIComponent(JSON.stringify(txpow)) + /** TXPOW */
-      "\'," +
+      "\"," +
       parseInt(txpow.header.block) + /** HEIGHT */
-      ", \'" +
+      ", \"" +
       txpow.txpowid + /** HASH */
-      "\', " +
+      "\", " +
       isblock + /** isblock */
       "," +
       txpow.header.timemilli /** relayed */

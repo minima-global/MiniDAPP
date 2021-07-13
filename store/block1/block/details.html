@@ -20,7 +20,8 @@
   function getRelevantTxPOW(_txpow) {
     return new Promise(function(resolve) {
       try {
-        Minima.sql('SELECT * FROM txpowlist WHERE HASH =\''+_txpow+'\'', function(res) {
+        Minima.sql('SELECT * FROM txpowlist WHERE HASH =\"'+_txpow+'\"', function(res) {
+          console.log(res);
           if (res.status) {
             if (res.response.status) {
               resolve(res.response.rows ? res.response.rows : []);
@@ -89,11 +90,11 @@
       });
 });
 function parentClicked(parent) {
-  window.location.search = location.search.replace(/txpow=[^&$]*/i, 'txpow='+parent);
+  window.location.search = location.search.replace(/txpow=[^&$]*/i, 'txpow='+parent+'');
   return false;
 }
 function txnClicked(hash) {
-  window.location.search = location.search.replace(/txpow=[^&$]*/i, 'txpow='+hash);
+  window.location.search = location.search.replace(/txpow=[^&$]*/i, 'txpow='+hash+'');
   return false;
 }
 

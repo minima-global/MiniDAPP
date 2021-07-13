@@ -50,7 +50,7 @@
           responsive: 0, 
           headerSortStartingDir: 'desc', 
           width: '100', 
-          cssClass: 'height-column',
+          cssClass: 'height-column'
         },
         {
           title: 'Hash', 
@@ -95,7 +95,7 @@
       rowClick:function(e, row) {
 
         var clicked_row = row._row.data;
-      
+        
         window.location.href = './details.html?txpow='+clicked_row.HASH;
 
         return false;
@@ -223,12 +223,6 @@
                 // console.log(last100Blocks);
                 if (table) {
                   table.setData(last100Blocks);
-
-                  /** 
-                  table.setSort(
-                    { column:"HEIGHT", dir:"desc" },
-                  );
-                  */
                 } else {
                   throw new Error('Blocks table not found.');
                 }
@@ -540,7 +534,7 @@
               type="text" 
               data-html="true" 
               data-position="top" 
-              data-tooltip="Address, block number, coin id..">
+              data-tooltip="Address, block number, coin id.." />
               <i id="searchBtn" class="material-icons search">search</i>
             </div>
           </div>

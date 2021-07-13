@@ -153,26 +153,24 @@
     overflow: auto;
   }
   #search-wrapper {
-    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
   }
   #search-wrapper input {
-    display: block;
-    background-color: #fff;
+    margin: 0;
+    background-color: #FAFAF0;
+    border: none;
     border-radius: 15px;
-    border:none;
-    line-height: 0;
-    height: 35px;
-    text-align: left;
     padding-left: 15px;
+    padding-right: 28px;
+    height: 35px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
   #search-wrapper .search {
     position: absolute;
-    top: 5px;
-    right:0;
-  }
-  #search-wrapper input:focus {
-    outline: none;
-    border: none;
+    right: 15px;
   }
   #content h5 {
     font-family: manrope-bold !important;
@@ -215,7 +213,10 @@
       margin-right: 150px;
     }
   }
-
+  .tabulator {
+    background-color: transparent!important;
+    background: transparent!important;
+  }
   .tabulator-tableHolder {
     background-color: #F0F0F9 !important; 
     overflow:visible !important;
