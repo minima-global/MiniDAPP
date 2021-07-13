@@ -21,7 +21,7 @@
     return new Promise(function(resolve) {
       try {
         Minima.sql('SELECT * FROM txpowlist WHERE HASH =\"'+_txpow+'\"', function(res) {
-          console.log(res);
+          // console.log(res);
           if (res.status) {
             if (res.response.status) {
               resolve(res.response.rows ? res.response.rows : []);
