@@ -57,8 +57,7 @@
                   var results = []; var search = [];
                   Minima.sql("SELECT * FROM txpowlist WHERE TXPOW LIKE '%"+query+"%' ORDER BY RELAYED", function(res){
                       search = [];
-                      console.log(app + ': searching query, ' + query);
-                      console.log(res);
+                      // console.log(res);
                       $.each(res.response.rows, function(i, el){
                           search.push(el);
                       });
@@ -111,8 +110,8 @@
                                   return hash;
                               }},
                               {title: "isblock", field:"isblock", visible: false},
-                              {title: "TXNS", field:"TXNS", width:70, headerHozAlign: "right", hozAlign:'right', widthShrink:3, responsive:3},
-                              {title: "Relayed", field:"RELAYED", width: 110, headerHozAlign: "right", responsive:1, hozAlign:'right', formatter:function(cell, formatterParams){
+                              {title: "TXNS", field:"TXNS", width:70, hozAlign:'right', widthShrink:3, responsive:3},
+                              {title: "Relayed", field:"RELAYED", width: 110, responsive:1, hozAlign:'right', formatter:function(cell, formatterParams){
                                   var time = cell.getData();
                                   time = moment(time.RELAYED*1000).format("HH:mm:ss");
                                   return time;
@@ -212,6 +211,7 @@
 
 
   <script src="js/bin/materialize.js"></script>
+
 
   </body>
 </html>

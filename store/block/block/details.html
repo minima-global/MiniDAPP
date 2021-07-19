@@ -20,7 +20,7 @@
   function getRelevantTxPOW(_txpow) {
     return new Promise(function(resolve) {
       try {
-        Minima.sql('SELECT * FROM txpowlist WHERE HASH =\"'+_txpow+'\"', function(res) {
+        Minima.sql('SELECT * FROM txpowlist WHERE HASH =\''+_txpow+'\'', function(res) {
           // console.log(res);
           if (res.status) {
             if (res.response.status) {
@@ -103,8 +103,9 @@ async function loadDetails(_txpow) {
 
   // console.log(res);
   if (res.length > 0) {
-    const txpowDetails = JSON.parse(decodeURIComponent(res[0].TXPOW));
-
+    // console.log(res[0].TXPOW);
+    const txpowDetails = JSON.parse(decodeURIComponent(res[0].TXPOW).replace(/%27/g, "'"));
+    // console.log(txpowDetails);
     let txpow = {
       id: txpowDetails.txpowid,
       blocknumber: txpowDetails.header.block,

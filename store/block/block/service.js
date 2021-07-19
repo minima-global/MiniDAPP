@@ -3,13 +3,13 @@
   var loop = false;
   // SQL to create the dB
   var INITSQL =
-  "CREATE Table IF NOT EXISTS txpowlist ("+
+  "CREATE Table IF NOT EXISTS TXPOWLIST ("+
   "txpow VARCHAR(16000) NOT NULL," + 
   "height BIGINT NOT NULL," +
   "hash VARCHAR(160) NOT NULL," +
-  "isblock int NOT NULL," +
+  "isblock INT NOT NULL," +
   "relayed BIGINT NOT NULL," +
-  "txns int NOT NULL" +
+  "txns INT NOT NULL" +
   ")";
   var INDEX = "CREATE INDEX IDXHASH ON txpowlist(hash)";
   var INDEXHEIGHT = "CREATE INDEX IDXHEIGHT ON txpowlist(height DESC)";
@@ -29,7 +29,7 @@
     });
   }
 
-  var ADDBLOCKQUERY = "INSERT INTO txpowlist VALUES (\""
+  var ADDBLOCKQUERY = "INSERT INTO txpowlist VALUES (\'"
   function addTxPoW(txpow) {
     
     var isblock = 0;
@@ -46,15 +46,15 @@
     txpow.body.witness.signatures = {};
     txpow.body.witness.mmrproofs = {};
 
-
-       
+    const filterQuotes = JSON.stringify(txpow).replace(/'/g, '%27');
+   
     Minima.sql(ADDBLOCKQUERY +
-      encodeURIComponent(JSON.stringify(txpow)) + /** TXPOW */
-      "\"," +
+      encodeURIComponent(filterQuotes) + /** TXPOW */
+      "\'," +
       parseInt(txpow.header.block) + /** HEIGHT */
-      ", \"" +
+      ", \'" +
       txpow.txpowid + /** HASH */
-      "\", " +
+      "\', " +
       isblock + /** isblock */
       "," +
       txpow.header.timemilli /** relayed */
@@ -110,5 +110,3 @@
       }
   });
  
-
-
