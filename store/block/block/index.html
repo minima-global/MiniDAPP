@@ -222,7 +222,7 @@
                 const last100Blocks = res.response.rows ? res.response.rows : [];
                 // console.log(last100Blocks);
                 if (table) {
-                  table.setData(last100Blocks);
+                  table.replaceData(last100Blocks);
                 } else {
                   throw new Error('Blocks table not found.');
                 }
@@ -381,7 +381,7 @@
             for (let i = 0; i < rows.length; i++ ) {
               data.push(rows[i]._row.data);
             }
-            table.setData(data);
+            table.replaceData(data);
           }
               
         } else if (msg.event == 'miningstart') {
