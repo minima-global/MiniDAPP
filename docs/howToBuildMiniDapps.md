@@ -4,37 +4,32 @@ This is a brief doc' designed to help you create your first Minima MiniDapp. And
 
 ## Prerequisites
 
-First, clone the [MiFi](https://github.com/glowkeeper/MiFi) repository to a local directory (since you're reading a file in that repository, you _may_ have already done that).
+First, clone the [MiniDAPP](https://github.com/minima-global/MiniDAPP) repository to a local directory (since you're reading a file in that repository, you _may_ have already done that).
 
-Then do the same with the [Minima](https://github.com/spartacusrex99/Minima) repository. Change to its directory, and type:
+Then do the same with the [Minima](https://github.com/minima-global/Minima) repository. Change to its directory, and type:
 
 ````
 java -jar ./jar/minima.jar
 ````
 
-Importantly, for our purposes, that command fires up a MiniDapp Server on port [21000](http://localhost:2100) of your local machine. We'll use that, later.
-
-As a brief aside, you could also start the MiniDapp Server via:
-
-````
-cd bin
-java org.minima.Start
-````
-
-That could come in useful to you sometime in the future, should you ever need (or want) to change something in the Minima source, since when you build that source, that's how you'll fire up your new build.
+Importantly, for our purposes, that command fires up a MiniDapp Server at [http://localhost:9004](http://localhost:9004). We'll use that server, later.
 
 ## Creatively Commandeer
 
-There is no need to start from scratch when creating your first MiniDapp - the [MiFi](https://github.com/glowkeeper/MiFi) repository  already contains some examples, so we'll commandeer one of those - [cowsay](https://github.com/glowkeeper/MiFi/www/minidapps/cowsay). Change to your cloned MiFi directory, then:
+There is no need to start from scratch when creating your first MiniDapp, since plenty of public domain minidapps have already been written; we'll commandeer one of those - [cowsay](https://github.com/glowkeeper/cowsayMinima). Clone that repository into a directory called _cowsayMinima_. In fact, you have just cloned the very first publicly written MiniDaapp (although, it's creator went on to work for Minima), so take a moment to savour the importance of that act :)
+
+Let's imagine you cloned that into _/home/alice/gitRrepos/cowsayMinima_. Then:
 
 ```
-cd www/minidapps
-cp -R cowsay helloWorld
+cd /home/alice/gitRrepos/
+cp -R cowsayMinima helloWorld
 ```
+
+You now have a great template from which you can start your minidapp journey...
 
 ## Introduce Your MiniDapp to the World
 
-If all has gone well, you should now have a `helloWorld` directory containing all the goodness (and more) of [cowsay](https://github.com/glowkeeper/MiFi/www/minidapps/cowsay). Open that directory in your favourite IDE - here's what it that looks like in [atom](https://atom.io/):
+If all has gone well, you should now have a `helloWorld` directory containing all the goodness (and more) of [cowsay](https://github.com/glowkeeper/cowsayMinima). Open that directory in your favourite IDE - here's what that looks like in [atom](https://atom.io/):
 
 ![](./images/helloWorld.png)
 
@@ -69,7 +64,7 @@ We're going to make the `helloWorld` MiniDapp say, well, _"Hello World!"_ (or so
 				//Listen for Minima Events
 				window.addEventListener('MinimaEvent', function(evt) {});
 
-				//Initialise MiFi
+				//Initialise MiniDapp
 				Minima.init();
 			});
 
