@@ -16,7 +16,7 @@ Importantly, for our purposes, that command fires up a MiniDapp Server at [http:
 
 ## Creatively Commandeer
 
-There is no need to start from scratch when creating your first MiniDapp, since plenty of public domain minidapps have already been written; we'll commandeer one of those - [cowsay](https://github.com/glowkeeper/cowsayMinima). Clone that repository into a directory called _cowsayMinima_ (you have just cloned the very first publicly written MiniDaapp (its creator went on to work for Minima), so take a moment to savour the importance of that act  )
+There is no need to start from scratch when creating your first MiniDapp, since plenty of public domain minidapps have already been written; we'll commandeer one of those - [cowsay](https://github.com/glowkeeper/cowsayMinima). Clone that repository into a directory called _cowsayMinima_ (you have just cloned the very first publicly written MiniDapp (its creator went on to work for Minima), so take a moment to savour the importance of that act &#128521;)
 
 Let's imagine you cloned the cowsay repo' into _/home/alice/gitRrepos/cowsayMinima_. Then:
 
@@ -39,7 +39,7 @@ First thing we're going to do is tidy up a bit by removing things we don't need 
 2. Rename all the files in the _images_ directory so they say _helloWorld_, rather than _cowsay_. Better still, if you are able to create your own amazing artwork for _helloWorldBackdrop.png_, _helloWorldBody.png_ and _helloWorldIcon.png_, do so now &#128521;)
 3. Remove the _cowsay.js_ and _io.js_ files from the _js_ directory, since they are no longer required (fyi, _io.js_ makes _cowsay_ do some io, and _cowsay.js_ was a CommonJS port of https://github.com/schacon/cowsay)
 
-Now your `helloWorld` directory should look like this:
+Your `helloWorld` directory should look like this:
 
 ![](./images/hellowWorldCleanup.png)
 
@@ -64,7 +64,7 @@ We're going to make the _helloWorld_ MiniDapp say, well, _"Hello World!"_ (or so
 				//Listen for Minima Events
 				window.addEventListener('MinimaEvent', function(evt) {});
 
-				//Initialise MiniDapp
+				//Initialise the MiniDapp - when doing things on Minima, you must always call this first
 				Minima.init();
 			});
 
@@ -139,7 +139,7 @@ Now drop out of your favourite editor (if it's not [atom](https://atom.io/), why
 
 ![](./images/miniDappServer.png)
 
-(actually, that screenshot shows a very early version of the MiniDapp Hub - it's been left here for posterity, but you should see something looking ever-so-slightly more modern &#128515;)
+(Actually, that screenshot shows a very early version of the MiniDapp Hub - it's been left here for posterity, but you should see something looking ever-so-slightly more modern &#128515;)
 
 Click on `Install`, then go find the _helloWorld.minidapp_ we created earlier. If that went well, you should now see the installed _Hello World_ MiniDapp in the MiniDapp Hub. Click on that, and you _should_ see this:
 
