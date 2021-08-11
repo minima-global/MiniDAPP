@@ -90,16 +90,19 @@ Finally, make your `minidapp.conf` look like this:
 ```
 {
 	"name":"Hello World",
+	"headline":"Hello Minima MiniDapps",
+	"description":"Hello (decentralised) World",
+	"version": "1.0.0",
+	"lastKey": "",
 	"background":"./images/helloWorldBackdrop.png",
 	"icon":"./images/helloWorldIcon.png",
-	"description":"Hello (decentralised) World",
 	"category":"Development"
 }
 ```
 
 ## Zip Up Your MiniDapp
 
-If you look in the [MiFi](https://github.com/glowkeeper/MiFi) repository's [MiniDapps directory](../www/minidapps/), you'll see a file called `buildscript.sh`. Add `helloWorld` to the end of that:
+If you look in the [MiniDAPP](https://github.com/minima-global/MiniDAPP) repository's [MiniDapps directory](../www/minidapps/), you'll see a file called `buildscript.sh`. Add `helloWorld` to the end of that:
 
 ```
 #!/bin/sh
@@ -122,16 +125,17 @@ zip -r ./bin/blockx.minidapp blockx
 
 zip -r ./bin/cowsay.minidapp cowsay
 
-cp ./miniwallet/wallet.minidapp ./bin/
+cp ./miniwallet/walletv98.06.minidapp ./bin/
+cp ./block/blockv1.3.17.minidapp ./bin/
 
 zip -r ./bin/helloWorld.minidapp helloWorld
 ```
 
-Now drop out of your favourite editor (if it's not [atom](https://atom.io/), why not?), and run `buildscript.sh`. If all went well, you should have a number of `.minidapp` files in you MiFi repository's [www/minidapps/bin](../www/minidapps/bin) directory, including `helloWorld.minidapp`. It's time to introduce it to the world!
+Now drop out of your favourite editor (if it's not [atom](https://atom.io/), why not?), and run `buildscript.sh`. If all went well, you should have a number of `.minidapp` files in [www/minidapps/bin](../www/minidapps/bin) directory, including `helloWorld.minidapp`. It's time to introduce it to the world!
 
 ## Hello World!
 
-[Earlier](#prerequisites), we fired up a MiniDapp Server on port 21000 - we're going to connect to that now. Start your favourite browser ([Firefox](https://www.mozilla.org/en-GB/firefox/new/)), and load [http://localhost:21000](http://localhost:21000). If all has gone well, you should see something like this:
+[Earlier](#prerequisites), we fired up a MiniDapp Server on port 21000 - we're going to connect to that now. Start your favourite browser ([Firefox](https://www.mozilla.org/en-GB/firefox/new/)), and load [http://localhost:9004](http://localhost:9004). If all has gone well, you should see something like this:
 
 ![](./images/miniDappServer.png)
 
@@ -147,7 +151,7 @@ Now, click on the `Hello World` MiniDapp, and you _should_ see this:
 
 ## What Next?
 
-Although `helloWorld.minidapp` is fit for purpose (it outputs "hello World!" (almost)), it doesn't actually interact with the Minima network. So the obvious next step is to do just that by investigating the Minima API. A good way of seeing what's available there is to run the `terminal` MiniDapp  (which we created earlier when we ran `buildscript.sh`). Install that, load it, then type help:
+Although `helloWorld.minidapp` is fit for purpose (it outputs "Hello World!" (almost)), it doesn't actually interact with the Minima network. So the next step is to do just that by investigating the Minima API. A good way of seeing what's available there is to run the `terminal` MiniDapp  (which we created earlier when we ran `buildscript.sh`). Install that, load it, then type help:
 
 ![](./images/helloWorldTerminal.png)
 
