@@ -131,15 +131,13 @@ cp ./block/blockv1.3.17.minidapp ./bin/
 zip -r ./bin/helloWorld.minidapp helloWorld
 ```
 
-Now drop out of your favourite editor (if it's not [atom](https://atom.io/), why not?), and run `buildscript.sh`. If all went well, you should have a number of _.minidapp_ files in the [www/minidapps/bin](../www/minidapps/bin) directory, including _helloWorld.minidap_`. It's time to introduce it to the world!
+Now drop out of your favourite editor (if it's not [atom](https://atom.io/), why not?), and run `buildscript.sh`. If all went well, you should have a number of _.minidapp_ files in the [www/minidapps/bin](../www/minidapps/bin) directory, including _helloWorld.minidap_. It's time to introduce it to the world!
 
 ## Hello World!
 
-[Earlier](#prerequisites), we fired up a MiniDapp Server at [http://localhost:9004](http://localhost:9004) - we're going to connect to that now. Start your favourite browser ([Firefox](https://www.mozilla.org/en-GB/firefox/new/)), and load [http://localhost:9004](http://localhost:9004). If all has gone well, you should see something like this:
+[Earlier](#prerequisites), we fired up a MiniDapp Server at [http://localhost:9004](http://localhost:9004) - we're going to connect to that now. Start your favourite browser ([Firefox](https://www.mozilla.org/en-GB/firefox/new/)), and load [http://localhost:9004](http://localhost:9004). If all has gone well, you should see something like this (actually, the screenshot below shows a very early version of the MiniDapp Hub - it's been left here for posterity, but you should see something looking ever-so-slightly more modern &#128515;):
 
 ![](./images/miniDappServer.png)
-
-(Actually, that screenshot shows a very early version of the MiniDapp Hub - it's been left here for posterity, but you should see something looking ever-so-slightly more modern &#128515;)
 
 Click on `Install`, then go find the _helloWorld.minidapp_ we created earlier. If that went well, you should now see the installed _Hello World_ MiniDapp in the MiniDapp Hub. Click on that, and you _should_ see this:
 
