@@ -31,41 +31,50 @@
 
   var ADDBLOCKQUERY = "INSERT INTO txpowlist VALUES (\'"
   function addTxPoW(txpow) {
-    
-    var isblock = 0;
-    if (txpow.isblock) {
-      isblock = 1;
-    }
-
-    if (!txpow.body) {
-      Minima.log('txpow body not found!');
-      return;
-    }
-
-    // wipe out mmrproofs and signatures for lighter txpows.. 
-    txpow.body.witness.signatures = {};
-    txpow.body.witness.mmrproofs = {};
-
-    const filterQuotes = JSON.stringify(txpow).replace(/'/g, '%27');
-   
-    Minima.sql(ADDBLOCKQUERY +
-      encodeURIComponent(filterQuotes) + /** TXPOW */
-      "\'," +
-      parseInt(txpow.header.block) + /** HEIGHT */
-      ", \'" +
-      txpow.txpowid + /** HASH */
-      "\', " +
-      isblock + /** isblock */
-      "," +
-      txpow.header.timemilli /** relayed */
-      + ","
-      + txpow.body.txnlist.length + /** txns */
-      ")", function(res) {
-      if (res.status) {
-        // Minima.log(app + ': timemilli'+txpow.header.timemilli);
-        // Minima.log("TxPoW Added To SQL Table.. ");
+    const txPoWSize = JSON.stringify(txpow.size);
+    const txPowHeight = JSON.stringify(txpow.header.block);
+    const txPoWMaxSize = 16000;
+    if (txPoWSize > txPoWMaxSize) {
+      Minima.log(
+        app + 
+        ': Transaction at height: ' + txPowHeight + 
+        ' with size:' + txPoWSize + 
+        ' is too big for database column.');
+      var isblock = 0;
+      if (txpow.isblock) {
+        isblock = 1;
       }
-    });
+  
+      if (!txpow.body) {
+        Minima.log('txpow body not found!');
+        return;
+      }
+  
+      // wipe out mmrproofs and signatures for lighter txpows.. 
+      txpow.body.witness.signatures = {};
+      txpow.body.witness.mmrproofs = {};
+  
+      const filterQuotes = JSON.stringify(txpow).replace(/'/g, '%27');
+     
+      Minima.sql(ADDBLOCKQUERY +
+        encodeURIComponent(filterQuotes) + /** TXPOW */
+        "\'," +
+        parseInt(txpow.header.block) + /** HEIGHT */
+        ", \'" +
+        txpow.txpowid + /** HASH */
+        "\', " +
+        isblock + /** isblock */
+        "," +
+        txpow.header.timemilli /** relayed */
+        + ","
+        + txpow.body.txnlist.length + /** txns */
+        ")", function(res) {
+        if (res.status) {
+          // Minima.log(app + ': timemilli'+txpow.header.timemilli);
+          // Minima.log("TxPoW Added To SQL Table.. ");
+        }
+      });
+    }
   }
   
   function pruneData(height) {
