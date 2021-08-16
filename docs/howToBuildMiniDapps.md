@@ -56,7 +56,7 @@ We're going to make the _helloWorld_ MiniDapp say, well, _"Hello World!"_ (or so
 
 	</head>
 
-	<body style="background-image: url(./images/helloWorldBody.png);">
+	<body style="background-image: url(./images/helloWorldBackdrop.png);">
 
 		<script type="text/javascript">
 
@@ -128,7 +128,7 @@ zip -r ./bin/cowsay.minidapp cowsay
 cp ./miniwallet/walletv98.06.minidapp ./bin/
 cp ./block/blockv1.3.17.minidapp ./bin/
 
-zip -r ./bin/helloWorld.minidapp helloWorld
+zip -r ./bin/helloWorld.minidapp /home/alice/gitRrepos/helloWorld
 ```
 
 Now drop out of your favourite editor (if it's not [atom](https://atom.io/), why not?), and run `buildscript.sh`. If all went well, you should have a number of _.minidapp_ files in the [www/minidapps/bin](../www/minidapps/bin) directory, including _helloWorld.minidap_. It's time to introduce it to the world!
