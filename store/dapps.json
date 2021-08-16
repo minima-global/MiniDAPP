@@ -25,7 +25,7 @@
     "conf": "terminal/minidapp.conf"
   },
   "wallet": {
-    "miniDapp": "wallet1.1.8.minidapp",
+    "miniDapp": "wallet1.1.9.minidapp",
     "icon": "wallet/assets/minima-logo-box.svg",
     "conf": "wallet/minidapp.conf"
   }
