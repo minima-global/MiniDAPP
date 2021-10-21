@@ -28,5 +28,10 @@
     "miniDapp": "wallet1.2.1.minidapp",
     "icon": "wallet/assets/minima-logo-box.svg",
     "conf": "wallet/minidapp.conf"
+  },
+  "incentivecash": {
+    "miniDapp": "incentivecash2.2.3.minidapp",
+    "icon": "incentivecash/assets/icon/icon.svg",
+    "conf": "incentivecash/minidapp.conf"
   }
 }
