@@ -33,5 +33,10 @@
     "miniDapp": "incentivecash2.3.1.minidapp",
     "icon": "incentivecash/assets/icon/icon.svg",
     "conf": "incentivecash/minidapp.conf"
+  },
+  "incentivecash-revert": {
+    "miniDapp": "incentivecash2.3.1.minidapp",
+    "icon": "incentivecash/assets/icon/icon.svg",
+    "conf": "incentivecash/minidapp.conf"
   }
 }
