@@ -30,7 +30,7 @@
     "conf": "wallet/minidapp.conf"
   },
   "incentivecash": {
-    "miniDapp": "incentivecash2.3.1.minidapp",
+    "miniDapp": "incentivecash2.8.0.minidapp",
     "icon": "incentivecash/assets/icon/icon.svg",
     "conf": "incentivecash/minidapp.conf"
   },
