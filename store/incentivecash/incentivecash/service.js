@@ -1,17 +1,25 @@
-const app = "INCENTIVECASH"
+const USERIDFILE  = "uid.txt";
+const TOKENFILE   = "token.txt";
+const app         = "INCENTIVECASH"
 const blockTooOld = 1000000;
-var logged = false;
-var tokenid = "";
-var uid = "";
-var missedStore = {};
+var tokenid       = "";
+var uid           = "";
+var missedStore   = {};
+
+var logged        = false;
+var loggedUID     = false;
+var loggedTOKEN   = false;
 
 function fetchTokenID() {
 
-  Minima.file.load('token.txt', function(res) {
+  Minima.file.load(TOKENFILE, function(res) {
 
     if (res.success) {
 
-      Minima.log(app + " fetched tokenid.");
+      if (!loggedTOKEN) {
+        Minima.log(app + " fetched tokenid.");
+        loggedTOKEN = true;
+      }
       const data = JSON.parse(res.data);
       tokenid = data.tokenId;
     }
@@ -20,11 +28,15 @@ function fetchTokenID() {
 
 function getUID() {
 
-  Minima.file.load('uid.txt', function(res) {
+  Minima.file.load(USERIDFILE, function(res) {
 
     if (res.success) {
+      
+      if(!loggedUID) {
+        Minima.log(app + " fetched userid");
+        loggedUID = true;
+      }
 
-      Minima.log(app + " fetched userid");
       const data = JSON.parse(res.data);
       uid = data.uid;
     }
