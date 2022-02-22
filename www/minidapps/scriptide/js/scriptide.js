@@ -15,21 +15,24 @@ function runScript(){
 		save();	
 	}
 	
-	//Ready the RPC call
-	//var nocomm = txt.replace(/\n/g," ");
-	//nocomm =  nocomm.replace(/\/\*.*\*\//g, " ");
-	//nocomm =  nocomm.replace(/\s+/g, " ").trim();
-	var script     = txt.replace(/\n/g," ").trim();
+	//Get the script
+	var script     	= txt.replace(/\n/g," ").trim();
+	script 			= parseComments(script).trim();
+	if(script == ''){return;}
+	
 	var state      = "state:"+document.getElementById("state").value.trim();
 	var prevstate  = "prevstate:"+document.getElementById("prevstate").value.trim();
-	var sigs       = "sigs:"+document.getElementById("sigs").value.trim();
-	var scripts    = "scripts:"+document.getElementById("mastscripts").value.trim();
-	var outputs    = "outputs:"+getOutputString();
 	var globals    = "globals:"+getGlobals();
+	var sigs       = "signatures:"+document.getElementById("sigs").value.trim();
+	var scripts    = "extrascripts:"+document.getElementById("mastscripts").value.trim();
+	//var outputs    = "outputs:"+getOutputString();
+	//console.log("SCRIPT : "+script);
 	
-	if(script == ''){return;}
-	Minima.cmd("runscript \""+script+"\" \""+outputs+"\" \""+globals+"\" \""+state+"\" \""+prevstate+"\" \""+sigs+"\" \""+scripts+"\" ",function(json){
-		var brkscr = json.response.parse.replace(/\n/g,"<br>");
+	Minima.cmd("runscript script:\""+script+"\"",function(json){
+		
+		console.log("RESULT : "+JSON.stringify(json));
+		
+		var brkscr = json.response.trace.replace(/\n/g,"<br>");
 		
 		var res = "---------------------------------<br>";
 		if(json.response.parseok){
@@ -38,29 +41,33 @@ function runScript(){
 			res += "PARSE FAIL : ";	
 		}
 		
-		if(!json.response.exception){
+		if(json.response.success){
 			res += "RUN OK : ";	
 		}else{
 			res += "RUN FAIL : ";	
 		}
 		
-		if(json.response.result){
-			res += "RESULT TRUE ";	
+		if(json.response.monotonic){
+			res += "MONOTONIC ";	
 		}else{
-			res += "RESULT FALSE ";	
+			res += "NOT MONOTONIC ";	
 		}
 		
 		//Set it
 		document.getElementById("parse").innerHTML = res+"<br>---------------------------------<br>"+brkscr;	
 		document.getElementById("parse").scrollTop = 0;
 		
-		document.getElementById("clean").innerHTML = json.response.clean;
+		//Set some detais
+		document.getElementById("clean").innerHTML = json.response.clean.script;
 		document.getElementById("clean").scrollTop = 0;
 		
 		//Set the global address
-		document.getElementById("cleanaddress").innerHTML = json.response.address;
-		document.getElementById("@ADDRESS").value = json.response.address;
+		document.getElementById("cleanaddress").innerHTML = json.response.clean.address;
+		document.getElementById("@ADDRESS").value = json.response.clean.address;
 	});
+	
+	return;
+	 
 }
 
 var globals = "";
@@ -124,7 +131,7 @@ function saveScript(sel){
 	var prevstate  = document.getElementById("prevstate").value;
 	var sigs       = document.getElementById("sigs").value;
 	var scripts    = document.getElementById("mastscripts").value;
-	var outputs    = getOutputString();
+	var outputs    = "";
 	var globals    = getGlobals();
 	
 	//Create a JSON out of it..
@@ -171,7 +178,7 @@ function loadScript(){
 		document.getElementById("sigs").value       = json.sigs;
 		
 		//Load the OUTPUTS..
-		clearAllOutputs();
+		/*clearAllOutputs();
 		var outs = json.outputs.split("#");
 		outlen   = outs.length;
 		for(i=0;i<outlen;i++){
@@ -179,7 +186,7 @@ function loadScript(){
 				var out = outs[i].split(":");
 				addOutput(out[0],out[1],out[2]);	
 			}
-		}
+		}*/
 		
 		//Load the GLOBALS..
 		clearGlobals();
@@ -200,7 +207,7 @@ function loadScript(){
 		document.getElementById("sigs").value       = "";
 		
 		clearGlobals();
-		clearAllOutputs();
+		//clearAllOutputs();
 	}
 	
 	//reset..
@@ -273,4 +280,66 @@ function clearAllOutputs(){
 	document.getElementById("output_address").value = "0x00";
 	document.getElementById("output_amount").value = "0";
 	document.getElementById("output_tokenid").value = "0x00";
+}
+
+function parseComments(code){
+    // state
+    var isInRegExp = false;
+    var isInString = false;
+    var terminator = null; // to hold the string terminator
+    var escape = false; // last char was an escape
+    var isInComment = false;
+
+    var c = code.split(""); // code
+
+    var o = []; // output
+    for(var i = 0; i < c.length; i++){
+        if(isInString) {  // handle string literal case
+             if(c[i] === terminator && escape === false){
+                  isInString = false;
+                  o.push(c[i]);
+             } else if (c[i] === "\\") { // escape
+                  escape = true;
+             } else {
+                  escape = false;
+                  o.push(c[i]); 
+             }
+        } else if(isInRegExp) { // regular expression case
+             if(c[i] === "/" && escape === false){
+                 isInRegExp = false;
+                 o.push(c[i]);
+             } else if (c[i] === "\\") {
+                 escape = true;
+             } else { 
+                escape = false;
+                o.push(c[i]);
+             }
+        } else if (isInComment) { // comment case
+              if(c[i] === "*" && c[i+1] === "/"){
+                  isInComment = false;
+                  i++;
+                  // Note - not pushing comments to output
+              }
+        } else {   // not in a literal
+              if(c[i] === "/" && c[i+1] === "/") { // single line comment
+                   while(c[i] !== "\n" && c[i] !== undefined){ //end or new line
+                       i++;
+                   }
+              } else if(c[i] === "/" && c[i+1] === "*"){ // start comment
+                    isInComment = true;
+                    o.push(" "); // add a space per spec
+                    i++; // don't catch /*/
+              } else if(c[i] === "/"){ // start regexp literal
+                    isInRegExp = true;
+                    o.push(c[i]);
+              } else if(c[i] === "'" || c[i] === '"'){ // string literal
+                    isInString = true;
+                    o.push(c[i]);
+                    separator = c[i];
+              } else { // plain ol' code
+                    o.push(c[i]);
+              }
+        }
+    }
+    return o.join("");
 }

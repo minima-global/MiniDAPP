@@ -3,8 +3,9 @@
 <head>
 	<!--   The MINIMA MiFi Javascript Library -->
 	<script type="text/javascript" src="minimanew.js"></script>
+	<script type="text/javascript" src="nft.js"></script>
 	
-	<title>TERMINAL</title>
+	<title>WeNFT</title>
 </head>
 
 <body>
@@ -81,16 +82,32 @@
 		    	}
 		    	histcounter = HISTORY.length;
 		    	
-		    	Minima.cmd(lastLine,function(resp){
-			    	//Get the JSON..
-			    	var respstring = JSON.stringify(resp, null, 2);
-		    		
-			    	//Convert line breakers..
-			    	var linebreaker = respstring.replace(/\\n/g,"\n");
+		    	WeNFTInputCommand(lastLine,function(respjson){
 			    	
-			    	//And add..
-			    	addText(linebreaker+"\n");
+		    		if(respjson.event == "text"){
+		    			//And add..
+				    	addText(respjson.info+"\n");
+		    			
+		    		}else{
+		    			//Get the JSON..
+				    	var respstring = JSON.stringify(respjson, null, 2);
+			    		
+				    	//Convert line breakers..
+				    	var linebreaker = respstring.replace(/\\n/g,"\n");
+				    	
+				    	//And add..
+				    	addText(linebreaker+"\n");	
+		    		}
+		    		
+		    		
 			    });	
+		    	
+		    	/*Minima.cmd(lastLine,function(resp){
+			    	var respstring = JSON.stringify(resp, null, 2);
+		    		var linebreaker = respstring.replace(/\\n/g,"\n");
+			    	addText(linebreaker+"\n");
+			    });*/
+			    
 		    }else{
 		    	addText("");
 		    }
@@ -116,14 +133,12 @@
 	Minima.init(function(msg){
 		if(msg.event == "connected"){
 			//Lets get started
- 			addText("**********************************************\n");
- 			addText("*  __  __  ____  _  _  ____  __  __    __    *\n");
- 			addText("* (  \\/  )(_  _)( \\( )(_  _)(  \\/  )  /__\\   *\n");
- 			addText("*  )    (  _)(_  )  (  _)(_  )    (  /(__)\\  *\n");
- 			addText("* (_/\\/\\_)(____)(_)\\_)(____)(_/\\/\\_)(__)(__) *\n");
- 			addText("*                                            *\n");
- 			addText("**********************************************\n");
-			addText("Welcome to Minima. For assistance type help. Then press enter.\n");
+ 			addText("********************************\n");
+ 			addText("*                              *\n");
+			addText("* WeNFT Super Transfer HighWay *\n");
+			addText("*                              *\n");
+			addText("********************************\n");
+			addText("Welcome to WeNFT. For assistance type help..\n");
 		}
 	});
 
