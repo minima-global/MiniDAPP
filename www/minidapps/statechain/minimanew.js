@@ -74,12 +74,10 @@ var Minima = {
  * GET the RPC call - can be cmd/sql/file/net
  */
 function MinimaRPC(command, callback){
-	
-	//URL encode the command..
-	encoded = encodeURIComponent(command);
-	
 	//And now fire off a call saving it 
-	httpGetAsync(Minima.rpchost+encoded, callback, false);
+	//httpPostAsync(Minima.rpchost+"/"+type+"/"+Minima.minidappid, encodeURIComponent(data), callback);
+
+	httpGetAsync(Minima.rpchost+command, callback, false);
 }
 
 /**
@@ -206,19 +204,14 @@ function httpGetAsync(theUrl, callback, logenabled)
     var xmlHttp = new XMLHttpRequest();
     xmlHttp.onreadystatechange = function() { 
         if (xmlHttp.readyState == 4 && xmlHttp.status == 200){
-        	if(logenabled){
-				console.log("RPC      : "+theUrl);
-				console.log("RESPONSE : "+xmlHttp.responseText);
-			}
-
-			//Always a JSON ..
+        	//Always a JSON ..
         	var rpcjson = JSON.parse(xmlHttp.responseText);
         	
         	//Do we log it..
-        	//if(Minima.logging && logenabled){
-        	//	var logstring = JSON.stringify(rpcjson, null, 2).replace(/\\n/g,"\n");
-        	//	Minima.log(theUrl+"\n"+logstring);
-        	//}
+        	if(Minima.logging && logenabled){
+        		var logstring = JSON.stringify(rpcjson, null, 2).replace(/\\n/g,"\n");
+        		Minima.log(theUrl+"\n"+logstring);
+        	}
         	
         	//Send it to the callback function..
         	if(callback){

@@ -1,0 +1,149 @@
+<html>
+
+<head>
+	<!--   The MINIMA MiFi Javascript Library -->
+	<script type="text/javascript" src="minimanew.js"></script>
+	<script type="text/javascript" src="statechain.js"></script>
+	
+	<title>State Chain Entity</title>
+</head>
+
+<body>
+
+<script type="text/javascript">
+
+	var HISTORY = [];
+    var histcounter=0; 
+
+	//Add text to the TextArea
+	function addText(text){
+		//Get the TextArea
+		var txt = document.getElementById("terminal");
+		
+		//Add the text 
+		txt.value += text;
+		txt.focus();
+		
+		//Scroll to the bottom
+		txt.scrollTop = txt.scrollHeight;
+	}
+	
+	function deleteLastLine(){
+		var txt      = document.getElementById("terminal");
+		var content  = txt.value;
+	    var prelastLine = content.substr(0, content.lastIndexOf("\n")+1);
+	    txt.value = prelastLine;
+	}
+	
+	//Disable all arrow keys..  
+	window.addEventListener("keydown", function(e) { 
+        //LEFT RIGHT
+		if([37, 39].indexOf(e.keyCode) > -1){ 
+	      
+		//UP DOWN	
+		}else if([38, 40].indexOf(e.keyCode) > -1){ 
+            //Last line
+        	deleteLastLine();
+        	
+			//use the History.. UP
+            if(e.keyCode == 38){
+	            histcounter--;
+	            if(histcounter<0){
+	            	histcounter = 0;
+	            }
+	            
+            	//UP
+            	addText(HISTORY[histcounter]);
+            }else{
+            	histcounter++;
+	            if(histcounter>=HISTORY.length-1){
+	            	histcounter = HISTORY.length-1;
+	            }
+	            
+            	//UP
+            	addText(HISTORY[histcounter]);
+            }
+
+			//And prevent normal behaviour
+			e.preventDefault(); 
+            
+        //ENTER    
+		}else if([13].indexOf(e.keyCode) > -1){ 
+            //Grab the Last Line..
+            var txt      = document.getElementById("terminal");
+			var content  = txt.value;
+		    var lastLine = content.substr(content.lastIndexOf("\n")+1).trim();
+			
+		    //Run it on Minima
+		    if(lastLine !== ""){
+		    	//Add to the History
+		    	if(lastLine != HISTORY[HISTORY.length-1]){
+		    		HISTORY.push(lastLine);	
+		    	}
+		    	histcounter = HISTORY.length;
+		    	
+		    	WeNFTInputCommand(lastLine,function(respjson){
+			    	
+		    		if(respjson.event == "text"){
+		    			//And add..
+				    	addText(respjson.info+"\n");
+		    			
+		    		}else{
+		    			//Get the JSON..
+				    	var respstring = JSON.stringify(respjson, null, 2);
+			    		
+				    	//Convert line breakers..
+				    	var linebreaker = respstring.replace(/\\n/g,"\n");
+				    	
+				    	//And add..
+				    	addText(linebreaker+"\n");	
+		    		}
+		    		
+		    		
+			    });	
+		    	
+		    	/*Minima.cmd(lastLine,function(resp){
+			    	var respstring = JSON.stringify(resp, null, 2);
+		    		var linebreaker = respstring.replace(/\\n/g,"\n");
+			    	addText(linebreaker+"\n");
+			    });*/
+			    
+		    }else{
+		    	addText("");
+		    }
+		    
+		    //Move to the end..
+		    txt.focus();
+		    txt.setSelectionRange(txt.value.length,txt.value.length);
+        }
+        
+    }, false); 
+
+</script>
+
+<center>
+
+<textarea spellcheck="false" style="width:100%;height:99%;background-color:#000000;color:#FFFFFF;" id="terminal"></textarea>
+
+</center>
+
+<script type="text/javascript">
+
+	//Initialise MiFi
+	Minima.init(function(msg){
+		if(msg.event == "connected"){
+			//Lets get started
+ 			addText("********************************\n");
+ 			addText("*                              *\n");
+			addText("* WeNFT State Chain Entity     *\n");
+			addText("*                              *\n");
+			addText("********************************\n");
+			addText("Welcome to WeNFT. For assistance type help..\n");
+		}
+	});
+
+</script>
+
+</body>
+
+</html>

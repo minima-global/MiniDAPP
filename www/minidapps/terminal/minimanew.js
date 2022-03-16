@@ -74,10 +74,13 @@ var Minima = {
  * GET the RPC call - can be cmd/sql/file/net
  */
 function MinimaRPC(command, callback){
+	
+	//URL encode the command..
+	encoded = encodeURIComponent(command);
+	
 	//And now fire off a call saving it 
-	//httpPostAsync(Minima.rpchost+"/"+type+"/"+Minima.minidappid, encodeURIComponent(data), callback);
-
-	httpGetAsync(Minima.rpchost+command, callback, false);
+	httpGetAsync(Minima.rpchost+encoded, callback, false);
+	
 }
 
 /**

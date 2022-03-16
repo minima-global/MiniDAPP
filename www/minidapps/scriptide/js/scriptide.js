@@ -20,15 +20,21 @@ function runScript(){
 	script 			= parseComments(script).trim();
 	if(script == ''){return;}
 	
-	var state      = "state:"+document.getElementById("state").value.trim();
-	var prevstate  = "prevstate:"+document.getElementById("prevstate").value.trim();
-	var globals    = "globals:"+getGlobals();
-	var sigs       = "signatures:"+document.getElementById("sigs").value.trim();
-	var scripts    = "extrascripts:"+document.getElementById("mastscripts").value.trim();
-	//var outputs    = "outputs:"+getOutputString();
-	//console.log("SCRIPT : "+script);
+	var state = document.getElementById("state").value.trim();
+	if(state != ""){state = "state:"+state;}
 	
-	Minima.cmd("runscript script:\""+script+"\"",function(json){
+	var prevstate  = document.getElementById("prevstate").value.trim();
+	if(prevstate != ""){prevstate = "prevstate:"+prevstate;}
+	
+	var globals    = "globals:"+getGlobals();
+	
+	var sigs       = document.getElementById("sigs").value.trim();
+	if(sigs != ""){sigs = "signatures:"+sigs;}
+	
+	var scripts    = document.getElementById("mastscripts").value.trim();
+	if(scripts != ""){scripts = "extrascripts:"+sigs;}
+	
+	Minima.cmd("runscript script:\""+script+"\" "+state+" "+prevstate+" "+globals+" "+sigs+" "+scripts,function(json){
 		
 		console.log("RESULT : "+JSON.stringify(json));
 		
@@ -70,17 +76,18 @@ function runScript(){
 	 
 }
 
-var globals = "";
+var globals = {};
 function addGlobalIfValid(globalname){
 	if(document.getElementById(globalname).value.trim() !== ""){
-		globals += globalname+":"+document.getElementById(globalname).value.trim()+"#";
+		globals[globalname+""] = document.getElementById(globalname).value.trim();
+		//globals += globalname+":"+document.getElementById(globalname).value.trim()+"#";
 	} 
 }
 function getGlobals(){
-	globals = "";
+	globals = {};
 	
-	addGlobalIfValid("@BLKNUM");
-	addGlobalIfValid("@INBLKNUM");
+	addGlobalIfValid("@BLOCK");
+	addGlobalIfValid("@CREATED");
 	addGlobalIfValid("@INPUT");
 	addGlobalIfValid("@AMOUNT");
 	addGlobalIfValid("@TOKENID");
@@ -88,12 +95,12 @@ function getGlobals(){
 	addGlobalIfValid("@TOTIN");
 	addGlobalIfValid("@TOTOUT");
 	
-	return globals;
+	return JSON.stringify(globals);
 }
 
 function clearGlobals(){
-	document.getElementById("@BLKNUM").value = "";
-	document.getElementById("@INBLKNUM").value = "";
+	document.getElementById("@BLOCK").value = "";
+	document.getElementById("@CREATED").value = "";
 	document.getElementById("@INPUT").value = "";
 	document.getElementById("@ADDRESS").value = "";
 	document.getElementById("@AMOUNT").value = "";
