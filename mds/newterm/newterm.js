@@ -9,9 +9,13 @@ function splitLineToJSON(commandline){
 	//The function is the FIRST
 	name = words[0];
 	
+	//The final JSON
 	var jsoncommand  = {};
+	
+	//The main function is always first
 	jsoncommand.name = name;
 	
+	//The arguments
 	var args = {};
 	for (var i = 0; i < words.length; i++) { 
 		
@@ -22,19 +26,11 @@ function splitLineToJSON(commandline){
 		if(word!=""){
 			
 			//remove the quotes if any
-			if(word.startsWith('"')){
+			if(word.startsWith('"') || word.endsWith("'")){
 				word = word.substring(1);
 			}
 			
-			if(word.endsWith('"')){
-				word = word.substring(0,word.length-1);
-			}
-			
-			if(word.startsWith("'")){
-				word = word.substring(1);
-			}
-			
-			if(word.endsWith("'")){
+			if(word.endsWith('"') || word.endsWith("'")){
 				word = word.substring(0,word.length-1);
 			}
 			
@@ -42,7 +38,7 @@ function splitLineToJSON(commandline){
 			splitter = word.split(":");
 			
 			//Add to the json
-			args[splitter[0]] = splitter[1]
+			args[splitter[0]] = splitter[1].trim();
 		}
 	}
 	
