@@ -19,6 +19,9 @@ var MDS = {
 	//RPC Host for Minima
 	rpchost : "http://127.0.0.1:8081/mds/command",
 	
+	//Is logging RPC enabled
+	logging : false,
+	
 	/**
 	 * Minima Startup - with the callback function used for all Minima messages
 	 */
@@ -46,8 +49,9 @@ var MDS = {
 	/**
 	 * Runs a function on the Minima Command Line
 	 */
-	cmd : function(minifunc, callback){
-		MDSRPC(minifunc,callback);
+	cmd : function(command, callback){
+		//Send via POST to MDS
+		httpPostAsync(MDS.rpchost, command, callback);
 	},
 		
 	/**
@@ -71,18 +75,6 @@ var MDS = {
 };
 
 /**
- * GET the RPC call - can be cmd/sql/file/net
- */
-function MDSRPC(command, callback){
-	
-	//Send via POST to MDS
-	httpPostAsync(MDS.rpchost, command, callback);
-	
-	//URL encode the command..
-	//encoded = encodeURIComponent(command);
-}
-
-/**
  * Post a message to the Minima Event Listeners
  */
 function MDSPostMessage(event, info){
@@ -104,16 +96,13 @@ function MDSPostMessage(event, info){
  * @returns
  */
 function httpPostAsync(theUrl, params, callback){
-		
-	MDS.log("RPCPOST:"+theUrl+"\nPARAMS:"+params);	
-		
 	var xmlHttp = new XMLHttpRequest();
     xmlHttp.onreadystatechange = function() { 
         if (xmlHttp.readyState == 4 && xmlHttp.status == 200){
 			//Do we log it..
-        	//if(Minima.logging){
+        	if(MDS.logging){
         		MDS.log("RPC:"+theUrl+"\nPARAMS:"+params+"\nRESPONSE:"+xmlHttp.responseText);
-        	//}
+        	}
 
         	//Send it to the callback function..
         	if(callback){

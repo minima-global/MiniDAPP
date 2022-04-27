@@ -38,7 +38,7 @@ function splitLineToJSON(commandline){
 			splitter = word.split(":");
 			
 			//Add to the json
-			args[splitter[0]] = splitter[1].trim();
+			args[splitter[0]] = splitter[1];
 		}
 	}
 	
