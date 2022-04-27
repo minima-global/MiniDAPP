@@ -17,7 +17,7 @@ var MDS_MAIN_CALLBACK = null;
 var MDS = {
 	
 	//RPC Host for Minima
-	rpchost : "http://127.0.0.1:8081/mds/command",
+	rpchost : "",
 	
 	//Is logging RPC enabled
 	logging : false,
@@ -32,6 +32,10 @@ var MDS = {
 		//Store this for websocket push messages
 		MDS_MAIN_CALLBACK = callback;
 
+		//What is the host
+		var endid   	= window.location.href.indexOf("/",10);
+		MDS.rpchost 	= window.location.href.substring(0,endid)+"/mds/command";
+		
 		//Info.. 
 		MDS.log("MDS RPCHOST : "+MDS.rpchost);
 		
