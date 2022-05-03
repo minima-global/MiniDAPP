@@ -1,8 +1,6 @@
 /**
 * MDS JS lib for MiniDAPPs..
 * 
-* Includes the Decimal.js lib for precise Maths.
-* 
 * @spartacusrex
 */
 
@@ -12,12 +10,23 @@
 var MDS_MAIN_CALLBACK = null;
 
 /**
+ * The Web Socket Host for PUSH messages
+ */
+var MDS_WEBSOCKET = null;
+
+/**
  * Main MINIMA Object for all interaction
  */
 var MDS = {
 	
 	//RPC Host for Minima
 	rpchost : "",
+	
+	//RPC Host for Minima
+	sqlhost : "",
+	
+	//WebSocket
+	websockethost : "",
 	
 	//Is logging RPC enabled
 	logging : false,
@@ -35,12 +44,14 @@ var MDS = {
 		//What is the host
 		var endid   	= window.location.href.indexOf("/",10);
 		MDS.rpchost 	= window.location.href.substring(0,endid)+"/mds/command";
+		MDS.sqlhost 	= window.location.href.substring(0,endid)+"/mds/data";
 		
 		//Info.. 
 		MDS.log("MDS RPCHOST : "+MDS.rpchost);
 		
-		//And Post a message
-		MDSPostMessage("inited", "");
+		//The WebSocket
+		MDS.websockethost = "ws://"+window.location.hostname+":8091";
+		MDSWebSocketListener();
 	},
 	
 	/**
@@ -56,6 +67,16 @@ var MDS = {
 	cmd : function(command, callback){
 		//Send via POST to MDS
 		httpPostAsync(MDS.rpchost, command, callback);
+	},
+		
+		
+	sql : function(sqlcommand, callback){
+		//create 
+		sqlcmd = {};
+		sqlcmd.sql=sqlcommand;
+		
+		//Send via POST to MDS
+		httpPostAsync( MDS.sqlhost, JSON.stringify(sqlcmd) , callback);
 	},
 		
 	/**
@@ -81,15 +102,62 @@ var MDS = {
 /**
  * Post a message to the Minima Event Listeners
  */
-function MDSPostMessage(event, info){
-   //Create Data Object
-   var data = { "event": event, "info" : info };
-
-   //And dispatch
+function MDSPostMessage(json){
+    //And dispatch
    if(MDS_MAIN_CALLBACK){
-		MDS_MAIN_CALLBACK(data);	
+		MDS_MAIN_CALLBACK(json);	
    }      
 }
+
+/**
+ * Start listening for PUSH messages
+ */
+function MDSWebSocketListener(){
+	MDS.log("Starting WebSocket Listener @ "+MDS.websockethost);
+	
+	//Check connected
+	if(MDS_WEBSOCKET !== null){
+		MDS_WEBSOCKET.close();
+	}
+	
+	//Open up a websocket to the main MINIMA proxy..
+	MDS_WEBSOCKET = new WebSocket(MDS.websockethost);
+	
+	MDS_WEBSOCKET.onopen = function() {
+		//Connected
+		MDS.log("MDS WS Listener Connection opened..");	
+		
+		//And Post a message
+		MDSPostMessage({ "event": "inited" });
+	};
+	
+	MDS_WEBSOCKET.onmessage = function (evt) { 
+		//Post it..
+		if(MDS.logging){
+			MDS.log("WebSocket : "+evt.data);	
+		}
+		
+		//Post it..
+		MDSPostMessage(evt.data);	
+	};		
+
+		
+	MDS_WEBSOCKET.onclose = function() { 
+		MDS.log("MDS WS Listener closed... reconnect attempt in 10 seconds");
+	
+		//Start her up in a minute..
+		setTimeout(function(){ MDSWebSocketListener(); }, 10000);
+	};
+
+	MDS_WEBSOCKET.onerror = function(error) {
+		//var err = JSON.stringify(error);
+		var err = JSON.stringify(error, ["message", "arguments", "type", "name", "data"])
+		
+		// websocket is closed.
+	    MDS.log("MDS WS Listener Error ... "+err); 
+	};
+}
+
 
 /**
  * Utility function for GET request

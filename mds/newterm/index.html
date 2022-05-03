@@ -172,9 +172,26 @@
 
 <script type="text/javascript">
 
+
+
+	//MDS.logging=true;
+
 	//Initialise MiFi
 	MDS.init(function(msg){
 		if(msg.event == "inited"){
+			
+			//Run some SQL
+			//MDS.sql("CREATE TABLE IF NOT EXISTS `syncblock` "
+			//		+"( `txpowid` varchar(80) NOT NULL )");
+			
+			//Insert something..
+			//MDS.sql("INSERT INTO syncblock (txpowid) VALUES ('hello')");
+		
+			//Select them back..
+			//MDS.sql("SELECT * FROM syncblock",function(sqlmsg){
+			//	MDS.log(JSON.stringify(sqlmsg));
+			//});
+			
 			//Lets get started
  			addText("**********************************************\n");
  			addText("*  __  __  ____  _  _  ____  __  __    __    *\n");
@@ -184,6 +201,12 @@
  			addText("*                                            *\n");
  			addText("**********************************************\n");
 			addText("Welcome to Minima. For assistance type help. Then press enter.\n");
+			
+		}else{
+			
+			//Log it..
+			//MDS.log(JSON.stringify(msg));
+			
 		}
 	});
 
