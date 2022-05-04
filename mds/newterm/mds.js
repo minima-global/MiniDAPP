@@ -81,8 +81,6 @@ var MDS = {
 		//Convert JSON to a string..
 		var datastr = JSON.stringify(commandjson) 
 		
-		console.log("command : "+datastr);
-		
 		//Send via POST to MDS
 		httpPostAsync(MDS.rpchost, datastr, callback);
 	},
@@ -124,7 +122,7 @@ var MDS = {
  * Post a message to the Minima Event Listeners
  */
 function MDSPostMessage(json){
-    //And dispatch
+   //And dispatch
    if(MDS_MAIN_CALLBACK){
 		MDS_MAIN_CALLBACK(json);	
    }      
@@ -189,12 +187,17 @@ function MDSWebSocketListener(){
  * @returns
  */
 function httpPostAsync(theUrl, params, callback){
+	//Do we log it..
+	if(MDS.logging){
+		MDS.log("POST_RPC:"+theUrl+" PARAMS:"+params);
+	}
+
 	var xmlHttp = new XMLHttpRequest();
     xmlHttp.onreadystatechange = function() { 
         if (xmlHttp.readyState == 4 && xmlHttp.status == 200){
 			//Do we log it..
         	if(MDS.logging){
-        		MDS.log("RPC:"+theUrl+"\nPARAMS:"+params+"\nRESPONSE:"+xmlHttp.responseText);
+        		MDS.log("RESPONSE:"+xmlHttp.responseText);
         	}
 
         	//Send it to the callback function..
