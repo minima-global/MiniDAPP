@@ -12,7 +12,7 @@ var CURRENT_ROOM_NAME 		= "";
 function processMaximaEvent(msg){
 	
 	//Is it for us.. ?
-	if(msg.data.application != "maxchat"){
+	if(msg.data.application != "maxsolo"){
 		return;
 	} 
 	
@@ -175,19 +175,12 @@ function sendMessage(){
 	var hexstr = utf8ToHex(datastr);
 	
 	//Create the function..
-	fullfunc = "maxima action:send publickey:"+CURRENT_ROOM_PUBLICKEY+" application:maxchat data:"+hexstr;
-	
-	//MDS.log("CMD "+fullfunc);
+	fullfunc = "maxima action:send publickey:"+CURRENT_ROOM_PUBLICKEY+" application:maxsolo data:"+hexstr;
 	
 	//Send the message via Maxima!..
 	MDS.cmd(fullfunc, function(res){
 		MDS.log(JSON.stringify(res));
 	});
-	
-	
-	
-	
-	
 }
 
 function startChat(){
