@@ -51,8 +51,12 @@
     		<table border=0 style="width: 800;height:500">
 			<tr>
 				<td colspan=2> 
-					
-					<input type=submit value="New Chat" onclick="showDiv('navi',true);"> &nbsp; <b>MAXCHAT</b> .. Powered by Minima
+		
+					<table style="text-align:center; width: 100%;"><tr>
+						<td><input type=submit value=" Start New Chat " onclick="showDiv('navi',true);"></td> 
+						<td><b>MAXSOLO</b></td>
+						<td><div id="divname">&nbsp;</div></td>
+					</tr></table>
 					
 				</td>
 			</tr>
@@ -93,6 +97,9 @@
 				//Get my name..
 				MY_NAME = result.response.name;
 				MDS.log("User : "+MY_NAME);
+				
+				document.getElementById("divname").innerHTML = "<b>"+MY_NAME+"</b>";
+				
 			});
 			
 			//Get My Contacts
