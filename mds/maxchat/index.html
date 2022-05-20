@@ -1,0 +1,152 @@
+<html>
+
+<head>
+
+	<!-- Set the View Port -->
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+	<!--   The MINIMA MDS Javascript Library -->
+	<script type="text/javascript" src="mds.js"></script>
+	
+	<!--   The MAXCHAT Javascript Library -->
+	<script type="text/javascript" src="utils.js"></script>
+	<script type="text/javascript" src="maxchat.js"></script>
+	
+	<!--  STYLE -->
+	<link rel="stylesheet" type="text/css" href="maxchat.css">
+	
+	<title>MAXCHAT</title>
+</head>
+
+<body>
+
+<center>
+
+<br><br>
+
+	<div id="container">
+	
+  		<div id="navi">
+ 			<br><br><br><br><br><br><br> 		
+  			<table border=0 style="height:100;">
+  				<tr>
+  					<td style="text-align:center;padding:50px;background-color: #fff;">
+					
+					<label for="maxcontacts">Choose a Contact :</label>
+
+					<select name="Contacts" id="maxcontacts">
+					</select>
+					<br><br>
+					
+					<input type="submit" value="Chat" onclick="startChat();showDiv('navi',false);"/>&nbsp;&nbsp;
+					<input type="submit" value="Cancel" onclick="showDiv('navi',false);"/>
+					
+					</td>
+  				</tr>
+  			</table>
+  		</div>
+  		
+  		<div id="infoi">
+    		
+    		<table border=0 style="width: 800;height:500">
+			<tr>
+				<td colspan=2> 
+					
+					<input type=submit value="New Chat" onclick="showDiv('navi',true);"> &nbsp; <b>MAXCHAT</b> .. Powered by Minima
+					
+				</td>
+			</tr>
+			
+			<tr>
+			
+				<td style="width: 300; vertical-align:top">
+					<div id=roomlist>Room List</div>
+				</td>
+			
+				<td style="width: 500; vertical-align:top">
+					<div id=roomchat>Room Chat</div>
+				</td>
+			
+			</tr>
+		</table>
+		
+  		</div>
+	</div>
+	
+	
+</center>
+
+<script type="text/javascript">
+
+	showDiv('navi',false);
+
+	//MDS.logging=true;
+
+	//Initialise MiFi
+	MDS.init(function(msg){
+		//MDS.log(JSON.stringify(msg));
+		
+		if(msg.event == "inited"){
+			
+			//Get My name
+			MDS.cmd("maxima",function(result){
+				//Get my name..
+				MY_NAME = result.response.name;
+				MDS.log("User : "+MY_NAME);
+			});
+			
+			//Get My Contacts
+			MDS.cmd("maxcontacts",function(result){
+				//Create the select dongle
+				select = document.getElementById('maxcontacts');
+				
+				//Add each contact
+				contacts = result.response.contacts;
+				for(var i = 0; i < contacts.length; i++) {
+					var opt = document.createElement('option');
+				    opt.value  		= contacts[i].publickey;
+				    opt.innerHTML 	= contacts[i].extradata.name;
+				    select.appendChild(opt);
+				}
+			});
+			
+			
+			//Testing.. 
+			//MDS.sql("DROP table messages");
+			
+			//Run some SQL
+			MDS.sql("CREATE TABLE IF NOT EXISTS `messages` ( "
+					+"  `id` IDENTITY PRIMARY KEY, "
+					+"  `roomname` varchar(160) NOT NULL, "
+					+"  `publickey` varchar(512) NOT NULL, "
+					+"  `username` varchar(160) NOT NULL, "
+					+"  `message` varchar(512) NOT NULL, "
+					+"  `read` int NOT NULL DEFAULT 0, "
+					+"  `date` bigint NOT NULL "
+					+" )",function(sqlmsg){
+						MDS.log(JSON.stringify(sqlmsg));
+					});
+			
+			//Insert something for testing..
+			//insertMessage("TEST1","0xFF","paddy","hello1");
+			//insertMessage("TEST1","0xFF","popo","hello2");
+			
+			//Load the rooms..
+			loadRooms();
+			
+			//Show a blank messages..
+			loadMessages("");
+			
+		}else if(msg.event == "MAXIMA"){
+			
+			//Process this message
+			processMaximaEvent(msg);
+			
+		}
+	});
+
+</script>
+
+</body>
+
+</html>
