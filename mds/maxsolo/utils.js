@@ -32,3 +32,21 @@ function showDiv(id,show) {
     x.style.display = "none";
   }
 }
+
+function showNotification(from, message){
+	
+	//if(document.hasFocus()) {
+	 //    return;
+	// }
+	
+	if (Notification.permission === "granted") {
+        // If it's okay let's create a notification
+        //var notification = new Notification($message);
+
+		const notification = new Notification(from,{
+		  body: message,
+		  //icon: './img/goodday.png'
+		});
+    }
+	
+}
