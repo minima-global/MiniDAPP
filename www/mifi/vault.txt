@@ -1,4 +1,6 @@
-/* THE VAULT */
+/*
+ * THE VAULT - you send funds to here
+ */  
 
 /* You need 2 keys */
 LET pkcold = COLD_KEY
@@ -14,20 +16,23 @@ LET amt = STATE ( 20 ) LET recip = STATE ( 21 )
 LET safehouse = [ LET pkcold = COLD_KEY LET pkhot = HOT_KEY
                   IF SIGNEDBY ( pkcold ) THEN RETURN TRUE ENDIF
                   IF SIGNEDBY ( pkhot ) THEN IF @BLKDIFF GT 20 THEN
-                  RETURN VERIFYOUT ( @INPUT PREVSTATE ( 21 ) @AMOUNT @TOKENID ) ENDIF ENDIF ]
+                  RETURN VERIFYOUT ( @INPUT PREVSTATE ( 21 ) @AMOUNT @TOKENID TRUE ) ENDIF ENDIF ]
 
 /* Make sure The Safe House Address is the opposite output */
-ASSERT VERIFYOUT ( @INPUT SHA3 ( 256 safehouse ) amt @TOKENID )
+ASSERT VERIFYOUT ( @INPUT ADDRESS(safehouse) amt @TOKENID TRUE )
 
 /* Send the change back to the Vault */
 LET chg = @AMOUNT - amt
-IF chg GT 0 THEN ASSERT VERIFYOUT ( ( @INPUT + 1 ) @ADDRESS ( @AMOUNT - amt ) @TOKENID ) ENDIF
+IF chg GT 0 THEN ASSERT VERIFYOUT ( INC(@INPUT) @ADDRESS (@AMOUNT - amt) @TOKENID TRUE ) ENDIF
 
 /* Make sure is signed by the HOT key */
 RETURN SIGNEDBY ( pkhot )
 
 
-/* THE SAFE HOUSE */
+
+/*
+ * THE SAFE HOUSE
+ */
 
 /* Same Keys as Vault */
 LET pkcold = COLD_KEY
@@ -39,7 +44,7 @@ IF SIGNEDBY ( pkcold ) THEN RETURN TRUE ENDIF
 /* ONLY spend after 20 blocks and ONLY to the pre-specified address for the whole amount */
 IF SIGNEDBY ( pkhot ) THEN
   IF @BLKDIFF GT 20 THEN
-    RETURN VERIFYOUT ( @INPUT PREVSTATE ( 21 ) @AMOUNT @TOKENID )
+    RETURN VERIFYOUT ( @INPUT PREVSTATE ( 21 ) @AMOUNT @TOKENID FALSE )
   ENDIF
 ENDIF
 
